@@ -11,8 +11,11 @@
     login: "jp@jennifer-sellshouston.com"
     password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
     host: "ftp.us.stackcp.com"
+    deployment_excludes:
+    - ".gitignore"
   - action: "Transfer to ftp.us.stackcp.com-1"
     type: "FTP"
+    local_path: "/"
     remote_path: "/productatom_com/under_construction/test2"
     login: "jp@jennifer-sellshouston.com"
     password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
