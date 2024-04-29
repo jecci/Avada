@@ -20,3 +20,5 @@
     login: "jp@jennifer-sellshouston.com"
     password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
     host: "ftp.us.stackcp.com"
+    deployment_excludes:
+    - ".gitignore"
