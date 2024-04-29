@@ -18,7 +18,7 @@
     login: "jp@jennifer-sellshouston.com"
     password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
     host: "ftp.us.stackcp.com"
-  - action: "Transfer to ftp.us.stackcp.com-1"
+  - action: "Transfer to ftp.us.stackcp.com Plugins"
     type: "FTP"
     local_path: "/Plugins/fusion-builder/"
     remote_path: "/productatom_com/under_construction/plugins"
