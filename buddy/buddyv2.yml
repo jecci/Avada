@@ -4,7 +4,7 @@
   - "refs/heads/mainAvada"
   fail_on_prepare_env_warning: true
   actions:
-  - action: "Transfer to ftp.us.stackcp.com theme"
+  - action: "Transfer to ftp.us.stackcp.com Theme"
     type: "FTP"
     local_path: "/AvadaTheme/"
     remote_path: "/productatom_com/under_construction/theme"
