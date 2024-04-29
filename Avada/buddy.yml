@@ -1,0 +1,5 @@
+- pipeline: "AvadaTheme"
+  on: "CLICK"
+  refs:
+  - "refs/heads/main"
+  fail_on_prepare_env_warning: true
