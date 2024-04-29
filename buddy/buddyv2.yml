@@ -11,7 +11,7 @@
     login: "jp@jennifer-sellshouston.com"
     password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
     host: "ftp.us.stackcp.com"
-  - action: "Transfer to ftp.us.stackcp.com-2"
+  - action: "Transfer to ftp.us.stackcp.com Theme2"
     type: "FTP"
     local_path: "/AvadaTheme/"
     remote_path: "/productatom_com/under_construction/theme2"
