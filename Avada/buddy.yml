@@ -3,3 +3,11 @@
   refs:
   - "refs/heads/main"
   fail_on_prepare_env_warning: true
+  actions:
+  - action: "Transfer to ftp.us.stackcp.com"
+    type: "FTP"
+    local_path: "/"
+    remote_path: "/productatom_com/under_construction/test1"
+    login: "jp@jennifer-sellshouston.com"
+    password: "secure!LE81R47DX4YFjzPZdtxoug==.ZbsjJV8WQPXtGdxM3jGoTQ=="
+    host: "ftp.us.stackcp.com"
