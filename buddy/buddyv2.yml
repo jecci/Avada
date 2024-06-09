@@ -4,7 +4,7 @@
   - ":default"
   fail_on_prepare_env_warning: true
   actions:
-  - action: "FTP to Test1"
+  - action: "FTP to Automation Theme"
     type: "FTP"
     local_path: "/Plugins/"
     remote_path: "/test1/"
