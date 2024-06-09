@@ -50,19 +50,18 @@
 #review_form_wrapper {
   margin-top: 50px;
 }
-#reviews #reply-title {
-  margin-top: 0;
-}
 .comment-respond .comment-reply-title {
+  display: block;
   margin-top: 0;
-  padding-top: 1em;
+  margin-bottom: 0.8em;
+  font-size: 1.15em;
 }
 .comment-form-rating label {
   display: none;
 }
 #reviews .comment-form-comment label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 0.25em;
 }
 #reviews input#submit {
   border: 0;
@@ -73,6 +72,7 @@ p.stars {
   position: relative;
   line-height: 1em;
   font-size: 1em;
+  margin-top: 0;
 }
 p.stars:after {
   content: "";

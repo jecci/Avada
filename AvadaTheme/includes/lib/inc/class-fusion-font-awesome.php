@@ -17,7 +17,7 @@ class Fusion_Font_Awesome {
 	 * @access protected
 	 * @var string
 	 */
-	public static $fa_version = '5.15.3';
+	public static $fa_version = '5.15.4';
 
 	/**
 	 * Font Awesome URL.

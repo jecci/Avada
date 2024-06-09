@@ -192,6 +192,8 @@ class Avada_Upgrade {
 			'7115' => [ '7.11.5', false ],
 			'7116' => [ '7.11.6', false ],
 			'7117' => [ '7.11.7', false ],
+			'7118' => [ '7.11.8', false ],
+			'7119' => [ '7.11.9', false ],
 		];
 
 		$upgraded = false;

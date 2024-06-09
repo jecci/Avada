@@ -1304,7 +1304,7 @@ class WXR_Importer extends WP_Importer {
 			 */
 			$comment = apply_filters( 'wxr_importer.pre_process.comment', $comment, $post_id );
 			if ( empty( $comment ) ) {
-				return false;
+				continue;
 			}
 
 			$original_id = isset( $comment['comment_id'] )      ? (int) $comment['comment_id']      : 0;

@@ -49,6 +49,8 @@ class Avada_Head {
 		add_action( 'wp_head', [ $this, 'set_user_agent' ], 1000 );
 		add_action( 'wp_head', [ $this, 'preload_fonts' ] );
 
+		add_action( 'avada_before_body_content', [ $this, 'add_space_before_body' ], 0 );
+
 		// wp_body_open function introduced in WP 5.2.
 		if ( function_exists( 'wp_body_open' ) ) {
 			add_action( 'avada_before_body_content', 'wp_body_open' );
@@ -59,6 +61,24 @@ class Avada_Head {
 		add_filter( 'wpseo_metadesc', array( $this, 'yoast_metadesc_helper' ) );
 		*/
 
+	}
+
+	/**
+	 * Add the space after body open field contents.
+	 *
+	 * @since 7.11.8
+	 * @access public
+	 * @return void.
+	 */
+	public function add_space_before_body() {
+		/**
+		 * Echo the scripts added to the "before <body>" field in Global Options.
+		 * The 'space_body_open' setting is not sanitized.
+		 * In order to be able to take advantage of this,
+		 * a user would have to gain access to the database
+		 * in which case this is the least of your worries.
+		 */
+		echo Avada()->settings->get( 'space_body_open' ); // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 
 	/**
@@ -291,16 +311,25 @@ class Avada_Head {
 	 * @return array The image array consisting of url, width, height and mime type.
 	 */ 
 	public function get_og_image() {
-		$image = [];
-		if ( has_post_thumbnail() ) {
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
-	
-			if ( $image ) {
-				$image['url']    = $image[0];
-				$image['width']  = $image[1];
-				$image['height'] = $image[2];
-				$image['type']   = get_post_mime_type( get_post_thumbnail_id() );
-			}       
+		$post     = get_queried_object();
+		$image_id = '';
+		$image    = [];
+
+		if ( isset( $post->ID ) ) {
+			$post_image = fusion_get_page_option( 'meta_og_image', $post->ID );
+			$image_id   = isset( $post_image['id'] ) ? $post_image['id'] : $image_id;
+		}
+
+		if ( ! $image_id && has_post_thumbnail() ) {
+			$image_id = get_post_thumbnail_id();
+		}
+
+		if ( $image_id ) {
+			$image           = wp_get_attachment_image_src( $image_id, 'full' );
+			$image['url']    = $image[0];
+			$image['width']  = $image[1];
+			$image['height'] = $image[2];
+			$image['type']   = get_post_mime_type( $image_id );   
 		} elseif ( Avada()->settings->get( 'logo' ) ) {
 			$image = Avada()->settings->get( 'logo' );
 

@@ -74,6 +74,8 @@ function fusion_customizer_front_options_loop( $params ) {
 			const isOptionState = 'undefined' !== typeof param.state ? 'is-option-state' : '';
 			const defaultState = 'undefined' !== typeof param.default_state_option ? 'data-default-state-option=' + param.default_state_option : '';
 
+			const counterClass = 'textarea' === param.type && 'undefined' !== typeof param.counter && param.counter ? 'counter' : '';
+
 			let connectedStates = '';
 			if ( hasState && param['connect-state'] ) {
 				if ( Array.isArray( param['connect-state'] ) ) {
@@ -126,7 +128,7 @@ function fusion_customizer_front_options_loop( $params ) {
 			subset = ( 'undefined' !== typeof param.to_default && 'undefined' !== typeof param.to_default.subset ) ? param.to_default.subset : '';
 			#>
 
-			<li data-option-id="{{ option_id }}" class="fusion-builder-option {{ param.type }} {{option_map}} {{option_class}} {{responsiveState}} {{isOptionState}}" data-type="{{ option_type }}" data-subset="{{ subset }}"{{{style}}} {{ optionState }} {{ defaultState }}>
+			<li data-option-id="{{ option_id }}" class="fusion-builder-option {{ param.type }} {{ counterClass }} {{option_map}} {{option_class}} {{responsiveState}} {{isOptionState}}" data-type="{{ option_type }}" data-subset="{{ subset }}"{{{style}}} {{ optionState }} {{ defaultState }}>
 
 				<div class="option-details">
 					<div class="option-details-inner">

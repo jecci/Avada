@@ -388,7 +388,7 @@ function avada_options_section_advanced( $sections ) {
 					],
 					'status_opengraph'                   => [
 						'label'       => esc_html__( 'Description And Open Graph Meta Tags', 'Avada' ),
-						'description' => __( 'Turn on to enable custom description meta tag and open graph meta tags which are mainly used when sharing pages on social networking sites like Facebook. <strong>IMPORTANT:</strong> Some optimization plugins, like e.g. Yoast SEO, add their own implementation of this, and if you want to use that, this option should be disabled.', 'Avada' ),
+						'description' => __( 'Turn on to enable custom description meta tag and open graph meta tags. These are used for SEO and when sharing pages on social networks like Facebook. <strong>IMPORTANT:</strong> Some SEO plugins, like Yoast SEO or RankMath, add their own implementation of this, so either disable the option in the plugin, or disable it here, to avoid duplicate tags.', 'Avada' ),
 						'id'          => 'status_opengraph',
 						'default'     => '1',
 						'type'        => 'switch',
@@ -515,8 +515,22 @@ function avada_options_section_advanced( $sections ) {
 					],
 					'space_head'       => [
 						'label'       => esc_html__( 'Space before &lt;/head&gt;', 'Avada' ),
-						'description' => esc_html__( 'Only accepts JavaScript code wrapped with &lt;script&gt; tags and HTML markup that is valid inside the &lt;/head&gt; tag.', 'Avada' ),
+						'description' => esc_html__( 'Only accepts JavaScript code wrapped with &lt;script&gt; tags and HTML markup that is valid inside the &lt;head&gt; tag.', 'Avada' ),
 						'id'          => 'space_head',
+						'default'     => '',
+						'type'        => 'code',
+						'choices'     => [
+							'language' => 'html',
+							'height'   => 350,
+							'theme'    => 'chrome',
+						],
+						// No need to refresh the page.
+						'transport'   => 'postMessage',
+					],
+					'space_body_open'  => [
+						'label'       => esc_html__( 'Space after &lt;body&gt;', 'Avada' ),
+						'description' => esc_html__( 'Only accepts JavaScript code, wrapped with &lt;script&gt; tags and valid HTML markup inside the &lt;body&gt; tag.', 'Avada' ),
+						'id'          => 'space_body_open',
 						'default'     => '',
 						'type'        => 'code',
 						'choices'     => [
@@ -529,7 +543,7 @@ function avada_options_section_advanced( $sections ) {
 					],
 					'space_body'       => [
 						'label'       => esc_html__( 'Space before &lt;/body&gt;', 'Avada' ),
-						'description' => esc_html__( 'Only accepts JavaScript code, wrapped with &lt;script&gt; tags and valid HTML markup inside the &lt;/body&gt; tag.', 'Avada' ),
+						'description' => esc_html__( 'Only accepts JavaScript code, wrapped with &lt;script&gt; tags and valid HTML markup inside the &lt;body&gt; tag.', 'Avada' ),
 						'id'          => 'space_body',
 						'default'     => '',
 						'type'        => 'code',

@@ -133,22 +133,17 @@ class Fusion_App {
 	 * @since 2.0
 	 */
 	private function __construct() {
-
-		$can_edit = ( current_user_can( 'manage_options' ) || current_user_can( 'publish_pages' ) || current_user_can( 'publish_posts' ) );
+		$can_edit = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', null, 'live_builder_edit' ) ) || current_user_can( apply_filters( 'awb_role_manager_access_capability', 'publish_pages', null, 'live_builder_edit' ) ) || current_user_can( apply_filters( 'awb_role_manager_access_capability', 'publish_posts', null, 'live_builder_edit' ) );
 
 		$this->set_ajax_status();
 
 		// Action to get google fonts, used both in Live Editor and Backend builder.
 		add_action( 'wp_ajax_fusion_get_webfonts_ajax', [ $this, 'get_googlefonts_ajax' ] );
-
-		if ( apply_filters( 'fusion_load_live_editor', $can_edit ) && apply_filters( 'awb_dashboard_menu_cpt', $can_edit, null ) ) {
+		if ( apply_filters( 'fusion_load_live_editor', $can_edit ) ) {
 
 			// Save post content.
 			add_action( 'wp_ajax_fusion_app_save_post_content', [ $this, 'fusion_app_save_post_content' ] );
 
-			if ( ! $this->has_capability() ) {
-				return;
-			}
 			$this->set_builder_status();
 			$this->set_preview_status();
 
@@ -283,7 +278,7 @@ class Fusion_App {
 	public function remove_unused_mega_menus_links() {
 		$maybe_has_mega_menus = class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== get_post_type();
 
-		if ( ! $maybe_has_mega_menus || ! current_user_can( 'edit_others_posts' ) || ! is_admin_bar_showing() ) {
+		if ( ! $maybe_has_mega_menus || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_others_posts', 'avada_library' ) ) || ! is_admin_bar_showing() ) {
 			return;
 		}
 		?>
@@ -322,7 +317,7 @@ class Fusion_App {
 	public function remove_unused_off_canvas_links() {
 		$maybe_has_off_canvas = class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== get_post_type();
 		$off_canvas_enabled   = class_exists( 'AWB_Off_Canvas_Front_End' ) && false !== AWB_Off_Canvas_Front_End::is_enabled();
-		if ( ! $off_canvas_enabled || ! current_user_can( 'edit_others_posts' ) || ! is_admin_bar_showing() || ! $maybe_has_off_canvas ) {
+		if ( ! $off_canvas_enabled || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_others_posts', 'avada_library' ) ) || ! is_admin_bar_showing() || ! $maybe_has_off_canvas ) {
 			return;
 		}
 		?>
@@ -715,17 +710,6 @@ class Fusion_App {
 	}
 
 	/**
-	 * Checks if user should see builder.
-	 *
-	 * @access public
-	 * @since 2.0
-	 * @return bool
-	 */
-	public function has_capability() {
-		return is_user_logged_in();
-	}
-
-	/**
 	 * Include a template file.
 	 *
 	 * @access public
@@ -773,7 +757,7 @@ class Fusion_App {
 		$customize_url = '#' !== $customize_url ? add_query_arg( 'fb-edit', true, $customize_url ) : $customize_url;
 		$live_editor   = apply_filters( 'fusion_load_live_editor', true );
 
-		if ( $live_editor && ( current_user_can( 'publish_pages' ) || current_user_can( 'publish_posts' ) ) ) {
+		if ( $live_editor && ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post_type, 'live_builder_edit' ) ) ) ) {
 			$admin_bar->add_node(
 				[
 					'id'    => 'fb-edit',
@@ -783,9 +767,9 @@ class Fusion_App {
 			);
 		}
 
-		if ( class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== $post_type ) {
-			$layouts          = current_user_can( 'manage_options' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) ? Fusion_Template_Builder()->get_registered_layouts() : [];
-			$templates        = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ? Fusion_Template_Builder()->get_template_terms() : [];
+		if ( $live_editor && class_exists( 'Fusion_Template_Builder' ) && function_exists( 'get_post_type' ) && 'fusion_tb_section' !== $post_type ) {
+			$layouts          = Fusion_Template_Builder()->get_registered_layouts();
+			$templates        = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ? Fusion_Template_Builder()->get_template_terms() : [];
 			$submenu_items    = [];
 			$forms            = [];
 			$post_cards       = [];
@@ -866,7 +850,7 @@ class Fusion_App {
 						]
 					);
 
-					if ( ! empty( $item['layout_id'] ) ) {
+					if ( ! empty( $item['layout_id'] ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ) ) ) {
 						$layout_id   = 'global' === $item['layout_id'] ? 0 : $item['layout_id'];
 						$layout_name = isset( $layouts[ $layout_id ] ) ? $layouts[ $layout_id ]['title'] : '';
 						$layout_id   = $item['layout_id'];
@@ -886,7 +870,7 @@ class Fusion_App {
 						);
 					}
 				}
-			} elseif ( current_user_can( 'manage_options' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) ) {
+			} elseif ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ) ) ) {
 
 				// Add a layout group.
 				$args = [
@@ -912,7 +896,7 @@ class Fusion_App {
 			$group_class_name = 'fb-edit-group';
 
 			// Add all forms.
-			if ( current_user_can( 'edit_others_posts' ) && apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_form' ) && ! empty( $forms ) && $forms_enabled && function_exists( 'get_post_type' ) && 'fusion_form' !== $post_type ) {
+			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form', 'live_builder_edit' ) ) && ! empty( $forms ) && $forms_enabled && function_exists( 'get_post_type' ) && 'fusion_form' !== $post_type ) {
 				$args         = [
 					'post_type'      => 'fusion_form',
 					'post__in'       => $forms,
@@ -948,7 +932,7 @@ class Fusion_App {
 			}
 
 			// Add all post cards.
-			if ( current_user_can( 'edit_others_posts' ) && apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) && ! empty( $post_cards ) && $post_cards_enabled && ( function_exists( 'get_post_type' ) && 'fusion_element' !== $post_type || function_exists( 'is_object_in_term' ) && is_object_in_term( get_the_ID(), 'element_category', 'post_cards' ) ) ) {
+			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'live_builder_edit' ) ) && ! empty( $post_cards ) && $post_cards_enabled && ( function_exists( 'get_post_type' ) && 'fusion_element' !== $post_type || function_exists( 'is_object_in_term' ) && is_object_in_term( get_the_ID(), 'element_category', 'post_cards' ) ) ) {
 				$fusion_post_cards = get_posts(
 					[
 						'post_type'      => 'fusion_element',
@@ -991,7 +975,7 @@ class Fusion_App {
 			}
 
 			// Add all mega menus.
-			if ( current_user_can( 'edit_others_posts' ) && apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) && ( function_exists( 'get_post_type' ) && 'fusion_element' !== $post_type || function_exists( 'is_object_in_term' ) && is_object_in_term( get_the_ID(), 'element_category', 'mega_menus' ) ) ) {
+			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'live_builder_edit' ) ) && ( function_exists( 'get_post_type' ) && 'fusion_element' !== $post_type || function_exists( 'is_object_in_term' ) && is_object_in_term( get_the_ID(), 'element_category', 'mega_menus' ) ) ) {
 				$fusion_mega_menus = get_posts(
 					[
 						'post_type'      => 'fusion_element',
@@ -1033,7 +1017,7 @@ class Fusion_App {
 			}
 
 			// Add all off canvas.
-			if ( $off_canvas_enabled && current_user_can( 'edit_others_posts' ) && apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'awb_off_canvas' ) && ! is_admin() && function_exists( 'get_post_type' ) && 'awb_off_canvas' !== $post_type ) {
+			if ( $off_canvas_enabled && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas', 'live_builder_edit' ) ) && ! is_admin() && function_exists( 'get_post_type' ) && 'awb_off_canvas' !== $post_type ) {
 				$args         = [
 					'post_type'      => 'awb_off_canvas',
 					'posts_per_page' => -1, // phpcs:ignore WPThemeReview.CoreFunctionality.PostsPerPage.posts_per_page_posts_per_page
@@ -1154,7 +1138,7 @@ class Fusion_App {
 			$classes[] = 'mobile';
 		}
 
-		if ( ! apply_filters( 'awb_global_elements_access', true ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) {
 			$classes[] = 'awb-global-restricted';
 		}
 
@@ -1656,6 +1640,7 @@ class Fusion_App {
 			wp_enqueue_script( 'fusion_app_option_toggle', FUSION_LIBRARY_URL . '/inc/fusion-app/options/toggle.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_layout_conditions', FUSION_LIBRARY_URL . '/inc/fusion-app/options/layout-conditions.js', [], $fusion_library_latest_version, true );
 			wp_enqueue_script( 'fusion_app_option_nominatimselector', FUSION_LIBRARY_URL . '/inc/fusion-app/options/nominatim-selector.js', [], $fusion_library_latest_version, true );
+			wp_enqueue_script( 'fusion_app_option_textarea', FUSION_LIBRARY_URL . '/inc/fusion-app/options/textarea.js', [], $fusion_library_latest_version, true );
 
 			wp_enqueue_script( 'fusion-extra-panel-functions', FUSION_LIBRARY_URL . '/inc/fusion-app/callbacks.js', [], $fusion_library_latest_version, true );
 
@@ -1666,8 +1651,12 @@ class Fusion_App {
 			$localize_handle = 'fusion_app';
 		}
 
-		$fusion_load_nonce = false;
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_published_pages' ) || current_user_can( 'edit_published_posts' ) ) {
+		$fusion_load_nonce        = false;
+		$_post_type               = get_post_type();
+		$can_manage_options       = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) );
+		$can_edit_in_live_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $_post_type, 'live_builder_edit' ) );
+		
+		if ( $can_manage_options || $can_edit_in_live_builder ) {
 			$fusion_load_nonce = wp_create_nonce( 'fusion_load_nonce' );
 		}
 		// Localize Scripts.
@@ -1719,7 +1708,7 @@ class Fusion_App {
 	 */
 	public function fusion_app_save_post_content() {
 
-		if ( ! $this->has_capability() ) {
+		if ( ! is_user_logged_in() ) {
 			wp_send_json_error( [ 'failure' => 'logged_in' ] );
 			wp_die();
 		}
@@ -1852,11 +1841,6 @@ class Fusion_App {
 		}
 
 		do_action( 'fusion_save_post' );
-
-		if ( class_exists( 'Fusion_Cache' ) ) {
-			$fusion_cache = new Fusion_Cache();
-			$fusion_cache->reset_all_caches();
-		}
 
 		do_action( 'fusion_builder_custom_save' );
 

@@ -42,6 +42,7 @@
 				'colorpickeralpha',
 				'select',
 				'upload_object',
+				'uploadfile',
 				'textarea',
 				'radio_button_set',
 				'multiple_select',

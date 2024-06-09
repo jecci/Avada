@@ -56,7 +56,7 @@ class Fusion_Preferences {
 	 * @since 2.0
 	 */
 	public function __construct() {
-		if ( ! $this->has_capability() ) {
+		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -75,16 +75,6 @@ class Fusion_Preferences {
 
 		// Save builder preferences.
 		add_action( 'wp_ajax_fusion_app_save_builder_preferences', [ $this, 'save_preferences' ] );
-	}
-
-	/**
-	 * Checks if user should see builder.
-	 *
-	 * @access public
-	 * @since 2.0
-	 */
-	public function has_capability() {
-		return is_user_logged_in();
 	}
 
 	/**

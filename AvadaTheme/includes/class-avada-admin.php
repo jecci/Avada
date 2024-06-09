@@ -82,7 +82,7 @@ class Avada_Admin {
 		$this->set_theme_version();
 		$this->set_theme_object();
 
-		$this->register_product_envato_hosted();
+		add_filter( 'admin_body_class', [ $this, 'admin_body_class' ] );        
 
 		add_action( 'admin_init', [ $this, 'admin_init' ] );
 		add_action( 'admin_init', [ $this, 'init_permalink_settings' ] );
@@ -159,6 +159,47 @@ class Avada_Admin {
 	}
 
 	/**
+	 * Adds classes to the <body> element using admin_body_class filter.
+	 *
+	 * @access public
+	 * @since 5.3.0
+	 * @param string $classes The CSS classes.
+	 * @return string
+	 */
+	public function admin_body_class( $classes ) {
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.9-beta', '<' ) ) {
+			$classes .= ' fusion-colorpicker-legacy ';
+		}
+
+		$classes .= ' ua-' . $this->get_browser();
+
+
+		return $classes;
+	}
+
+	public function get_browser() {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] );
+			$browsers   = [
+				'Chrome'  => 'chrome',
+				'Safari'  => 'safari',
+				'Firefox' => 'firefox',
+				'Edge'    => 'edge',
+				'MSIE'    => 'msie',
+			];
+
+			foreach ( $browsers as $index => $value ) {
+				if ( false !== strpos( $user_agent, $index ) ) {
+					return $value;
+				}
+			}
+		}
+
+		return 'chrome';
+	}
+
+	/**
 	 * Require and instantiate performance wizard.
 	 *
 	 * @access public
@@ -226,9 +267,7 @@ class Avada_Admin {
 		global $submenu;
 
 		// Change Avada to Dashboard.
-		if ( current_user_can( 'switch_themes' ) ) {
-			$submenu['avada'][0][0] = esc_html__( 'Dashboard', 'Avada' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		}
+		$submenu['avada'][0][0] = esc_html__( 'Dashboard', 'Avada' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 
 		if ( isset( $submenu['themes.php'] ) && ! empty( $submenu['themes.php'] ) ) {
 			foreach ( $submenu['themes.php'] as $key => $value ) {
@@ -339,7 +378,7 @@ class Avada_Admin {
 	public function admin_menu() {
 		global $submenu;
 
-		if ( current_user_can( 'edit_posts' ) && $this->should_add_menu() ) {
+		if ( current_user_can( 'edit_posts' ) ) {
 
 			// Work around for theme check.
 			$avada_menu_page_creation_method    = 'add_menu_page';
@@ -347,7 +386,7 @@ class Avada_Admin {
 
 			$dashboard = $avada_menu_page_creation_method( 'Avada Website Builder', 'Avada', 'edit_posts', 'avada', [ $this, 'dashboard_screen' ], 'dashicons-avada', '2.111111' );
 
-			if ( apply_filters( 'awb_dashboard_options_menu', true ) ) {
+			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) ) ) {
 				$options = $avada_submenu_page_creation_method( 'avada', esc_html__( 'Options', 'Avada' ), esc_html__( 'Options', 'Avada' ), 'manage_options', 'themes.php?page=avada_options', '', 2 );
 			}
 
@@ -414,40 +453,6 @@ class Avada_Admin {
 
 			add_action( 'admin_footer', 'fusion_the_admin_font_async' );
 		}
-	}
-
-	/**
-	 * Checks if Avada admin menu should be added for current logged in user.
-	 *
-	 * @access public
-	 * @since 3.9
-	 * @return bool
-	 */
-	public function should_add_menu() {
-		$should_add = false;
-		$menus      = [
-			'avada_library',
-			'fusion_tb_section',
-			'fusion_icons',
-			'fusion_form',
-			'awb_off_canvas',
-			'fusion_tb_layout',
-			'fusion_tb_section',
-			'slide',
-		];
-
-		if ( apply_filters( 'awb_dashboard_options_menu', true ) ) {
-			return apply_filters( 'awb_add_avada_menu', true );
-		}
-
-		foreach ( $menus as $menu ) {
-			if ( apply_filters( 'awb_dashboard_menu_cpt', true, $menu ) ) {
-				$should_add = true;
-				break;
-			}
-		}
-
-		return apply_filters( 'awb_add_avada_menu', $should_add );
 	}
 
 	/**
@@ -582,10 +587,9 @@ class Avada_Admin {
 							<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo@2x.png' ); ?>" alt="<?php esc_html_e( 'Avada', 'Avada' ); ?>" width="115" height="25" />
 						</div>
 					</a>
-					<?php if ( current_user_can( 'manage_options' ) ) : ?>
 					<nav class="avada-db-menu-main">
 						<ul class="avada-db-menu">
-						<?php if ( apply_filters( 'awb_dashboard_options_menu', true ) ) : ?>
+							<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) ) ) : ?>
 							<li class="avada-db-menu-item avada-db-menu-item-options"><a class="avada-db-menu-item-link<?php echo ( 'to' === $screen || 'builder-options' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'to' === $screen ) ? '#' : admin_url( 'themes.php?page=avada_options' ) ); ?>" ><span class="avada-db-menu-item-text"><?php esc_html_e( 'Options', 'Avada' ); ?></span></a>
 								<ul class="avada-db-menu-sub avada-db-menu-sub-options">
 									<li class="avada-db-menu-sub-item">
@@ -600,13 +604,16 @@ class Avada_Admin {
 									<?php do_action( 'avada_dashboard_main_menu_options_sub_menu_items', $screen ); ?>
 								</ul>
 							</li>
-						<?php endif; ?>
+							<?php endif; ?>
+							<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_prebuilts' ) ) ) : ?>
 							<li class="avada-db-menu-item avada-db-menu-item-prebuilt-websites"><a class="avada-db-menu-item-link<?php echo ( 'prebuilt-websites' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'prebuilt-websites' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-prebuilt-websites' ) ); ?>" ><span class="avada-db-menu-item-text"><?php esc_html_e( 'Websites', 'Avada' ); ?></span></a></li>
-							<?php if ( class_exists( 'AWB_Studio' ) && AWB_Studio::is_studio_enabled() && current_user_can( 'switch_themes' ) ) : ?>
-								<li class="avada-db-menu-item avada-db-menu-item-avada-studio"><a class="avada-db-menu-item-link<?php echo ( 'studio' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'studio' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-studio' ) ); ?>" ><span class="avada-db-menu-item-text"><?php esc_html_e( 'Studio', 'Avada' ); ?></span></a></li>
+							<?php endif; ?>
+							<?php if ( class_exists( 'AWB_Studio' ) && AWB_Studio::is_studio_enabled() && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'switch_themes', 'awb_studio' ) ) ) : ?>
+							<li class="avada-db-menu-item avada-db-menu-item-avada-studio"><a class="avada-db-menu-item-link<?php echo ( 'studio' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'studio' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-studio' ) ); ?>" ><span class="avada-db-menu-item-text"><?php esc_html_e( 'Studio', 'Avada' ); ?></span></a></li>
 							<?php endif; ?>
 							<li class="avada-db-menu-item avada-db-menu-item-maintenance"><a class="avada-db-menu-item-link<?php echo ( in_array( $screen, [ 'patcher', 'plugins', 'support', 'status', 'performance' ], true ) ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'patcher' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-patcher' ) ); ?>"><span class="avada-db-menu-item-text"><?php esc_html_e( 'Maintenance', 'Avada' ); ?></span><span class="avada-db-maintenance-counter"></span></a>
 								<ul class="avada-db-menu-sub avada-db-menu-sub-maintenance">
+									<?php if ( current_user_can( 'manage_options' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-patcher">
 										<a class="avada-db-menu-sub-item-link<?php echo ( 'patcher' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'patcher' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-patcher' ) ); ?>">
 											<i class="fusiona-patcher"></i>
@@ -616,7 +623,8 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
-								<?php if ( current_user_can( 'install_plugins' ) ) : ?>
+									<?php endif; ?>
+									<?php if ( current_user_can( 'install_plugins' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-plugins">
 										<a class="avada-db-menu-sub-item-link<?php echo ( 'plugins' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'plugins' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-plugins' ) ); ?>">
 											<i class="fusiona-plugins"></i>
@@ -626,7 +634,8 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
-								<?php endif; ?>
+									<?php endif; ?>
+									<?php if ( current_user_can( 'manage_options' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-maintenance">
 										<a class="avada-db-menu-sub-item-link" href="<?php echo esc_url( admin_url( 'themes.php?page=avada_options#heading_maintenance' ) ); ?>">
 											<i class="fusiona-power-off"></i>
@@ -636,6 +645,8 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
+									<?php endif; ?>
+									<?php if ( current_user_can( 'manage_options' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-support">
 										<a class="avada-db-menu-sub-item-link<?php echo ( 'performance' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'performance' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-performance' ) ); ?>">
 											<i class="fusiona-tasks"></i>
@@ -645,16 +656,17 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
-									<?php $enable_critical = '1' === Avada()->settings->get( 'critical_css' ) && current_user_can( 'switch_themes' ); ?>
+									<?php endif; ?>
+									<?php $enable_critical = '1' === Avada()->settings->get( 'critical_css' ) && current_user_can( 'manage_options' ); ?>
 									<?php if ( class_exists( 'FusionBuilder' ) && apply_filters( 'enable_awb_critical_css', $enable_critical ) ) : ?>
-										<li class="avada-db-menu-sub-item avada-db-menu-sub-item-critical-css">
-											<a class="avada-db-menu-sub-item-link<?php echo ( 'critical' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'critical' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-critical' ) ); ?>">
-												<i class="fusiona-search-results"></i>
-												<div class="avada-db-menu-sub-item-text">
-													<div class="avada-db-menu-sub-item-label"><?php esc_html_e( 'Critical CSS', 'Avada' ); ?></div>
-													<div class="avada-db-menu-sub-item-desc"><?php esc_html_e( 'Manage critical CSS generation', 'Avada' ); ?></div>
-												</div>
-											</a>
+									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-critical-css">
+										<a class="avada-db-menu-sub-item-link<?php echo ( 'critical' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'critical' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-critical' ) ); ?>">
+											<i class="fusiona-search-results"></i>
+											<div class="avada-db-menu-sub-item-text">
+												<div class="avada-db-menu-sub-item-label"><?php esc_html_e( 'Critical CSS', 'Avada' ); ?></div>
+												<div class="avada-db-menu-sub-item-desc"><?php esc_html_e( 'Manage critical CSS generation', 'Avada' ); ?></div>
+											</div>
+										</a>
 									</li>
 									<?php endif; ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-changelog">
@@ -666,6 +678,7 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
+									<?php if ( current_user_can( 'manage_options' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-support">
 										<a class="avada-db-menu-sub-item-link<?php echo ( 'support' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'support' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-support' ) ); ?>">
 											<i class="fusiona-help-outlined"></i>
@@ -675,6 +688,8 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
+									<?php endif; ?>
+									<?php if ( current_user_can( 'manage_options' ) ) : ?>
 									<li class="avada-db-menu-sub-item avada-db-menu-sub-item-status">
 										<a class="avada-db-menu-sub-item-link<?php echo ( 'status' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'status' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-status' ) ); ?>">
 											<i class="fusiona-status"></i>
@@ -684,12 +699,12 @@ class Avada_Admin {
 											</div>
 										</a>
 									</li>
+									<?php endif; ?>
 								</ul>
 							</li>
 						</ul>
 					</nav>
-					<?php endif; ?>
-					<?php if ( class_exists( 'FusionBuilder' ) && current_user_can( 'edit_pages' ) && apply_filters( 'awb_live_editor_cpt', true, 'page' ) ) : ?>
+					<?php if ( class_exists( 'FusionBuilder' ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_pages', 'page', 'live_builder_edit' ) ) ) : ?>
 					<a class="button button-primary avada-db-live" href="<?php echo esc_url( add_query_arg( 'fb-edit', '1', get_site_url() ) ); ?>"><?php esc_html_e( 'Live Builder', 'Avada' ); ?> </a>
 					<?php endif; ?>
 				</div>
@@ -874,7 +889,6 @@ class Avada_Admin {
 					$version,
 					true
 				);
-				wp_enqueue_style( 'fusion-font-icomoon', FUSION_LIBRARY_URL . '/assets/fonts/icomoon-admin/icomoon.css', [], $version, 'all' );
 
 				if ( function_exists( 'AWB_Global_Colors' ) ) {
 					AWB_Global_Colors()->enqueue();
@@ -1316,6 +1330,17 @@ class Avada_Admin {
 				'taxonomy' => 'portfolio_tags',
 			]
 		);
+
+		add_settings_field(
+			'avada_faq_category_slug',
+			esc_attr__( 'Avada FAQ category base', 'Avada' ),
+			[ $this, 'permalink_slug_input' ],
+			'permalink',
+			'optional',
+			[
+				'taxonomy' => 'faq_category',
+			]
+		);      
 	}
 
 	/**
@@ -1356,6 +1381,7 @@ class Avada_Admin {
 			$portfolio_category_slug = ( isset( $_POST['avada_portfolio_category_slug'] ) ) ? sanitize_text_field( wp_unslash( $_POST['avada_portfolio_category_slug'] ) ) : ''; // phpcs:ignore WordPress.Security
 			$portfolio_skills_slug   = ( isset( $_POST['avada_portfolio_skills_slug'] ) ) ? sanitize_text_field( wp_unslash( $_POST['avada_portfolio_skills_slug'] ) ) : ''; // phpcs:ignore WordPress.Security
 			$portfolio_tags_slug     = ( isset( $_POST['avada_portfolio_tags_slug'] ) ) ? sanitize_text_field( wp_unslash( $_POST['avada_portfolio_tags_slug'] ) ) : ''; // phpcs:ignore WordPress.Security
+			$faq_category_slug       = ( isset( $_POST['avada_faq_category_slug'] ) ) ? sanitize_text_field( wp_unslash( $_POST['avada_faq_category_slug'] ) ) : ''; // phpcs:ignore WordPress.Security
 
 			$permalinks = get_option( 'avada_permalinks' );
 
@@ -1366,40 +1392,9 @@ class Avada_Admin {
 			$permalinks['portfolio_category_base'] = untrailingslashit( $portfolio_category_slug );
 			$permalinks['portfolio_skills_base']   = untrailingslashit( $portfolio_skills_slug );
 			$permalinks['portfolio_tags_base']     = untrailingslashit( $portfolio_tags_slug );
+			$permalinks['faq_category_base']       = untrailingslashit( $faq_category_slug );
 
 			update_option( 'avada_permalinks', $permalinks );
-		}
-	}
-
-	/**
-	 * Check for Envato hosted and register product.
-	 *
-	 * @since 5.3
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function register_product_envato_hosted() {
-		if ( defined( 'ENVATO_HOSTED_SITE' ) && ENVATO_HOSTED_SITE && defined( 'SUBSCRIPTION_CODE' ) && ! Avada()->registration->is_registered() ) {
-
-			$license_status = Avada()->remote_install->validate_envato_hosted_subscription_code();
-
-			$registration_args = Avada()->registration->get_args();
-			$product_id        = sanitize_key( $registration_args['name'] );
-
-			$registration_array = [
-				$product_id => $license_status,
-				'scopes'    => [],
-			];
-			update_option( 'fusion_registered', $registration_array );
-
-			$registration_array = [
-				$product_id => [
-					'token' => SUBSCRIPTION_CODE,
-				],
-			];
-
-			update_option( 'fusion_registration', $registration_array );
 		}
 	}
 

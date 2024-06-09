@@ -221,7 +221,7 @@ class Fusion_FusionRedux {
 		add_filter( 'fusionredux/options/' . $this->args['option_name'] . '/ajax_save/response', [ $this, 'merge_options' ] );
 
 		// Get all post types with Avada default ones.
-		add_filter( 'fusionredux/options/' . $this->args['option_name'] . '/data/post_types', [ $this, 'get_post_types' ] );
+		add_filter( 'fusionredux/options/' . $this->args['option_name'] . '/data/post_types', [ $this, 'get_post_types' ], 999 );
 
 	}
 
@@ -247,31 +247,31 @@ class Fusion_FusionRedux {
 	 * @return array
 	 */
 	public function get_post_types( $data ) {
-		$custom_post_types = [];
-		$args              = [
+		$avada_post_types = [
+			'post'            => esc_html__( 'Posts', 'Avada' ),
+			'page'            => esc_html__( 'Pages', 'Avada' ),
+			'avada_portfolio' => esc_html__( 'Portfolio Items', 'Avada' ),
+			'avada_faq'       => esc_html__( 'FAQ Items', 'Avada' ),
+			'product'         => esc_html__( 'WooCommerce Products', 'Avada' ),
+			'tribe_events'    => esc_html__( 'Events Calendar Posts', 'Avada' ),
+		];
+	
+		$args       = [
 			'public'              => true,
 			'show_ui'             => true,
 			'exclude_from_search' => false,
 		];
-		$post_types        = get_post_types( $args, 'objects', 'and' );
+		$post_types = get_post_types( $args, 'objects', 'and' );
 		foreach ( $post_types as $post_type ) {
-			$custom_post_types[ $post_type->name ] = $post_type->label;
+			if ( isset( $avada_post_types[ $post_type->name ] ) ) {
+				continue;
+			}
+			$avada_post_types[ $post_type->name ] = $post_type->label;
 		}
-
+	
 		// Remove media.
-		unset( $custom_post_types['attachment'] );
-
-		$avada_post_types =
-			[
-				'post'            => esc_html__( 'Posts', 'Avada' ),
-				'page'            => esc_html__( 'Pages', 'Avada' ),
-				'avada_portfolio' => esc_html__( 'Portfolio Items', 'Avada' ),
-				'avada_faq'       => esc_html__( 'FAQ Items', 'Avada' ),
-				'product'         => esc_html__( 'WooCommerce Products', 'Avada' ),
-				'tribe_events'    => esc_html__( 'Events Calendar Posts', 'Avada' ),
-			];
-		
-		return apply_filters( 'avada_search_results_post_types', array_merge( $avada_post_types, $custom_post_types ) );
+		unset( $avada_post_types['attachment'] );
+		return apply_filters( 'avada_search_results_post_types', $avada_post_types );
 	}
 	/**
 	 * Removes fusionredux admin notices & nag messages

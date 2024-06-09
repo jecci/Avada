@@ -116,9 +116,9 @@ function avada_set_builder_classes( $default_elements, $class ) {
 
 	// Special styling for quantity buttons.
 	$elements = [
-		'.fusion-body #main .quantity .minus',
-		'.fusion-body #main .quantity .plus',
-		'.fusion-body #main .quantity .qty',
+		'body.fusion-body .quantity .minus',
+		'body.fusion-body .quantity .plus',
+		'body.fusion-body .quantity .qty',
 	];
 	if ( class_exists( 'Tribe__Events__Main' ) ) {
 		$elements[] = '.fusion-body #main .quantity .tribe-ticket-quantity';

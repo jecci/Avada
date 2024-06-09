@@ -199,7 +199,7 @@ function avada_page_options_tab_content( $sections ) {
 		],
 		'dependency'  => [
 			[
-				'field'      => 'content_bg_repeat',
+				'field'      => 'content_bg_image',
 				'value'      => '',
 				'comparison' => '!=',
 			],
@@ -222,7 +222,7 @@ function avada_page_options_tab_content( $sections ) {
 		],
 		'dependency'  => [
 			[
-				'field'      => 'content_bg_repeat',
+				'field'      => 'content_bg_image',
 				'value'      => '',
 				'comparison' => '!=',
 			],

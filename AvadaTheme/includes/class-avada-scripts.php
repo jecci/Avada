@@ -1014,6 +1014,10 @@ class Avada_Scripts {
 
 		if ( empty( $this->combined_assets ) ) {
 			foreach ( $handles as $handle ) {
+				if ( 'sr7css' === $handle ) {
+					continue;
+				}
+
 				$src = $wp_styles->registered[ $handle ]->src;
 
 				if ( ! isset( $wp_styles->done[ $handle ] ) && isset( $wp_styles->registered[ $handle ]->args ) && 'all' === $wp_styles->registered[ $handle ]->args && ! empty( $src ) && ! in_array( $handle, $this->combined_assets, true ) && true === $this->is_bundled_plugin_style( $src ) ) {

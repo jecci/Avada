@@ -162,7 +162,9 @@ class Avada_Init {
 	/**
 	 * Add theme_supports.
 	 *
+	 * @since 1.0
 	 * @access  public
+	 * @return void
 	 */
 	public function add_theme_supports() {
 
@@ -208,20 +210,30 @@ class Avada_Init {
 	/**
 	 * Add image sizes.
 	 *
+	 * @since 1.0
 	 * @access  public
+	 * @return void.
 	 */
 	public function add_image_size() {
-		add_image_size( 'blog-large', 669, 272, true );
-		add_image_size( 'blog-medium', 320, 202, true );
-		add_image_size( 'recent-posts', 700, 441, true );
-		add_image_size( 'recent-works-thumbnail', 66, 66, true );
+		$available_image_size = Avada()->settings->get( 'awb_image_sizes' );
 
-		// Image sizes used for grid layouts.
-		add_image_size( 'fusion-200', 200, '', false );
-		add_image_size( 'fusion-400', 400, '', false );
-		add_image_size( 'fusion-600', 600, '', false );
-		add_image_size( 'fusion-800', 800, '', false );
-		add_image_size( 'fusion-1200', 1200, '', false );
+		$image_sizes = [
+			'blog-large'             => [ 669, 272, true ],
+			'blog-medium'            => [ 320, 202, true ],
+			'recent-posts'           => [ 700, 441, true ],
+			'recent-works-thumbnail' => [ 66, 66, true ],
+			'fusion-200'             => [ 200, '', false ],
+			'fusion-400'             => [ 400, '', false ],
+			'fusion-600'             => [ 600, '', false ],
+			'fusion-800'             => [ 800, '', false ],
+			'fusion-1200'            => [ 1200, '', false ],
+		];
+
+		foreach ( $image_sizes as $size => $params ) {
+			if ( ! is_array( $available_image_size ) || in_array( $size, $available_image_size ) ) {
+				add_image_size( $size, implode( ',', $params ) );
+			}
+		}
 	}
 
 	/**

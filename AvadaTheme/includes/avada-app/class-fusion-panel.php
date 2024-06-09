@@ -369,6 +369,11 @@ class Fusion_Panel {
 			if ( $this->show_theme_options() ) {
 				$updated_to = update_option( Fusion_Settings::get_option_name(), $this->sanitize_fusion_options( $theme_options ) );
 				if ( $updated_to ) {
+					if ( class_exists( 'Fusion_Cache' ) ) {
+						$fusion_cache = new Fusion_Cache();
+						$fusion_cache->reset_all_caches();
+					}
+					
 					$app->add_save_data( 'theme_options', true, esc_html__( 'The Global Options updated.', 'Avada' ) );
 				}
 			} else {
@@ -522,6 +527,9 @@ class Fusion_Panel {
 				/* translators: The value. */
 				'invalidCssValueVar' => esc_attr__( 'Invalid CSS Value: %s', 'fusion-builder' ),
 				'invalidColor'       => esc_attr__( 'Invalid Color', 'fusion-builder' ),
+				'leadingWhiteSpace'  => esc_html( 'Leading whitespace detected.', 'fusion-builder' ),
+				'trailingWhiteSpace' => esc_html( 'Traling whitespace detected.', 'fusion-builder' ),
+				'lAndTWhiteSpace'    => esc_html( 'Leading and traling whitespace detected.', 'fusion-builder' ),
 			]
 		);
 	}
@@ -1246,7 +1254,7 @@ class Fusion_Panel {
 			}
 		}
 
-		if ( ! apply_filters( 'awb_add_po_metabox', true, $post_type ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post_type, 'page_options' ) ) ) {
 			$this->page_options = [];
 		}
 
@@ -1735,6 +1743,37 @@ class Fusion_Panel {
 						}
 					}
 				}
+			}
+		}
+
+		// Get post types when type is select and choices/data set to post types.
+		if ( is_array( $field ) && isset( $field['type'] ) && 'select' === $field['type'] && isset( $field['data'] ) ) {
+			if ( 'post_type' === $field['data'] || 'post_types' === $field['data'] ) {
+				$avada_post_types = [
+					'post'            => esc_html__( 'Posts', 'Avada' ),
+					'page'            => esc_html__( 'Pages', 'Avada' ),
+					'avada_portfolio' => esc_html__( 'Portfolio Items', 'Avada' ),
+					'avada_faq'       => esc_html__( 'FAQ Items', 'Avada' ),
+					'product'         => esc_html__( 'WooCommerce Products', 'Avada' ),
+					'tribe_events'    => esc_html__( 'Events Calendar Posts', 'Avada' ),
+				];
+			
+				$args       = [
+					'public'              => true,
+					'show_ui'             => true,
+					'exclude_from_search' => false,
+				];
+				$post_types = get_post_types( $args, 'objects', 'and' );
+				foreach ( $post_types as $post_type ) {
+					if ( isset( $avada_post_types[ $post_type->name ] ) ) {
+						continue;
+					}
+					$avada_post_types[ $post_type->name ] = $post_type->label;
+				}
+			
+				// Remove media.
+				unset( $avada_post_types['attachment'] );
+				$field['choices'] = apply_filters( 'avada_search_results_post_types', $avada_post_types );
 			}
 		}
 

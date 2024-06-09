@@ -157,9 +157,7 @@ class Avada_Admin_Bar {
 		global $submenu;
 
 		// Change Avada to Dashboard.
-		if ( current_user_can( 'switch_themes' ) ) {
-			$submenu['avada'][0][0] = esc_html__( 'Dashboard', 'Avada' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		}
+		$submenu['avada'][0][0] = esc_html__( 'Dashboard', 'Avada' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 
 		if ( isset( $submenu['themes.php'] ) && ! empty( $submenu['themes.php'] ) ) {
 			foreach ( $submenu['themes.php'] as $key => $value ) {

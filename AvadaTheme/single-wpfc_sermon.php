@@ -31,8 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( 'below_title' === Avada()->settings->get( 'blog_post_meta_position' ) ) : ?>
 					<div class="fusion-post-title-meta-wrap">
 				<?php endif; ?>
-				<?php $title_size = ( false === avada_is_page_title_bar_enabled( $post->ID ) ? '1' : '2' ); ?>
-				<?php echo avada_render_post_title( $post->ID, false, '', $title_size ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<?php $title_size = ( false === avada_is_page_title_bar_enabled( get_the_ID() ) ? '1' : '2' ); ?>
+				<?php echo avada_render_post_title( get_the_ID(), false, '', $title_size ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<?php if ( 'below_title' === Avada()->settings->get( 'blog_post_meta_position' ) ) : ?>
 					<?php echo avada_render_post_metadata( 'single' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					</div>
@@ -47,8 +47,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( 'below_title' === Avada()->settings->get( 'blog_post_meta_position' ) ) : ?>
 					<div class="fusion-post-title-meta-wrap">
 				<?php endif; ?>
-				<?php $title_size = ( false === avada_is_page_title_bar_enabled( $post->ID ) ? '1' : '2' ); ?>
-				<?php echo avada_render_post_title( $post->ID, false, '', $title_size ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<?php $title_size = ( false === avada_is_page_title_bar_enabled( get_the_ID() ) ? '1' : '2' ); ?>
+				<?php echo avada_render_post_title( get_the_ID(), false, '', $title_size ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<?php if ( 'below_title' === Avada()->settings->get( 'blog_post_meta_position' ) ) : ?>
 					<?php echo avada_render_post_metadata( 'single' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					</div>
@@ -58,13 +58,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php echo Avada()->sermon_manager->get_sermon_content(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<?php fusion_link_pages(); ?>
 			</div>
-			<?php if ( ! post_password_required( $post->ID ) ) : ?>
+			<?php if ( ! post_password_required( get_the_ID() ) ) : ?>
 				<?php if ( '' === Avada()->settings->get( 'blog_post_meta_position' ) || 'below_article' === Avada()->settings->get( 'blog_post_meta_position' ) || 'disabled' === Avada()->settings->get( 'blog_post_title' ) ) : ?>
 					<?php echo avada_render_post_metadata( 'single' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<?php endif; ?>
 				<?php do_action( 'avada_before_additional_post_content' ); ?>
 				<?php avada_render_social_sharing(); ?>
-				<?php $author_info = fusion_get_page_option( 'author_info', $post->ID ); ?>
+				<?php $author_info = fusion_get_page_option( 'author_info', get_the_ID() ); ?>
 				<?php if ( ( Avada()->settings->get( 'author_info' ) && 'no' !== $author_info ) || ( ! Avada()->settings->get( 'author_info' ) && 'yes' === $author_info ) ) : ?>
 					<div class="about-author">
 						<?php ob_start(); ?>

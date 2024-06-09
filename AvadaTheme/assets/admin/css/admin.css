@@ -366,6 +366,19 @@
   padding: 1em;
   background: #fff;
 }
+.pyre_field .awb-counter,
+.avada-tax-meta-field .awb-counter {
+  position: absolute;
+  bottom: 0;
+  right: 7px;
+  pointer-events: none;
+  margin: 0.6em;
+  font-size: 0.8em;
+}
+.ua-firefox .pyre_field .awb-counter,
+.ua-firefox .avada-tax-meta-field .awb-counter {
+  right: 12px;
+}
 .fusion-hubspot-consent-option .pyre_desc,
 .fusion-hubspot-option .pyre_desc,
 .fusion-mailchimp-option .pyre_desc,
@@ -1841,8 +1854,7 @@
 .nav-menus-php .nav-menus-php .option-field select,
 .widgets-php .option-field select {
   width: auto !important;
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
 }
 .nav-menus-php .fusion-icon-search,
 .widgets-php .fusion-icon-search {

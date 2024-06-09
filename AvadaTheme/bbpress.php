@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php the_content(); ?>
 				<?php fusion_link_pages(); ?>
 			</div>
-			<?php if ( ! post_password_required( $post->ID ) ) : ?>
+			<?php if ( ! post_password_required() ) : ?>
 				<?php if ( ( class_exists( 'WooCommerce' ) && Avada()->settings->get( 'comments_pages' ) && ! is_cart() && ! is_checkout() && ! is_account_page() && ! is_page( get_option( 'woocommerce_thanks_page_id' ) ) ) || ( ! class_exists( 'WooCommerce' ) && Avada()->settings->get( 'comments_pages' ) ) ) : ?>
 					<?php comments_template(); ?>
 				<?php endif; ?>

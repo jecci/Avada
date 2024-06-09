@@ -117,7 +117,7 @@ class Fusion_Scripts {
 				self::$js_folder_url . '/library/swiper.js',
 				self::$js_folder_path . '/library/swiper.js',
 				[],
-				'8.3.2',
+				'11.1.0',
 				true,
 			],
 

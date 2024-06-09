@@ -86,7 +86,6 @@ class Fusion_Widget_Tweets extends WP_Widget {
 
 		$title               = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '', $instance, $this->id_base );
 		$twitter_id          = isset( $instance['twitter_id'] ) ? $instance['twitter_id'] : '';
-		$count               = (int) isset( $instance['count'] ) ? $instance['count'] : 3;
 		$icon_color          = isset( $instance['icon_color'] ) ? $instance['icon_color'] : '';
 		$consumer_key        = isset( $instance['consumer_key'] ) ? $instance['consumer_key'] : '';
 		$consumer_secret     = isset( $instance['consumer_secret'] ) ? $instance['consumer_secret'] : '';
@@ -115,7 +114,6 @@ class Fusion_Widget_Tweets extends WP_Widget {
 			$widget_params = [
 				'title'          => $title,
 				'twitter_id'     => $twitter_id,
-				'count'          => $count,
 				'widget_id'      => $widget_id,
 				'widget_type'    => $widget_type,
 				'width'          => $width,
@@ -131,12 +129,11 @@ class Fusion_Widget_Tweets extends WP_Widget {
 			];
 			$this->render_new_widget( $widget_params );
 		} else {
-			if ( $twitter_id && $consumer_key && $consumer_secret && $access_token && $access_token_secret && $count ) {
+			if ( $twitter_id && $consumer_key && $consumer_secret && $access_token && $access_token_secret ) {
 				$widget_id     = $args['widget_id'];
 				$widget_params = [
 					'title'               => $title,
 					'twitter_id'          => $twitter_id,
-					'count'               => $count,
 					'widget_id'           => $widget_id,
 					'icon_color'          => $icon_color,
 					'consumer_key'        => $consumer_key,
@@ -171,7 +168,6 @@ class Fusion_Widget_Tweets extends WP_Widget {
 
 		$instance['title']               = strip_tags( $new_instance['title'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		$instance['twitter_id']          = $new_instance['twitter_id'];
-		$instance['count']               = $new_instance['count'];
 		$instance['icon_color']          = $new_instance['icon_color'];
 		$instance['consumer_key']        = $new_instance['consumer_key'];
 		$instance['consumer_secret']     = $new_instance['consumer_secret'];
@@ -205,7 +201,6 @@ class Fusion_Widget_Tweets extends WP_Widget {
 		$defaults = [
 			'title'               => __( 'Recent Tweets', 'Avada' ),
 			'twitter_id'          => '',
-			'count'               => 3,
 
 			'icon_color'          => '',
 			'consumer_key'        => '',
@@ -324,11 +319,6 @@ class Fusion_Widget_Tweets extends WP_Widget {
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'access_token_secret' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'access_token_secret' ) ); ?>" value="<?php echo esc_attr( $instance['access_token_secret'] ); ?>" />
 		</p>
 
-		<p  class="general_option">
-			<label for="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>"><?php esc_html_e( 'Number of Tweet (max. 20 tweets possible):', 'Avada' ); ?></label>
-			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>" value="<?php echo esc_attr( $instance['count'] ); ?>" />
-		</p>
-
 		<p class="avada_style">
 			<label for="<?php echo esc_attr( $this->get_field_id( 'icon_color' ) ); ?>"><?php esc_html_e( 'Icon Color (leave empty for default icon color):', 'Avada' ); ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'icon_color' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'icon_color' ) ); ?>" value="<?php echo esc_attr( $instance['icon_color'] ); ?>" />
@@ -406,9 +396,9 @@ class Fusion_Widget_Tweets extends WP_Widget {
 		<div style="overflow:hidden">
 			<?php if ( 'twitter_style' === $widget_type ) : ?>
 				<?php /* translators: The user's twitter handle. */ ?>
-				<a class="twitter-timeline" data-dnt="true" href="<?php echo esc_url_raw( 'https://twitter.com/' . $twitter_id ); ?>" data-tweet-limit="<?php echo esc_attr( $count ); ?>" data-width="<?php echo esc_attr( $width ); ?>" data-height="<?php echo esc_attr( $height ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" data-link-color="<?php echo esc_attr( $link_color ); ?>" data-border-color="<?php echo esc_attr( $border_color ); ?>" data-chrome="<?php echo esc_attr( $chrome ); ?>"><?php printf( esc_html__( 'Tweets by %s', 'Avada' ), esc_attr( $twitter_id ) ); ?></a>
+				<a class="twitter-timeline" data-dnt="true" href="<?php echo esc_url_raw( 'https://twitter.com/' . $twitter_id ); ?>" data-width="<?php echo esc_attr( $width ); ?>" data-height="<?php echo esc_attr( $height ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" data-link-color="<?php echo esc_attr( $link_color ); ?>" data-border-color="<?php echo esc_attr( $border_color ); ?>" data-chrome="<?php echo esc_attr( $chrome ); ?>"><?php printf( esc_html__( 'Tweets by %s', 'Avada' ), esc_attr( $twitter_id ) ); ?></a>
 				<?php if ( $builder_status ) : ?>
-					<a class="twitter-timeline-backup" style="display: none" data-dnt="true" href="<?php echo esc_url_raw( 'https://twitter.com/' . $twitter_id ); ?>" data-tweet-limit="<?php echo esc_attr( $count ); ?>" data-width="<?php echo esc_attr( $width ); ?>" data-height="<?php echo esc_attr( $height ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" data-link-color="<?php echo esc_attr( $link_color ); ?>" data-border-color="<?php echo esc_attr( $border_color ); ?>" data-chrome="<?php echo esc_attr( $chrome ); ?>">Tweets by <?php echo esc_attr( $twitter_id ); ?></a>
+					<a class="twitter-timeline-backup" style="display: none" data-dnt="true" href="<?php echo esc_url_raw( 'https://twitter.com/' . $twitter_id ); ?>" data-width="<?php echo esc_attr( $width ); ?>" data-height="<?php echo esc_attr( $height ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" data-theme="<?php echo esc_attr( $theme ); ?>" data-link-color="<?php echo esc_attr( $link_color ); ?>" data-border-color="<?php echo esc_attr( $border_color ); ?>" data-chrome="<?php echo esc_attr( $chrome ); ?>">Tweets by <?php echo esc_attr( $twitter_id ); ?></a>
 				<?php endif; ?>
 			<?php else : ?>
 				<?php /* translators: The twitter-ID. */ ?>
@@ -545,7 +535,7 @@ class Fusion_Widget_Tweets extends WP_Widget {
 			];
 
 			add_filter( 'https_ssl_verify', '__return_false' );
-			$api_url     = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' . $twitter_id . '&count=' . $count;
+			$api_url     = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' . $twitter_id;
 			$response    = wp_remote_get( $api_url, $args );
 			$tweets_body = wp_remote_retrieve_body( $response );
 

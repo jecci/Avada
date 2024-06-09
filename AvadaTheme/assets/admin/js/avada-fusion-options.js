@@ -447,6 +447,7 @@ jQuery( document ).ready( function() {
 
 			this.initRepeaters();
 			this.initToggles();
+			this.initCounterTextareas();
 
 		},
 
@@ -462,6 +463,39 @@ jQuery( document ).ready( function() {
 				// Toggle visibility of fields.
 				jQuery( event.target ).closest( '.fusion-toggle-row' ).find( '.fusion-row-fields' ).slideToggle( 300 );
 			} );
+		},
+
+		initCounterTextareas: function() {
+			const self = this;
+
+			jQuery( '.pyre_field .awb-textarea-counter' ).each( function() {
+				self.setCounter( jQuery( this ) );
+
+				jQuery( this ).keyup( function() {
+					self.setCounter( jQuery( this ) );
+				} );
+			} );
+		},
+
+		setCounter: function( textarea ) {
+			const max         = '' !== textarea.attr( 'maxlength' ) ? textarea.attr( 'maxlength' ) : '',
+				delimiter     = max ? ' / ' : '',
+				range         = String( textarea.data( 'range' ) ),
+				steps         = range.split( '|' ),
+				step1         = '' !== steps[ 0 ] ? steps[ 0 ] : 0,
+				step2         = 'undefined' !== typeof steps[ 1 ] ? steps[ 1 ] : 0,
+				currentLength = textarea.val().length,
+				counter       = textarea.next();
+			let color         = step1 ? '#dc3232' : '';
+
+			if ( step2 && step1 < currentLength && step2 > currentLength ) {
+				color = '#65bc7b';
+			} else if ( ! step2 && step1 > currentLength ) {
+				color = '#65bc7b';
+			}
+
+			counter.html( currentLength + delimiter + max );
+			counter.css( 'color', color );
 		},
 
 		initRepeaters: function() {

@@ -1033,7 +1033,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 			<h3><?php esc_html_e( 'We Are Here To Help', 'Avada' ); ?></h3>
 			<div class="link-grid">
-				<a href="https://avada.com/documentations/" rel="noopener noreferrer" target="_blank"><i class="fusiona-documentation"></i><span><strong><?php esc_html_e( 'Documentation', 'Avada' ); ?></strong><small><?php esc_html_e( 'Read our extensive docs', 'Avada' ); ?></small></span></a>
+				<a href="https://avada.com/help-center/" rel="noopener noreferrer" target="_blank"><i class="fusiona-documentation"></i><span><strong><?php esc_html_e( 'Documentation', 'Avada' ); ?></strong><small><?php esc_html_e( 'Read our extensive docs', 'Avada' ); ?></small></span></a>
 				<a href="https://www.youtube.com/@AvadaVideos" rel="noopener noreferrer" target="_blank"><i class="fusiona-video"></i><span><strong><?php esc_html_e( 'Video Tutorials', 'Avada' ); ?></strong><small><?php esc_html_e( 'Join our YouTube channel.', 'Avada' ); ?></small></span></a>
 				<a href="https://my.avada.com/submit-a-ticket/" rel="noopener noreferrer" target="_blank"><i class="fusiona-author"></i><span><strong><?php esc_html_e( 'Submit a Ticket', 'Avada' ); ?></strong><small><?php esc_html_e( 'Ask our support team.', 'Avada' ); ?></small></span></a>
 			</div>

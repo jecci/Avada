@@ -31,7 +31,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					$dialogContent.before( $tabMenu );
 
-					if ( $titleBar.parent( '.fusion-builder-child-element' ).length ) {
+					if ( $dialogContent.parent( '.fusion-builder-child-element' ).length ) {
 						$titleBar.find( '.ui-dialog-title' ).before( '<span class="ui-dialog-close fusion-back-menu-item"><svg version="1.1" width="18" height="18" viewBox="0 0 32 32"><path d="M12.586 27.414l-10-10c-0.781-0.781-0.781-2.047 0-2.828l10-10c0.781-0.781 2.047-0.781 2.828 0s0.781 2.047 0 2.828l-6.586 6.586h19.172c1.105 0 2 0.895 2 2s-0.895 2-2 2h-19.172l6.586 6.586c0.39 0.39 0.586 0.902 0.586 1.414s-0.195 1.024-0.586 1.414c-0.781 0.781-2.047 0.781-2.828 0z"></path></svg></span>' );
 					} else if ( 'undefined' !== typeof this.options.type ) {
 						$titleBar.find( '.ui-dialog-titlebar-close' ).before( '<div class="fusion-utility-menu-wrap"><span class="fusion-utility-menu fusiona-ellipsis"></span></div>' );

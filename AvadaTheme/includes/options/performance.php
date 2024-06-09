@@ -96,6 +96,32 @@ function avada_options_section_performance( $sections ) {
 				// No need to refresh the page.
 				'transport'   => 'postMessage',
 			],
+			'awb_image_sizes'                      => [
+				'label'       => esc_html__( 'Avada Image Sizes', 'Avada' ),
+				'description' => sprintf( __( 'Choose which Avada image sizes should be created for every image uploaded to the Media Library. <strong>NOTE:</strong> Image sizes used in legacy areas/features of Avada are marked with (L). When you remove image sizes here, please check your site to make sure all layouts display correctly. After changing this value, please install and run the %s plugin once.', 'Avada' ), '<a target="_blank" href="' . admin_url( 'plugin-install.php?s=Regenerate+Thumbnails&tab=search&type=term' ) . '" title="' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '">' . esc_html__( 'Regenerate Thumbnails', 'Avada' ) . '</a>' ),
+				'id'          => 'awb_image_sizes',
+				'default'     => [ 'fusion-200', 'fusion-400', 'fusion-600', 'fusion-800', 'fusion-1200', 'blog-large', 'blog-medium', 'recent-posts', 'recent-works-thumbnail', 'portfolio-full', 'portfolio-one', 'portfolio-two', 'portfolio-three', 'portfolio-five' ],
+				'type'        => 'select',
+				'multi'       => true,
+				'choices'     => [
+					'fusion-200'             => esc_html__( '200px Width', 'Avada' ),
+					'fusion-400'             => esc_html__( '400px Width', 'Avada' ),
+					'fusion-600'             => esc_html__( '600px Width', 'Avada' ),
+					'fusion-800'             => esc_html__( '800px Width', 'Avada' ),
+					'fusion-1200'            => esc_html__( '1200px Width', 'Avada' ),
+					'blog-large'             => esc_html__( 'Blog Large (L)', 'Avada' ),
+					'blog-medium'            => esc_html__( 'Blog Medium (L)', 'Avada' ),
+					'recent-posts'           => esc_html__( 'Recent Posts (L)', 'Avada' ),
+					'recent-works-thumbnail' => esc_html__( 'Recent Works (L)', 'Avada' ),
+					'portfolio-full'         => esc_html__( 'Portfolio Full (L)', 'Avada' ),
+					'portfolio-one'          => esc_html__( 'Portfolio 1 Col (L)', 'Avada' ),
+					'portfolio-two'          => esc_html__( 'Portfolio 2 Col (L)', 'Avada' ),
+					'portfolio-three'        => esc_html__( 'Portfolio 3 Col (L)', 'Avada' ),
+					'portfolio-five'         => esc_html__( 'Portfolio 5 Col (L)', 'Avada' ),
+				],
+				// No need to refresh the page.
+				'transport'   => 'postMessage',
+			],
 			'wp_big_image_size_threshold'          => [
 				'label'       => esc_html__( 'WordPress Big Image Size Threshold', 'Avada' ),
 				'description' => esc_html__( 'Sets the threshold for image height and width, above which WordPress will scale down newly uploaded images to this values as max-width or max-height. Set to "0" to disable the threshold completely.', 'Avada' ),

@@ -279,7 +279,7 @@ if ( fusion_doing_ajax() && isset( $_POST['action'] ) && 'fusion_reset_all_cache
 	$load_avadaredux = true;
 }
 
-if ( $load_avadaredux && apply_filters( 'awb_dashboard_options_menu', true ) ) {
+if ( $load_avadaredux && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) ) ) {
 	$avada_avadaredux = new Avada_AvadaRedux( $avada_avadaredux_args );
 }
 
@@ -738,8 +738,6 @@ function avada_reset_all_caches( $delete_cache = [] ) {
 
 	$fusion_cache = new Fusion_Cache();
 	$fusion_cache->reset_all_caches( $delete_cache );
-
-	wp_cache_flush();
 }
 
 /**

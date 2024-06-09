@@ -6,12 +6,11 @@
  * @since 2.0
  */
 
-$can_manage_options       = current_user_can( 'manage_options' ) && apply_filters( 'awb_dashboard_options_menu', true );
-$can_edit_published_pages = current_user_can( 'edit_published_pages' );
-$can_edit_published_posts = current_user_can( 'edit_published_posts' );
-$_post_type               = get_post_type();
-$is_fusion_element        = apply_filters( 'fusion_hide_live_library_tab', ( 'fusion_element' === $_post_type && ! fusion_is_post_card() && ! fusion_is_mega_menu() ) );
-$po_name_array            = [
+$_post_type            = get_post_type();
+$can_manage_options    = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ) );
+$can_edit_page_options = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $_post_type, 'page_options' ) );
+$is_fusion_element     = apply_filters( 'fusion_hide_live_library_tab', ( 'fusion_element' === $_post_type && ! fusion_is_post_card() && ! fusion_is_mega_menu() ) );
+$po_name_array         = [
 	'default'           => __( 'Page Options', 'Avada' ),
 	'fusion_tb_section' => __( 'Layout Section Options', 'Avada' ),
 	'fusion_form'       => __( 'Form Options', 'Avada' ),
@@ -21,7 +20,7 @@ $po_name_array            = [
 $po_name = isset( $po_name_array[ $_post_type ] ) ? $po_name_array[ $_post_type ] : $po_name_array['default'];
 ?>
 <script type="text/template" id="fusion-builder-sidebar-template">
-	<?php if ( $can_manage_options || $can_edit_published_pages || $can_edit_published_posts ) : ?>
+	<?php if ( $can_manage_options || $can_edit_page_options ) : ?>
 		<# var editorActive = 'undefined' !== typeof FusionApp ? FusionApp.builderActive : false; #>
 		<div id="customize-controls" class="wrap wp-full-overlay-sidebar" data-context="{{ context }}" data-editor="{{ editorActive }}" data-dialog="{{ dialog }}" data-archive="<?php echo ( ( function_exists( 'is_archive' ) && is_archive() && ( ! function_exists( 'is_shop' ) || function_exists( 'is_shop' ) && ! is_shop() ) ) ? 'true' : 'false' ); ?>">
 			<div id="customizer-content">
@@ -32,25 +31,23 @@ $po_name = isset( $po_name_array[ $_post_type ] ) ? $po_name_array[ $_post_type 
 							<span class="label"><?php esc_html_e( 'Global Options', 'Avada' ); ?></span>
 						</a>
 					<?php endif; ?>
-					<?php if ( $can_edit_published_pages || $can_edit_published_posts ) : ?>
-						<?php if ( ! $is_fusion_element ) : ?>
-							<a href="#fusion-builder-sections-po">
-								<span class="icon fusiona-settings"></span>
-								<span class="label fusion-po-only" data_name="<?php echo esc_html( $po_name ); ?>" data-layout="<?php esc_attr_e( 'Layout Section Options', 'Avada' ); ?>" data-page="<?php esc_attr_e( 'Page Options', 'Avada' ); ?>"><?php echo esc_html( $po_name ); ?></span>
-								<span class="label fusion-tax-only"><?php esc_html_e( 'Taxonomy Options', 'Avada' ); ?></span>
-							</a>
-						<?php endif; ?>
-						<a href="#fusion-builder-sections-eo">
-							<span class="icon fusiona-navigator"></span>
-							<span class="icon fusiona-pen hidden"></span>
-
-							<span class="label label-navigator">
-								<span class="awb-navigator-toggle-containers"><i class="fusiona-caret-down"></i></span>
-								<?php esc_html_e( 'Navigator', 'Avada' ); ?>
-							</span>
-							<span class="label label-options hidden"><?php esc_attr_e( 'Element Options', 'Avada' ); ?></span>
+					<?php if ( $can_edit_page_options && ! $is_fusion_element ) : ?>
+						<a href="#fusion-builder-sections-po">
+							<span class="icon fusiona-settings"></span>
+							<span class="label fusion-po-only" data_name="<?php echo esc_attr( $po_name ); ?>" data-layout="<?php esc_attr_e( 'Layout Section Options', 'Avada' ); ?>" data-page="<?php esc_attr_e( 'Page Options', 'Avada' ); ?>"><?php echo esc_html( $po_name ); ?></span>
+							<span class="label fusion-tax-only"><?php esc_html_e( 'Taxonomy Options', 'Avada' ); ?></span>
 						</a>
 					<?php endif; ?>
+					<a href="#fusion-builder-sections-eo">
+						<span class="icon fusiona-navigator"></span>
+						<span class="icon fusiona-pen hidden"></span>
+
+						<span class="label label-navigator">
+							<span class="awb-navigator-toggle-containers"><i class="fusiona-caret-down"></i></span>
+							<?php esc_html_e( 'Navigator', 'Avada' ); ?>
+						</span>
+						<span class="label label-options hidden"><?php esc_attr_e( 'Element Options', 'Avada' ); ?></span>
+					</a>
 				</div>
 
 				<?php if ( $can_manage_options ) : ?>
@@ -76,7 +73,7 @@ $po_name = isset( $po_name_array[ $_post_type ] ) ? $po_name_array[ $_post_type 
 					</div>
 				<?php endif; ?>
 
-				<?php if ( $can_edit_published_pages || $can_edit_published_posts ) : ?>
+				<?php if ( $can_edit_page_options ) : ?>
 					<?php if ( ! $is_fusion_element ) : ?>
 						<div id="fusion-builder-sections-po" style="display:none" class="fusion-sidebar-section">
 							<div class="fusion-builder-search-wrapper">

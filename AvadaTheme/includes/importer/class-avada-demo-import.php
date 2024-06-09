@@ -596,9 +596,11 @@ class Avada_Demo_Import {
 	private function before_content_import() {
 
 		add_filter( 'wxr_importer.pre_process.user', [ $this, 'skip_authors' ], 10, 2 );
+		add_filter( 'wxr_importer.pre_process.comment', [ $this, 'skip_unapproved_comment' ], 10, 2 );
 		add_action( 'wxr_importer.processed.post', [ $this, 'add_fusion_demo_import_meta' ], 10, 5 );
 		add_action( 'wxr_importer.processed.post', [ $this, 'add_fusion_demo_import_post' ], 10, 5 );
 		add_filter( 'import_post_meta_key', [ $this, 'skip_unnecessary_meta' ], 10, 3 );
+		add_filter( 'wxr_importer.pre_process.post', [ $this, 'remove_trashed_drafted_post' ], 10, 4 );
 		add_filter( 'wxr_importer.pre_process.post', [ $this, 'trim_post_content' ], 10, 4 );
 		add_filter( 'wxr_importer.checking_exists.post', [ $this, 'check_post_exists' ], 10, 2 );
 
@@ -677,6 +679,43 @@ class Avada_Demo_Import {
 	 */
 	public function skip_authors( $data, $meta ) {
 		return false;
+	}
+
+	/**
+	 * We don't want to import unapproved comments.
+	 *
+	 * @access public
+	 * @since 7.11.8
+	 * @param array $comment Comment importer data.
+	 * @param array $post_id Post ID.
+	 * @return array
+	 */
+	public function skip_unapproved_comment( $comment, $post_id ) {
+
+		if ( '1' !== $comment['comment_approved'] ) {
+			return [];
+		}
+
+		return $comment;
+	}
+
+	/**
+	 * Removes trashed and drafted post.
+	 *
+	 * @access public
+	 * @since 7.11.8* 
+	 * @param array $data Post data.
+	 * @param array $meta Meta data.
+	 * @param array $comments Comments on the post.
+	 * @param array $terms Terms on the post.
+	 * @return array The post data.
+	 */
+	public function remove_trashed_drafted_post( $data, $meta, $comments, $terms ) {
+		if ( 'trash' === $data['post_status'] || 'draft' === $data['post_status'] ) {
+			return [];
+		}
+
+		return $data;
 	}
 
 	/**

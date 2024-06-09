@@ -67,15 +67,4 @@ class Avada_Remote_Installer {
 
 		return add_query_arg( $api_args, $this->api_url );
 	}
-
-	/**
-	 * Gets the download URL for a plugin.
-	 *
-	 * @since 5.3
-	 * @access public
-	 * @return bool True if subscription code is valid, false otherwise.
-	 */
-	public function validate_envato_hosted_subscription_code() {
-		return true;
-	}
 }

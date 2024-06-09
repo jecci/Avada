@@ -1291,6 +1291,10 @@ class User_Agent_Info {
 	 * The is_blackberry_10() method can be used to check the User Agent for a BlackBerry 10 device.
 	 */
 	public static function is_blackberry_10() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}

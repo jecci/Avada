@@ -21,9 +21,11 @@
 	<# _.each( values, function( value ) { #>
 		<div class="fusion-sortable-option">
 			<input type="text" value="{{ value }}" class="fusion-hide-from-atts" <# if ( 'undefined' !== typeof param.placeholder ) { #>placeholder="{{ param.placeholder }}"<# } #> />
+			<# if ( 0 !== param.is_sortable ) { #>
 			<a href="#" class="fusion-sortable-move" tabIndex="-1" aria-label="<?php esc_attr_e( 'Move Row' ); ?>">
 				<span class="fusiona-icon-move"></span>
 			</a>
+			<# } #>
 			<a href="#" class="fusion-sortable-remove" tabIndex="-1" aria-label="<?php esc_attr_e( 'Remove Row' ); ?>">
 				<span class="fusiona-trash-o"></span>
 			</a>
@@ -32,9 +34,11 @@
 </ul>
 <div class="fusion-sortable-option fusion-placeholder-example" style="display:none">
 	<input type="text" value="" class="fusion-hide-from-atts" <# if ( 'undefined' !== typeof param.placeholder ) { #>placeholder="{{ param.placeholder }}"<# } #> />
+	<# if ( 0 !== param.is_sortable ) { #>
 	<a href="#" class="fusion-sortable-move" tabIndex="-1" aria-label="<?php esc_attr_e( 'Move Row' ); ?>">
 		<span class="fusiona-icon-move"></span>
 	</a>
+	<# } #>
 	<a href="#" class="fusion-sortable-remove" tabIndex="-1" aria-label="<?php esc_attr_e( 'Remove Row' ); ?>">
 		<span class="fusiona-trash-o"></span>
 	</a>

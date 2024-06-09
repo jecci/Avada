@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php the_content(); ?>
 				<?php fusion_link_pages(); ?>
 			</div>
-			<?php if ( ! post_password_required( $post->ID ) ) : ?>
+			<?php if ( ! post_password_required() ) : ?>
 				<?php if ( Avada()->settings->get( 'comments_pages' ) ) : ?>
 					<?php comments_template(); ?>
 				<?php endif; ?>

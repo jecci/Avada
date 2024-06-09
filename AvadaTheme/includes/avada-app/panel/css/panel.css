@@ -247,6 +247,14 @@
 #customize-controls #fusion-builder-sections-eo .fusion-builder-modal-top-container .fusion-tabs-menu li a > span:last-child {
   display: none;
 }
+#customize-controls #fusion-builder-sections-eo .fusion-builder-modal-top-container .fusion-tabs-menu li a span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#customize-controls #fusion-builder-sections-eo .fusion-builder-modal-top-container .fusion-tabs-menu li.current {
+  max-width: 50%;
+}
 #customize-controls #fusion-builder-sections-eo .fusion-builder-modal-top-container .fusion-tabs-menu li.current a {
   background: var(--blue-active);
 }
@@ -548,6 +556,7 @@
   border-radius: 3px;
   margin-bottom: 10px;
   width: 100%;
+  font-size: 0.8em;
 }
 .fusion-builder-validation.error {
   color: #721c24;

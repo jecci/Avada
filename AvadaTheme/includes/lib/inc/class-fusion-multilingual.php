@@ -109,6 +109,7 @@ class Fusion_Multilingual {
 
 		add_action( 'wp_after_insert_post', [ $this, 'wpml_translation_pt_taxonomies' ], 10, 4 );
 		
+		add_filter( 'woocommerce_get_shop_page_id', [ $this, 'pll_adjust_shop_page_id' ] );
 	}
 
 	/**
@@ -504,14 +505,14 @@ class Fusion_Multilingual {
 	 */
 	public function map_terms( $term_slugs, $cpt, $taxonomy ) {
 		if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-			foreach ( $term_slugs as $term_slug ) {
+			foreach ( $term_slugs as $index => $term_slug ) {
 				$term = get_term_by( 'slug', $term_slug, $taxonomy );
 				if ( $term ) {
-					$translated_id   = apply_filters( 'wpml_object_id', $term->term_id, $cpt, true );
+					$translated_id   = apply_filters( 'wpml_object_id', $term->term_id, $taxonomy, true );
 					$translated_term = get_term_by( 'id', $translated_id, $taxonomy );
 
 					if ( $translated_term ) {
-						$term_slugs[] = $translated_term->slug;
+						$term_slugs[ $index ] = $translated_term->slug;
 					}
 				}
 			}
@@ -628,4 +629,20 @@ class Fusion_Multilingual {
 
 		return $rules;
 	}
+
+	/**
+	 * Adjusts the shop page ID to the translation in the current language.
+	 *
+	 * @access public
+	 * @since 4.11.8
+	 * @param string $shop_page_id The shop page ID.
+	 * @return string The adjusted ID.
+	 */ 
+	public function pll_adjust_shop_page_id( $shop_page_id ) {
+		if ( self::$is_pll ) {
+			$shop_page_id = pll_get_post( $shop_page_id );
+		}
+		
+		return $shop_page_id;
+	}   
 }

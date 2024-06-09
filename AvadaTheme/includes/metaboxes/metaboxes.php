@@ -47,7 +47,8 @@ class PyreThemeFrameworkMetaboxes {
 		$this->data     = Avada()->settings->get_all();
 
 		add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ], 11 );
-		add_action( 'save_post', [ $this, 'save_meta_boxes' ] );
+		add_action( 'save_post', [ $this, 'save_meta_boxes' ], 10, 3 );
+
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_script_loader' ], 99 );
 		add_filter( 'awb_metaboxes_sections', [ $this, 'filter_sections' ] );
 		add_filter( 'awb_responsive_params', [ $this, 'add_responsive_params' ], 10, 2 );
@@ -332,7 +333,7 @@ class PyreThemeFrameworkMetaboxes {
 	 * @param string $post_type The post-type.
 	 */
 	public function add_meta_box( $id, $label, $post_type ) {
-		if ( ( 'fusion_element' === $post_type && ! fusion_is_post_card() && ! fusion_is_mega_menu() && ! class_exists( 'Avada_Studio' ) ) || ! apply_filters( 'awb_add_po_metabox', true, $post_type ) ) {
+		if ( ( 'fusion_element' === $post_type && ! fusion_is_post_card() && ! fusion_is_mega_menu() && ! class_exists( 'Avada_Studio' ) ) || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post_type, 'page_options' ) ) ) {
 			return;
 		}
 		$label = '<span class="avada-logo-wrapper"><span class="avada-logo fusiona-avada-logo"></span><span class="avada-option-title">' . esc_html( $label ) . '</span></span>';
@@ -346,9 +347,14 @@ class PyreThemeFrameworkMetaboxes {
 	 * @access public
 	 * @param string|int $post_id The post ID.
 	 */
-	public function save_meta_boxes( $post_id ) {
+	public function save_meta_boxes( $post_id, $post, $update ) {
 
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		// Simple return did still somehow trigger the meta update.
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $post->post_type, 'page_options' ) ) ) {
+			unset( $_POST[ Fusion_Data_PostMeta::ROOT ] );
+		}
+
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
 			return;
 		}
 
@@ -574,7 +580,7 @@ class PyreThemeFrameworkMetaboxes {
 					$this->text( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
 					break;
 				case 'textarea':
-					$this->textarea( $field['id'], $field['label'], $field['description'], $field['default'], $field['dependency'], $field['responsive'] );
+					$this->textarea( $field['id'], $field['label'], $field['description'], $field['default'], $field['dependency'], $field['responsive'], $field );
 					break;
 				case 'custom':
 					$this->raw( $field['id'], $field['label'], $field['description'], $field['dependency'], $field['responsive'] );
@@ -1464,14 +1470,15 @@ class PyreThemeFrameworkMetaboxes {
 	/**
 	 * Textarea field.
 	 *
-	 * @param array  $id         IDs of input fields.
+	 * @param string $id         IDs of input fields.
 	 * @param string $label      Label of field.
 	 * @param string $desc       Description of field.
 	 * @param string $default    The default value.
 	 * @param array  $dependency The dependencies array.
 	 * @param mixed  $responsive The responsive param data.
+	 * @param array  $field      The full param field
 	 */
-	public function textarea( $id, $label, $desc = '', $default = '', $dependency = [], $responsive = false ) {
+	public function textarea( $id, $label, $desc = '', $default = '', $dependency = [], $responsive = false, $field = [] ) {
 		global $post;
 
 		$db_value = $this->get_value( $id );
@@ -1483,6 +1490,10 @@ class PyreThemeFrameworkMetaboxes {
 		} elseif ( 'page_title_custom_text' === $id || 'page_title_custom_subheader' === $id ) {
 			$rows = 1;
 		}
+
+		$max_length    = isset( $field['max'] ) ? $field['max'] : '';
+		$range         = isset( $field['range'] ) ? $field['range'] : '';
+		$counter_class = isset( $field['counter'] ) && $field['counter'] ? '-counter' : '';
 		?>
 
 		<div class="pyre_metabox_field<?php echo false !== $responsive ? ' has-responsive fusion-' . $responsive : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
@@ -1495,7 +1506,10 @@ class PyreThemeFrameworkMetaboxes {
 				<?php endif; ?>
 			</div>
 			<div class="pyre_field">
-				<textarea cols="120" rows="<?php echo (int) $rows; ?>" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+				<textarea class="awb-textarea<?php echo esc_attr( $counter_class ); ?>" cols="120" rows="<?php echo (int) $rows; ?>" id="pyre_<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $this->format_option_name( $id ) ); ?>" maxlength="<?php echo esc_attr( $max_length ); ?>" data-range="<?php echo esc_attr( $range ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+				<?php if ( $counter_class ) : ?>
+					<span class="awb-counter"></span>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php

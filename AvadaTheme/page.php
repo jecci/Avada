@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php the_content(); ?>
 				<?php fusion_link_pages(); ?>
 			</div>
-			<?php if ( ! post_password_required( $post->ID ) ) : ?>
+			<?php if ( ! post_password_required() ) : ?>
 				<?php do_action( 'avada_before_additional_page_content' ); ?>
 				<?php if ( class_exists( 'WooCommerce' ) ) : ?>
 					<?php $woo_thanks_page_id = get_option( 'woocommerce_thanks_page_id' ); ?>

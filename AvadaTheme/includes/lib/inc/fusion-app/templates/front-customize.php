@@ -20,7 +20,7 @@ if ( is_home() && get_option( 'page_on_front' ) ) {
 $is_global         = 'yes' === get_post_meta( $page_id, '_fusion_is_global', true ) ? true : false;
 $current_post_type = get_post_type( $page_id );
 
-if ( ! apply_filters( 'awb_dashboard_menu_cpt', true, $current_post_type ) || ! apply_filters( 'live_editor_cpt', true, $current_post_type ) || ( $is_global && ! apply_filters( 'awb_global_elements_access', true ) ) ) {
+if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $current_post_type, 'live_builder_edit' ) ) || ( $is_global && ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) ) {
 	wp_safe_redirect( home_url() );
 }
 

@@ -235,6 +235,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			this.optionMailchimpMap( $thisEl );
 			this.optionIconpicker( $thisEl );
 			this.optionLayoutConditions( $thisEl );
+			this.optionTextarea( $thisEl );
 
 			if ( 'undefined' === typeof $element ) {
 				this.optionRepeater( this.type );
@@ -403,7 +404,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			}
 
 			// If its a file upload for import.
-			if ( $target.hasClass( 'fusion-dont-update' ) || $target.hasClass( 'fusion-import-file-input' ) || 'demo_import' === id ) {
+			if ( $target.hasClass( 'fusion-dont-update' ) || $target.hasClass( 'fusion-import-file-input' ) || 'demo_import' === id || 'seo_title' === id || 'meta_description' === id  ) {
 				return false;
 			}
 
@@ -972,12 +973,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		 * @return {boolean} - If the vadidation succeeded or failed.
 		 */
 		validateOption: function( event ) {
-			var $target   = jQuery( event.currentTarget ),
-				value     = $target.val(),
-				$optionEl = $target.parents( '.fusion-builder-option' ),
-				id        = $optionEl.data( 'option-id' ),
-				valid     = true,
-				message   = '';
+			var $target     = jQuery( event.currentTarget ),
+				value       = $target.val(),
+				$optionEl   = $target.parents( '.fusion-builder-option' ),
+				id          = $optionEl.data( 'option-id' ),
+				valid       = true,
+				message     = '',
+				trimMessage = '';
 
 			if ( $target.hasClass( 'awb-ignore' ) ) {
 				return;
@@ -992,7 +994,28 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				FusionApp.validate.message( 'remove', id, $target );
 				return true;
 			}
-			if ( $optionEl.hasClass( 'spacing' ) || $optionEl.hasClass( 'dimension' ) ) {
+
+			if ( $optionEl.hasClass( 'text' ) || $optionEl.hasClass( 'textarea' ) ) {
+				let valueLTrim  = value.trimStart(),
+					valueRTrim  = value.trimEnd();
+					
+				if ( value !== valueLTrim && value !== valueRTrim ) {
+					trimMessage = fusionBuilderTabL10n.lAndTWhiteSpace;
+				} else if ( value !== valueLTrim ) {
+					trimMessage = fusionBuilderTabL10n.leadingWhiteSpace;
+				} else if ( value !== valueRTrim ) {
+					trimMessage = fusionBuilderTabL10n.trailingWhiteSpace;;					
+				}
+
+				if ( trimMessage ) {
+					FusionApp.validate.message( 'add', id, $target, trimMessage );
+				}
+
+				if ( $optionEl.hasClass( 'counter' ) ) {
+					this.setCounter( $target );
+				}
+
+			} else if ( $optionEl.hasClass( 'spacing' ) || $optionEl.hasClass( 'dimension' ) ) {
 				valid   = FusionApp.validate.cssValue( value );
 				message = fusionBuilderTabL10n.invalidCssValue;
 			} else if ( $optionEl.hasClass( 'color' ) ) {
@@ -1015,7 +1038,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				FusionApp.validate.message( 'add', id, $target, message );
 				return false;
 			}
-			FusionApp.validate.message( 'remove', id, $target );
+
+			if ( valid && ! trimMessage ) {
+				FusionApp.validate.message( 'remove', id, $target );
+			}
 			return true;
 		},
 
@@ -1213,6 +1239,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionIconPicker );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionLayoutConditions );
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionToggleField );
+	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.options.fusionTextarea );	
 
 	// Active states.
 	_.extend( FusionPageBuilder.TabView.prototype, FusionPageBuilder.fusionActiveStates );

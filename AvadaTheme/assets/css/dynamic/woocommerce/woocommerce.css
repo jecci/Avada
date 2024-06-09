@@ -156,36 +156,37 @@
 .woocommerce form .show-password-input.display-password:before {
   content: "\f06e";
 }
-.single_add_to_cart_button.loading::before,
-.fusion-post-card-cart-add-to-cart.loading::before {
-  content: "•••" !important;
-  display: inline-block !important;
-  letter-spacing: 0.94em;
-  position: absolute;
-  z-index: 10;
-  color: inherit;
-  text-align: center;
-  left: 0;
-  right: 0;
-  font-size: 1em;
-  line-height: 1;
-  opacity: 0.5;
-  margin-left: 1em;
-}
 .single_add_to_cart_button.loading::after,
 .fusion-post-card-cart-add-to-cart.loading::after {
-  content: "•" !important;
-  display: inline-block !important;
+  content: "";
+  display: inline-block;
   position: absolute;
   z-index: 10;
-  color: inherit;
-  text-align: center;
-  left: 0;
-  right: 0;
-  font-size: 1em;
   line-height: 1;
-  margin-left: -0.86em;
-  animation: move 0.8s ease infinite;
+  width: 0.4em;
+  height: 0.4em;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  animation: dots 0.75s infinite cubic-bezier(0.42, 0.01, 0.58, 1);
+}
+@keyframes dots {
+  0% {
+    box-shadow: 1.5em 0 currentColor, -1.5em 0 color-mix(in sRGB, currentColor 50%, transparent);
+    background: currentColor;
+  }
+  33% {
+    box-shadow: 1.5em 0 currentColor, -1.5em 0 color-mix(in sRGB, currentColor 50%, transparent);
+    background: currentColor;
+  }
+  66% {
+    box-shadow: 1.5em 0 color-mix(in sRGB, currentColor 50%, transparent), -1.5em 0 currentColor;
+    background: color-mix(in sRGB, currentColor 50%, transparent);
+  }
+  100% {
+    box-shadow: 1.5em 0 color-mix(in sRGB, currentColor 50%, transparent), -1.5em 0 currentColor;
+    background: currentColor;
+  }
 }
 .single_add_to_cart_button.loading span,
 .fusion-post-card-cart-add-to-cart.loading span {

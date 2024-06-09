@@ -7,11 +7,100 @@ This is why we highly recommend to stay up to date with each new theme version a
 
 
 -----------------------------------------------------------------------------------------
+Version 7.11.9 - June 05th, 2024
+-----------------------------------------------------------------------------------------
+
+
+- SECURITY: Fixed Contributor+-level-only XSS vulnerability, allowing site Contributors to add event attributes to link attributes options
+- FIXED: Conditional rendering logic not working correctly in Containers on some specific setups
+- FIXED: Some Global Options and Page Options not correctly triggering page changed actions in Live Editor
+- FIXED: Bulk removal of Avada Form enrties not working
+
+
+-----------------------------------------------------------------------------------------
+Version 7.11.8 - June 04th, 2024
+-----------------------------------------------------------------------------------------
+
+
+- NEW: Added a completely revamped role manager version to allow better control over different Avada areas for different WP user roles
+- NEW: Submission view access for Avada Forms can now be set to give read-only access for different user roles
+- NEW: Added an option to Avada Forms, for easy resetting of form submission and view count
+- NEW: Added video start and end times to YouTube, Vimeo, and Video elements
+- NEW: Added an alignment option to the Audio element
+- NEW: Added options to Post Cards element to query WooCommerce products by SKU
+- NEW: Added a Global Option to display HTML and JS right after the opening body tag
+- NEW: Added option to hide subsequent events from an event series in the Events element
+- NEW: Added HTML track tag options to the Video element
+- NEW: Added option to Text element to make text unselectable
+- NEW: Added open graph image tag option to the SEO tab in Page Options
+- NEW: Added a character counter to the SEO "Meta Description" Page Option to suggest optimal description length
+- NEW: Added option to change the Avada FAQ categories slug analog to Avada Portfolio
+- NEW: Added "Is Term" check and referrer options to the conditional rendering setup
+- NEW: Added leading and trailing whitespace check to global and page options of type text and textarea to avoid input issues (e.g. Avada Forms notification emails)
+- NEW: Added several new vendors to out reset all caches setup (like WP Rocket, Hummingbird, Autoptimize, LiteSpeed and WP Fatest Cache)
+- PERFORMANCE: Vastly improved cache clearing performance on post save in Live Editor
+- PERFORMANCE: Added a new image sizes select option, to control which image sizes Avada creates when an image is uploaded to the media library
+- PERFORMANCE: Moved the WooCommerce quick view scripts to their own file that can now conditionally be enqueued
+- PERFORMANCE: WooCommerce quick view HTML elements will now get added dynamically to the DOM only on first quick view click
+- IMPROVEMENT: Added support for custom fields with serialized data when checking for equal value in Post Cards element
+- IMPROVEMENT: Removed deprecated sidebars.css in favor of widgets.css
+- IMPROVEMENT: Live Editor main element setting tabs now use text-overflow ellipses to adjust better to longer texts in other languages
+- IMPROVEMENT: Input field of the Range element of Avada Forms now auto-adjusting to the maximum number of digits
+- IMPROVEMENT: Made sure the Off-Canvas animation trigger is limited to the main parent, to avoid issues once the accessibility focus trap is invoked
+- IMPROVEMENT: Made sure to cast saved extra Google fonts to array to prevent issues with incorrectly saved font data
+- IMPROVEMENT: Updated several option descriptions, dependencies, and dialogs for better usability
+- UPDATED: Vimeo player script is now at version 2.23
+- UPDATED: Font Awesome is now at version 5.14.4
+- UPDATED: Compatibility with WordPress 6.5.2
+- UPDATED: Compatibility with WooCommerce 8.9.1
+- COMPATIBILITY: Removed the Slider Revolution 7 rendering engine CSS from the combined third-party styles to ensure compatibility
+- COMPATIBILITY: Added possibility to set the "Show WooCommerce Shop Loop" Page Option also on secondary languages when using PolyLang
+- COMPATIBILITY: Fixed Gravity plugin doubling up its contents in layout sections when using the Layout Builder
+- COMPATIBILITY: Fixed Optima Express plugin doubling up its contents in layout sections when using the Layout Builder
+- COMPATIBILITY: Fixed PrivateContent plugin doubling up its contents in layout sections when using the Layout Builder
+- COMPATIBILITY: Fixed MemberDash plugin doubling up its contents in layout sections when using the Layout Builder
+- FIXED: Woo Reviews element displaying review sub-heading incorrectly as title
+- FIXED: Tag-based filters being incorrect in the Portfolio element when using WPML and viewing page in a secondary language
+- FIXED: Avada Forms Submit element loading styles interfering with button background hover animation
+- FIXED: Content background image Page Option dependent sub-options having wrong dependency check
+- FIXED: Page Options being reset when a post is saved by a user with editor role
+- FIXED: Image Carousel looping through initial set of images when scroll items option is set to higher than 1
+- FIXED: Dynamic data post ID being incorrect when used on archive pages
+- FIXED: Dynamic data term titles being incorrect in Post Cards when used on Search page
+- FIXED: Exit animation speed option not working in Off-Canvas when using sliding bar type
+- FIXED: Container gradient backgrounds not always being correctly applied when using a parallax background image and Avada lazy loading
+- FIXED: First and last image in Avada Woo product gallery being doubled in lightbox when using WooCommerce product zoom
+- FIXED: Incorrect legacy page title bar font styling being applied to h3 elements used in page title bar Layout Section
+- FIXED: WooCommerce quantity box styling being off when using Woo Cart Table element in an Off-Canvas
+- FIXED: WooCommerce quick view not working when using Post Cards Cart element in Post Card
+- FIXED: ACF repeater sub-field dynamic data not rendering before/after fields when populating Tabs element children
+- FIXED: WooCommerce order attribution not being added when using Woo Checkout Billing element
+- FIXED: woocommerce_get_catalog_ordering_args filter not being correctly removed from Woo Product Slider elements causing ordering issues in the following Post Cards element
+- FIXED: Responsive WooCommerce list view not staying fixed to one column
+- FIXED: Pricing Table element styling being incorrect when Critical CSS loading is used
+- FIXED: Space missing between posts when using medium alternate layout in Archive element on post types other than posts
+- FIXED: Section Separator element throwing PHP warning when set to a custom design but no SVG was uploaded
+- FIXED: Some option dependencies in Title element being incorrect
+- FIXED: Several PHP notices happening in a few edge cases
+- FIXED: Missing toolbar icons in lightbox when using para skin
+- FIXED: Images used in Container and Column background sliders not being imported from Avada Studio
+- FIXED: Dynamic content UI being displayed on the parent element if dynamic content is added to a nested element (e.g. )
+- FIXED: Fatal error happening when saving an Avada Form in backend editor when a field name is named post_type and Mailchimp or HubSpot connections are active
+- FIXED: Gravity Forms element not loading saved or changed form in Live Editor for latest Gravity Forms version
+- FIXED: Global Options Search Form tab is causing a JS error in Live Editor
+- FIXED: Container padding not always correctly applied when editing an Off-Canvas editing in Live Editor
+- FIXED: Column z-index option not being correctly applied in Live Editor
+- FIXED: Bottom shadow missing from Image element in Live Editor when zoom in or zoom out hover options are chosen
+- FIXED: Hover styles of Image element not animating in Live Editor when combined with filter options
+- FIXED: Child element settings dialog missing the back button in Live Editor
+
+
+-----------------------------------------------------------------------------------------
 Version 7.11.7 - March 19th, 2024
 -----------------------------------------------------------------------------------------
 
 
-- SECURITY: Fixed Contributor+-level-only XSS vulnerability, allowing site Contributors to add custom script code certain element link options
+- SECURITY: Fixed Contributor+-level-only XSS vulnerability, allowing site Contributors to add custom script code to certain element link options
 - SECURITY: Fixed Contributor+-level-only SSRF vulnerability, allowing Contributors to set Avada Form submission type to unsafe web requests
 - SECURITY: Fixed Admin+-level-only SQL injection vulnerability, where SQL code could be injected into an Avada Forms submissions entry removal request
 - SECURITY: Fixed possibility of Avada Forms upload folder being directly accessible
@@ -105,8 +194,8 @@ Version 7.11.4 - January 30th, 2024
 - IMPROVEMENT: Added the WooCommerce standard notice to Post Cards Cart element when user wants to add product to cart without selecting any variation
 - UPDATED: Compatibility with WordPress 6.4.2
 - UPDATED: Compatibility with WooCommerce 8.5.2
-- COMPATIBILITY: Added compatibility for the new WooCommerce notices setup in WooCommerce 8.5+
 - UPDATED: A few strings in WooCommerce templates and elements to reflect latest WooCommerce changes
+- COMPATIBILITY: Added compatibility for the new WooCommerce notices setup in WooCommerce 8.5+
 - FIXED: Gap appearing in some Section Separator element layouts when using Chrome 119+
 - FIXED: Single WooCommerce product AJAX add to cart not auto updating the cart fragments (menu cart etc)
 - FIXED: Show password icon moving on WooCommerce My Account registration form when typing

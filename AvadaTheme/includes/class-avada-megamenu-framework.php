@@ -181,14 +181,14 @@ if ( ! class_exists( 'Avada_Megamenu_Framework' ) ) {
 				'megamenu-icon'                         => [
 					'id'          => 'megamenu-icon',
 					'label'       => esc_attr__( 'Icon Select', 'Avada' ),
-					'description' => esc_attr__( 'Select an icon for your menu item. For top-level menu items, icon styles can be controlled in Global Options > Menu > Main Menu Icons.', 'Avada' ),
+					'description' => esc_attr__( 'Select an icon for your menu item. For top-level menu items, icon styles can be controlled in the Menu element.', 'Avada' ),
 					'type'        => 'iconpicker',
 					'default'     => '',
 				],
 				'megamenu-thumbnail'                    => [
 					'id'          => 'megamenu-thumbnail',
 					'label'       => esc_html__( 'Image Thumbnail', 'Avada' ),
-					'description' => esc_html__( 'Select an image to use as a thumbnail for the menu item. For top-level items, the size of the thumbnail can be controlled in Global Options > Menu > Main Menu Icons.', 'Avada' ),
+					'description' => esc_html__( 'Select an image to use as a thumbnail for the menu item. For top-level items, the size of the thumbnail can be controlled in the Menu element.', 'Avada' ),
 					'type'        => 'media',
 				],
 				'megamenu-icononly'                     => [

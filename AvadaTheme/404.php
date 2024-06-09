@@ -2,7 +2,7 @@
 /**
  * The template used for 404 pages.
  *
- * @package Avada This is a test
+ * @package Avada
  * @subpackage Templates
  */
 

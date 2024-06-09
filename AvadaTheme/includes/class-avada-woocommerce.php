@@ -353,6 +353,23 @@ class Avada_Woocommerce {
 				true
 			);
 
+			if ( Avada()->settings->get( 'woocommerce_enable_quick_view' ) ) {
+				Fusion_Dynamic_JS::enqueue_script(
+					'awb-woo-quick-view',
+					$js_folder_url . '/general/awb-woo-quick-view.js',
+					$js_folder_path . '/general/awb-woo-quick-view.js',
+					[ 'jquery', 'fusion-flexslider' ],
+					$version,
+					true
+				);
+				
+				Fusion_Dynamic_JS::localize_script(
+					'awb-woo-quick-view',
+					'avadaWooCommerceVars',
+					self::get_avada_wc_vars()
+				);
+			}
+
 			Fusion_Dynamic_JS::enqueue_script(
 				'avada-woo-products',
 				$js_folder_url . '/general/avada-woo-products.js',
@@ -504,7 +521,7 @@ class Avada_Woocommerce {
 	 * @return void
 	 */
 	public function quick_view_init() {
-		add_action( 'avada_after_main_content', [ $this, 'quick_view_load_container' ] );
+		add_action( 'avada_before_wrapper_container_close', [ $this, 'quick_view_load_container' ] );
 		add_action( 'wp_ajax_fusion_quick_view_load', [ $this, 'quick_view_load_product' ] );
 		add_action( 'wp_ajax_nopriv_fusion_quick_view_load', [ $this, 'quick_view_load_product' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'quick_view_enqueue_scripts' ] );
@@ -1289,7 +1306,7 @@ class Avada_Woocommerce {
 	}
 
 	/**
-	 * The avada_change_product_class hook - Function to add 'product-list-view' class if the list view is being displayed.
+	 * The woocommerce_post_class hook - Function to add 'product-list-view' class if the list view is being displayed.
 	 *
 	 * @access public
 	 * @since 5.1.0
@@ -1308,12 +1325,12 @@ class Avada_Woocommerce {
 	}
 
 	/**
-	 * Function to add 'product-list-view' class to product categories.
+	 * Function to add 'product-grid-view' class to product categories.
 	 *
 	 * @access public
 	 * @since 7.2
 	 * @param array $classes An array containing class names for the particular product archive.
-	 * @return array $classes An array containing additional class 'product-list-view'.
+	 * @return array $classes An array containing additional class 'product-grid-view'.
 	 */
 	public function change_product_cats_class( $classes ) {
 		$classes[] = 'product-grid-view';

@@ -53,9 +53,8 @@ $is_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_previe
 							?>
 						</div>
 					<?php endif; ?>
-
-					<?php do_action( 'avada_before_wrapper_container_close' ); ?>
-				<?php endif; // End is not blank page check. ?>
+				<?php endif; // End if not blank page check. ?>
+				<?php do_action( 'avada_before_wrapper_container_close' ); ?>
 			</div> <!-- wrapper -->
 		</div> <!-- #boxed-wrapper -->
 		<?php if ( 'boxed' === Avada()->settings->get( 'layout' ) ) : ?>
