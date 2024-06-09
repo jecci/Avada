@@ -6,7 +6,6 @@
   actions:
   - action: "FTP to Test1"
     type: "FTP"
-    disabled: true
     local_path: "/Plugins/"
     remote_path: "/test1/"
     login: "landstack.io"
