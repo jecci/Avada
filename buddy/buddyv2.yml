@@ -6,7 +6,6 @@
   actions:
   - action: "FTP to Automation Theme"
     type: "FTP"
-    disabled: true
     local_path: "/AvadaTheme"
     remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
     login: "landstack.io"
