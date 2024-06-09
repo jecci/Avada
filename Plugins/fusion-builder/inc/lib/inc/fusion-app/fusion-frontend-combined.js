@@ -760,7 +760,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					$dialogContent.before( $tabMenu );
 
-					if ( $titleBar.parent( '.fusion-builder-child-element' ).length ) {
+					if ( $dialogContent.parent( '.fusion-builder-child-element' ).length ) {
 						$titleBar.find( '.ui-dialog-title' ).before( '<span class="ui-dialog-close fusion-back-menu-item"><svg version="1.1" width="18" height="18" viewBox="0 0 32 32"><path d="M12.586 27.414l-10-10c-0.781-0.781-0.781-2.047 0-2.828l10-10c0.781-0.781 2.047-0.781 2.828 0s0.781 2.047 0 2.828l-6.586 6.586h19.172c1.105 0 2 0.895 2 2s-0.895 2-2 2h-19.172l6.586 6.586c0.39 0.39 0.586 0.902 0.586 1.414s-0.195 1.024-0.586 1.414c-0.781 0.781-2.047 0.781-2.828 0z"></path></svg></span>' );
 					} else if ( 'undefined' !== typeof this.options.type ) {
 						$titleBar.find( '.ui-dialog-titlebar-close' ).before( '<div class="fusion-utility-menu-wrap"><span class="fusion-utility-menu fusiona-ellipsis"></span></div>' );
@@ -11429,10 +11429,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					imageIndex;
 
 				imageID = jQuery( this ).parent( '.fusion-multi-image' ).data( 'image-id' );
-				imageIDs = input.val().split( ',' ).map( function( v ) {
-					return parseInt( v, 10 );
-				} );
-				imageIndex = imageIDs.indexOf( imageID );
+				imageIDs = input.val() ? input.val().split( ',' ) : [];
+				const currentImage = imageIDs.find( ( image ) => ( image.includes( '|' ) ? image.includes( '|' + imageID ) : image.includes( imageID ) ) );
+
+				imageIndex = imageIDs.indexOf( currentImage );
 				if ( -1 !== imageIndex ) {
 					imageIDs.splice( imageIndex, 1 );
 				}
@@ -11456,6 +11456,8 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			ids            = '',
 			attachment     = '',
 			attachments    = [];
+
+		const saveType = jQuery( this ).data( 'save-type' );
 
 		if ( event ) {
 			event.preventDefault();
@@ -11493,6 +11495,9 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			attachments = [];
 			attachment  = '';
 			jQuery.each( ids, function( index, id ) {
+				if ( id.includes( '|' ) ) {
+					id = id.split( '|' )[ 1 ];
+				}
 				if ( '' !== id && 'NaN' !== id ) {
 					attachment = wp.media.attachment( id );
 					attachment.fetch();
@@ -11575,9 +11580,18 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					return scopedAttachment.id;
 				} );
 
+				const imageURLs = [];
+				state.get( 'selection' ).forEach( ( media ) => {
+					imageURLs.push( `${media.toJSON().url}|${media.id}` );
+				} );
+
 				// If its a multi image element, add the images container and IDs to input field.
 				if ( multiImages ) {
-					multiImageInput.val( imageIDs );
+					if ( 'url' === saveType ) {
+						multiImageInput.val( imageURLs.join( ',' ) );
+					} else {
+						multiImageInput.val( imageIDs );
+					}
 				}
 
 				// Remove default item.
@@ -15863,4 +15877,48 @@ FusionPageBuilder.options.fusionNominatimSelector = {
 
 		}
 	}
+};
+;var FusionPageBuilder = FusionPageBuilder || {};
+FusionPageBuilder.options = FusionPageBuilder.options || {};
+
+FusionPageBuilder.options.fusionTextarea = {
+
+	/**
+	 * Inits the textarea char counters.
+	 *
+	 * @param {Object} $element
+	 */
+	optionTextarea: function( $element ) {
+		const self = this;
+
+		jQuery( $element ).find( '.fusion-builder-option.counter textarea' ).each( function() {
+			self.setCounter( jQuery( this ) );
+		} );
+	},
+	
+	/**
+	 * Set the textarea char counter.
+	 *
+	 * @param {Object} $textarea
+	 */
+	setCounter: function( $textarea ) {
+		const max         = '' !== $textarea.attr( 'maxlength' ) ? $textarea.attr( 'maxlength' ) : '',
+			delimiter     = max ? ' / ' : '',
+			range         = String( $textarea.data( 'range' ) ),
+			steps         = range.split( '|' ),
+			step1         = '' !== steps[ 0 ] ? steps[ 0 ] : 0,
+			step2         = 'undefined' !== typeof steps[ 1 ] ? steps[ 1 ] : 0,
+			currentLength = $textarea.val().length,
+			counter       = $textarea.next();
+		let color         = step1 ? '#e0284f' : '';
+
+		if ( step2 && step1 < currentLength && step2 > currentLength ) {
+			color = '#14c983';
+		} else if ( ! step2 && step1 > currentLength ) {
+			color = '#14c983';
+		}
+
+		counter.html( currentLength + delimiter + max );
+		counter.css( 'color', color );
+	},
 };

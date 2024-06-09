@@ -136,7 +136,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			importStudioMedia: function( postData, mediaKey, importOptions ) {
 
-				jQuery( '.fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.studio_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+
+				jQuery( '.fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.studio_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
 
 				return jQuery.ajax( {
 					type: 'POST',

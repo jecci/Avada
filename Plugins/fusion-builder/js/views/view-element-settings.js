@@ -95,11 +95,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				this.$el.find( '#' + param ).trigger( 'change' );
 			},
 
-			addDynamicStatus: function( param ) {
-				this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
+			addDynamicStatus: function( param, cid ) {
+				if ( cid === this.dynamicParams.cid ) {
+					this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
 
-				// Needed for dependencies.
-				this.$el.find( '#' + param ).trigger( 'change' );
+					// Needed for dependencies.
+					this.$el.find( '#' + param ).trigger( 'change' );
+				}
 			},
 
 			toggleStateOptions: function( event ) {

@@ -128,6 +128,7 @@ if ( fusion_is_element_enabled( 'fusion_featured_products_slider' ) && class_exi
 			 * @return array|Object
 			 */
 			public function query( $defaults ) {
+				global $avada_woocommerce;
 				$live_request = false;
 
 				// From Ajax Request.
@@ -144,7 +145,10 @@ if ( fusion_is_element_enabled( 'fusion_featured_products_slider' ) && class_exi
 					$defaults['offset'] = '';
 				}
 
-				$ordering_args       = WC()->query->get_catalog_ordering_args( $defaults['orderby'], $defaults['order'] );
+				remove_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
+				$ordering_args = WC()->query->get_catalog_ordering_args( $defaults['orderby'], $defaults['order'] );
+				add_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
+
 				$defaults['orderby'] = $ordering_args['orderby'];
 				$defaults['order']   = $ordering_args['order'];
 				if ( $ordering_args['meta_key'] ) {

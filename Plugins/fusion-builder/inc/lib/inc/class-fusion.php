@@ -169,8 +169,6 @@ class Fusion {
 			new Fusion_Privacy();
 		}
 
-		add_filter( 'admin_body_class', [ $this, 'admin_body_class' ] );
-
 		add_action( 'wp_head', [ $this, 'add_analytics_code' ], 10000 );
 
 		add_action( 'wp_loaded', [ $this, 'add_styles' ] );
@@ -321,22 +319,6 @@ class Fusion {
 		$supported_plugins_changed = false;
 
 		return apply_filters( 'awb_supported_plugins_changed', $supported_plugins_changed );
-	}
-
-	/**
-	 * Adds classes to the <body> element using admin_body_class filter.
-	 *
-	 * @access public
-	 * @since 1.3.0
-	 * @param string $classes The CSS classes.
-	 * @return string
-	 */
-	public function admin_body_class( $classes ) {
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.9-beta', '<' ) ) {
-			$classes .= ' fusion-colorpicker-legacy ';
-		}
-		return $classes;
 	}
 
 	/**

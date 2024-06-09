@@ -78,10 +78,16 @@ if ( fusion_is_element_enabled( 'fusion_form_range' ) ) {
 
 				$element_html = '<div class="' . $class_name . '">';
 
+				$digits = strlen( $this->args['max'] );
+				if ( 4 < $digits || 1 === $digits ) {
+					$digits                = 1 === $digits ? 3 : $digits;
+					$element_data['style'] = ' style="width:' . $digits . 'em;"';
+				}
+
 				if ( 'right' !== $this->args['orientation'] ) {
 					$element_html .= '<input type="text" tabindex="' . $this->args['tab_index'] . '" min="' . $this->args['min'] . '" max="' . $this->args['max'] . '" class="fusion-form-range-value" value="' . $this->args['value'] . '"' . $element_data['style'] . '/>';
 				}
-				$element_html .= '<input type="range" id="' . $this->args['name'] . '" name="' . $this->args['name'] . '" min="' . $this->args['min'] . '" max="' . $this->args['max'] . '" step="' . $this->args['step'] . '" value="' . $this->args['value'] . '"' . $element_data['class'] . $element_data['required'] . $element_data['placeholder'] . $element_data['style'] . $element_data['holds_private_data'] . '/>';
+				$element_html .= '<input type="range" id="' . $this->args['name'] . '" name="' . $this->args['name'] . '" min="' . $this->args['min'] . '" max="' . $this->args['max'] . '" step="' . $this->args['step'] . '" value="' . $this->args['value'] . '"' . $element_data['class'] . $element_data['required'] . $element_data['placeholder'] . $element_data['holds_private_data'] . '/>';
 				if ( 'right' === $this->args['orientation'] ) {
 					$element_html .= '<input type="text" tabindex="' . $this->args['tab_index'] . '" min="' . $this->args['min'] . '" max="' . $this->args['max'] . '" class="fusion-form-range-value" value="' . $this->args['value'] . '"' . $element_data['style'] . '/>';
 				}

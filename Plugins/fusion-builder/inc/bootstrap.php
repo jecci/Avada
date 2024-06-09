@@ -87,8 +87,8 @@ require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-nav-walker.php';
 
 require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-fusion-dummy-post.php';
 
-// Access Control.
-require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-access-control.php';
+// Role Manager .
+require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/class-awb-role-manager.php';
 
 /**
  * Init the languages updater.

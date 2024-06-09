@@ -689,9 +689,7 @@ button.button .button-icon-divider-right img,
   left: -1px;
   transform: translateZ(0);
   backface-visibility: hidden;
-  transition: -webkit-clip-path 0.35s cubic-bezier(0.21, 0.6, 0.35, 1);
   transition: clip-path 0.35s cubic-bezier(0.21, 0.6, 0.35, 1);
-  transition: clip-path 0.35s cubic-bezier(0.21, 0.6, 0.35, 1), -webkit-clip-path 0.35s cubic-bezier(0.21, 0.6, 0.35, 1);
   background: var(--button_gradient_hover, var(--button_gradient_top_color_hover));
 }
 .fusion-button[data-hover*="bg_slide"].fusion-button-span-yes:before {
@@ -705,20 +703,16 @@ button.button .button-icon-divider-right img,
   position: relative;
 }
 .fusion-button[data-hover="bg_slide_right"]:before {
-  -webkit-clip-path: polygon(0 0, 0 0, -50% 100%, 0 100%);
-          clip-path: polygon(0 0, 0 0, -50% 100%, 0 100%);
+  clip-path: polygon(0 0, 0 0, -50% 100%, 0 100%);
 }
 .fusion-button[data-hover="bg_slide_right"]:hover:before {
-  -webkit-clip-path: polygon(0 0, 150% 0, 100% 100%, 0 100%);
-          clip-path: polygon(0 0, 150% 0, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, 150% 0, 100% 100%, 0 100%);
 }
 .fusion-button[data-hover="bg_slide_left"]:before {
-  -webkit-clip-path: polygon(100% 0, 150% 0, 100% 100%, 100% 100%);
-          clip-path: polygon(100% 0, 150% 0, 100% 100%, 100% 100%);
+  clip-path: polygon(100% 0, 150% 0, 100% 100%, 100% 100%);
 }
 .fusion-button[data-hover="bg_slide_left"]:hover:before {
-  -webkit-clip-path: polygon(100% 0, 0 0, -50% 100%, 100% 100%);
-          clip-path: polygon(100% 0, 0 0, -50% 100%, 100% 100%);
+  clip-path: polygon(100% 0, 0 0, -50% 100%, 100% 100%);
 }
 .fusion-button .awb-button-text-transition {
   display: flex;
@@ -795,32 +789,34 @@ body.fusion-button_span-yes .fusion-button-default-span {
 .fusion-button.fusion-button-submitting:active span {
   color: transparent !important;
 }
-.fusion-button.fusion-button-submitting::before {
-  content: "•••" !important;
-  display: inline-block !important;
-  letter-spacing: 0.999em;
-  position: absolute;
-  z-index: 10;
-  color: inherit;
-  text-align: center;
-  left: 0;
-  right: 0;
-  font-size: 1em;
-  line-height: 1;
-  opacity: 0.5;
-  margin-left: 1em;
-}
 .fusion-button.fusion-button-submitting::after {
-  content: "•" !important;
-  display: inline-block !important;
+  content: "";
+  display: inline-block;
   position: absolute;
   z-index: 10;
-  color: inherit;
-  text-align: center;
-  left: 0;
-  right: 0;
-  font-size: 1em;
   line-height: 1;
-  margin-left: -0.86em;
-  animation: move 0.8s ease infinite;
+  width: 0.4em;
+  height: 0.4em;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  animation: dots 0.75s infinite cubic-bezier(0.42, 0.01, 0.58, 1);
+}
+@keyframes dots {
+  0% {
+    box-shadow: 1.5em 0 currentColor, -1.5em 0 color-mix(in sRGB, currentColor 50%, transparent);
+    background: currentColor;
+  }
+  33% {
+    box-shadow: 1.5em 0 currentColor, -1.5em 0 color-mix(in sRGB, currentColor 50%, transparent);
+    background: currentColor;
+  }
+  66% {
+    box-shadow: 1.5em 0 color-mix(in sRGB, currentColor 50%, transparent), -1.5em 0 currentColor;
+    background: color-mix(in sRGB, currentColor 50%, transparent);
+  }
+  100% {
+    box-shadow: 1.5em 0 color-mix(in sRGB, currentColor 50%, transparent), -1.5em 0 currentColor;
+    background: currentColor;
+  }
 }

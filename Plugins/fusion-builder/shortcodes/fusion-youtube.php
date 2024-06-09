@@ -56,11 +56,13 @@ if ( fusion_is_element_enabled( 'fusion_youtube' ) ) {
 					'center'            => 'no',
 					'class'             => '',
 					'css_id'            => '',
+					'end_time'          => '',
 					'height'            => 360,
 					'margin_top'        => '',
 					'margin_bottom'     => '',
 					'hide_on_mobile'    => fusion_builder_default_visibility( 'string' ),
 					'id'                => '',
+					'start_time'        => '',
 					'title_attribute'   => '',
 					'thumbnail_size'    => 'auto',
 					'width'             => 600,
@@ -141,6 +143,18 @@ if ( fusion_is_element_enabled( 'fusion_youtube' ) ) {
 						$this->args['api_params'] .= '&mute=1';
 					}
 				}
+
+				if ( $this->args['start_time'] ) {
+					if ( false === strpos( $this->args['api_params'], 'start=' ) ) {
+						$this->args['api_params'] .= '&start=' . $this->args['start_time'];
+					}
+				}
+
+				if ( $this->args['end_time'] ) {
+					if ( false === strpos( $this->args['api_params'], 'end=' ) ) {
+						$this->args['api_params'] .= '&end=' . $this->args['end_time'];
+					}
+				}				
 
 				if ( 'on' === $this->args['video_facade'] ) {
 					$api_params = ( false === strpos( $this->args['api_params'], 'enablejsapi=1' ) ? $this->args['api_params'] . '&enablejsapi=1' : $this->args['api_params'] );
@@ -344,6 +358,20 @@ function fusion_element_youtube() {
 						],
 					],
 					[
+						'type'        => 'textfield',
+						'heading'     => esc_attr__( 'Start Time', 'fusion-builder' ),
+						'description' => esc_attr__( 'Specify a start time for the video (in seconds).', 'fusion-builder' ),
+						'param_name'  => 'start_time',
+						'value'       => '',
+					],
+					[
+						'type'        => 'textfield',
+						'heading'     => esc_attr__( 'End Time', 'fusion-builder' ),
+						'description' => esc_attr__( 'Specify an end time for the video (in seconds).', 'fusion-builder' ),
+						'param_name'  => 'end_time',
+						'value'       => '',
+					],
+					[
 						'type'        => 'radio_button_set',
 						'heading'     => esc_attr__( 'Autoplay Video', 'fusion-builder' ),
 						'description' => esc_attr__( 'Set to yes to make video autoplaying. Muted video required for autoplay video.', 'fusion-builder' ),
@@ -405,6 +433,7 @@ function fusion_element_youtube() {
 							'sddefault'     => esc_html__( 'Standard (640x480)', 'fusion-builder' ),
 							'maxresdefault' => esc_html__( 'Max Resolution (1280x720)', 'fusion-builder' ),
 						],
+						'or'          => true,
 						'dependency'  => [
 							[
 								'element'  => 'video_facade',

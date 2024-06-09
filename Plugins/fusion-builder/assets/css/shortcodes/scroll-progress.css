@@ -8,7 +8,6 @@
   --awb-border-radius: none;
   width: 100%;
   pointer-events: none;
-  -webkit-appearance: none;
   appearance: none;
   border: 0;
   z-index: var(--awb-z-index) !important;

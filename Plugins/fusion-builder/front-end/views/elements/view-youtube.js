@@ -75,6 +75,18 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.id = match[ 2 ];
 				}
 
+				if ( 'undefined' !== typeof values.start_time && '' !== values.start_time ) {
+					if ( -1 === values.api_params.indexOf( 'start=' ) ) {
+						values.api_params += '&start=' + values.start_time;
+					}
+				}
+
+				if ( 'undefined' !== typeof values.end_time && '' !== values.end_time ) {
+					if ( -1 === values.api_params.indexOf( 'end=' ) ) {
+						values.api_params += '&end=' + values.end_time;
+					}
+				}
+
 				values.margin_bottom = _.fusionValidateAttrValue( values.margin_bottom, 'px' );
 				values.margin_top    = _.fusionValidateAttrValue( values.margin_top, 'px' );
 			},

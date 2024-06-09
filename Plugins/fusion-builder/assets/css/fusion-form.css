@@ -320,20 +320,6 @@
   width: 100%;
   min-width: 100%;
 }
-@keyframes move {
-  0%,
-  32% {
-    margin-left: -2.74em;
-  }
-  33%,
-  66% {
-    margin-left: 0;
-  }
-  67%,
-  100% {
-    margin-left: 2.74em;
-  }
-}
 @-moz-document url-prefix() {
   .fusion-form-form-wrapper .fusion-form-field select {
     text-indent: -0.2em;

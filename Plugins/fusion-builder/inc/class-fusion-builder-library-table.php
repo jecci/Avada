@@ -110,7 +110,7 @@ class Fusion_Builder_Library_Table extends WP_List_Table {
 			'date'   => esc_html__( 'Date', 'fusion-builder' ),
 		];
 
-		if ( ! apply_filters( 'awb_global_elements_access', true ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) {
 			unset( $columns['global'] );
 		}
 
@@ -155,7 +155,7 @@ class Fusion_Builder_Library_Table extends WP_List_Table {
 		$data          = [];
 		$library_query = [];
 		$status        = [ 'publish', 'draft', 'future', 'pending', 'private' ];
-		$global_access = apply_filters( 'awb_global_elements_access', true );
+		$global_access = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) );
 
 		// Make sure current-page and per-page are integers.
 		$per_page     = (int) $per_page;
@@ -437,7 +437,7 @@ class Fusion_Builder_Library_Table extends WP_List_Table {
 			}
 		}
 
-		if ( apply_filters( 'awb_global_elements_access', true ) ) {
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) {
 			$globals_query = new WP_Query(
 				[
 					'post_type'      => 'fusion_element',

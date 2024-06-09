@@ -405,16 +405,10 @@ if ( fusion_is_element_enabled( 'fusion_imageframe' ) ) {
 					if ( $this->args['border_radius'] ) {
 						$attr['class'] .= ' imageframe-' . $this->element_id;
 					}
+				}
 
-					if ( 'bottomshadow' === $this->args['style'] ) {
-						$attr['class'] .= ' fusion-image-frame-bottomshadow image-frame-shadow-' . $this->element_id;
-					}
-				} else {
-					if ( 'zoomin' === $this->args['hover_type'] || 'zoomout' === $this->args['hover_type'] ) {
-						$attr['class'] .= ' fusion-image-frame-bottomshadow element-bottomshadow image-frame-shadow-' . $this->element_id;
-					} else {
-						$attr['class'] .= ' fusion-image-frame-bottomshadow image-frame-shadow-' . $this->element_id;
-					}
+				if ( 'bottomshadow' === $this->args['style'] ) {
+					$attr['class'] .= ' awb-bottomshadow';
 				}
 
 				if ( '' !== $this->args['hover_type'] && '' !== $this->args['mask'] ) {
@@ -435,6 +429,10 @@ if ( fusion_is_element_enabled( 'fusion_imageframe' ) ) {
 						$attr['style'] .= 'display:inline-block;';
 					}
 				}
+
+				if ( $this->args['animation_type'] ) {
+					$attr = Fusion_Builder_Animation_Helper::add_animation_attributes( $this->args, $attr );
+				}				
 
 				return $attr;
 			}
@@ -616,7 +614,11 @@ if ( fusion_is_element_enabled( 'fusion_imageframe' ) ) {
 						$html = '<span ' . FusionBuilder::attributes( 'image-shortcode' ) . $image_magnify . $image_scroll . '>' . $output . '</span>';
 					}
 
-					if ( 'liftup' === $this->args['hover_type'] || ( 'bottomshadow' === $this->args['style'] && ( 'none' === $this->args['hover_type'] || 'zoomin' === $this->args['hover_type'] || 'zoomout' === $this->args['hover_type'] ) ) ) {
+					if ( 'bottomshadow' === $this->args['style'] ) {
+						$html .= '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" viewBox="0 0 600 28" preserveAspectRatio="none"><g clip-path="url(#a)"><mask id="b" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="28"><path d="M0 0h600v28H0V0Z" fill="#fff"/></mask><g filter="url(#c)" mask="url(#b)"><path d="M16.439-18.667h567.123v30.8S438.961-8.4 300-8.4C161.04-8.4 16.438 12.133 16.438 12.133v-30.8Z" fill="#000"/></g></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h600v28H0z"/></clipPath><filter id="c" x="5.438" y="-29.667" width="589.123" height="52.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="5.5" result="effect1_foregroundBlur_3983_183"/></filter></defs></svg>';
+					}
+
+					if ( 'liftup' === $this->args['hover_type'] || 'bottomshadow' === $this->args['style'] ) {
 						$html = '<div ' . FusionBuilder::attributes( 'image-shortcode-special-container' ) . '>' . $html . '</div>';
 					}
 
@@ -798,10 +800,6 @@ if ( fusion_is_element_enabled( 'fusion_imageframe' ) ) {
 					$this->wrapper_attr['style'] .= 'z-index:' . $this->args['z_index'] . ';';
 				}
 
-				if ( 'bottomshadow' === $this->args['style'] ) {
-					$this->wrapper_attr['class'] .= ' element-bottomshadow';
-				}
-
 				if ( 'liftup' !== $this->args['hover_type'] && ( 'bottomshadow' !== $this->args['style'] && ( 'zoomin' !== $this->args['hover_type'] || 'zoomout' !== $this->args['hover_type'] ) ) ) {
 
 					if ( ! fusion_element_rendering_is_flex() ) {
@@ -846,7 +844,7 @@ if ( fusion_is_element_enabled( 'fusion_imageframe' ) ) {
 					$this->wrapper_attr['id'] = $this->args['id'];
 				}
 
-				if ( $this->args['animation_type'] ) {
+				if ( $this->args['animation_type'] && ! ( 'liftup' === $this->args['hover_type'] || 'bottomshadow' === $this->args['style'] ) ) {
 					$this->wrapper_attr = Fusion_Builder_Animation_Helper::add_animation_attributes( $this->args, $this->wrapper_attr );
 				}
 

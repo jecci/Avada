@@ -12,55 +12,86 @@ jQuery( document ).ready( function() {
 
 	} );
 
+	// Toggle an single capability on/off.
 	jQuery( '.enable-builder-ui .ui-button' ).on( 'click', function( e ) {
+		const parent = jQuery( this ).parent(),
+			input = parent.find( 'input' );
+
 		e.preventDefault();
 
-		jQuery( this ).parent().find( '#enable_builder_ui_by_default' ).val( jQuery( this ).data( 'value' ) );
-		jQuery( this ).parent().find( '#enable_builder_sticky_publish_buttons' ).val( jQuery( this ).data( 'value' ) );
-		jQuery( this ).parent().find( '#remove_empty_attributes' ).val( jQuery( this ).data( 'value' ) );
-		jQuery( this ).parent().find( '#site_data_consent' ).val( jQuery( this ).data( 'value' ) );
-		jQuery( this ).parent().find( '.ui-button' ).removeClass( 'ui-state-active' );
+		input.val( jQuery( this ).data( 'value' ) );
+
+		if ( 'checkbox' === input.prop( 'type' ) ) {
+			input.prop( 'checked', true );
+		}
+
+		parent.find( '.ui-button' ).removeClass( 'ui-state-active' );
 		jQuery( this ).addClass( 'ui-state-active' );
+	} );
+
+	// Toggle an main dashboard access capability on/off.
+	jQuery( '.awb-dashboard-access .ui-button' ).on( 'click', function() {
+		const parent = jQuery( this ).parents( '.awb-role-manager-access-items' ),
+			items = parent.find( '.awb-role-manager-access-item:not(.awb-dashboard-access):not(.awb-form-submissions)' );
+
+		if ( 'off' === jQuery( this ).data( 'value' ) ) {
+			items.find( 'input' ).val( 'off' );
+			items.find( '.ui-button' ).removeClass( 'ui-state-active' );
+			items.find( '.ui-button[data-value="off"]' ).addClass( 'ui-state-active' );
+			items.find( '.fusion-form-radio-button-set' ).addClass( 'awb-disabled' );
+		} else {
+			items.find( '.fusion-form-radio-button-set' ).removeClass( 'awb-disabled' );
+		}
+	} );
+
+	// Open/close the individual role toggles.
+	jQuery( '.awb-role-manager-item-title' ).on( 'click', function( e ) {
+		const parent         = jQuery( this ).closest( '.fusion-builder-option-field' ),
+			target           = jQuery( this ).data( 'target' ),
+			current          = parent.find( '.awb-role-manager-item-title.open' ).data( 'target' ),
+			additionalHeight = jQuery( '.avada-db-menu-sticky' ).outerHeight() + jQuery( '#wpadminbar' ).outerHeight();
+
+		// If reset button was clicked, do nothing.
+		if ( jQuery( e.target ).hasClass( 'awb-role-manager-reset-role' ) ) {
+			return false;
+		}
+
+		// Remove classes.
+		if ( current !== target ) {
+			parent.find( '.awb-role-manager-item-accordion' ).slideUp( 100 );
+			parent.find( '.awb-role-manager-item-title' ).removeClass( 'open' );
+		}
+
+		// Toggle classes.
+		jQuery( this ).toggleClass( 'open' );
+		parent.find( '#' + target ).slideToggle( 200, function() {
+
+			// Scroll to item.
+			if ( ! jQuery( this ).is( ':hidden' ) ) {
+				jQuery( 'html, body' ).animate( {
+					scrollTop: jQuery( this ).closest( '.awb-role-manager-item' ).offset().top - additionalHeight
+				}, 500 );
+			}
+		} );
+	} );
+
+	// Reset options for a role.
+	jQuery( '.awb-role-manager-reset-role' ).on( 'click', function( e ) {
+		const parent          = jQuery( this ).closest( '.awb-role-manager-item' ),
+			buttonSets        = parent.find( '.fusion-form-radio-button-set' ),
+			disableButtonSets = parent.find( '.awb-role-manager-access-item:not(.awb-dashboard-access):not(.awb-form-submissions)' ).find( '.fusion-form-radio-button-set ' );
+
+		e.preventDefault();
+
+		buttonSets.children( 'input' ).prop( 'checked', false ).val( '' );
+		buttonSets.children( '.ui-button' ).removeClass( 'ui-state-active' );
+		disableButtonSets.addClass( 'awb-disabled' );
+
 	} );
 
 	jQuery( '.fusion-check-all' ).on( 'click', function( e ) {
 		e.preventDefault();
 		jQuery( this ).parents( '.fusion-builder-option' ).find( '.fusion-builder-option-field input' ).prop( 'checked', true );
-	} );
-
-	jQuery( '.awb-access-control-dashboard-menu' ).on( 'click', function() {
-		if ( ! jQuery( this ).prop( 'checked' ) ) {
-			jQuery( this ).parents( '.awb-access-items-cpt' ).find( '.awb-access-item-cpt:not(.awb-dashboard-access) input' ).prop( 'checked', false ).attr( 'disabled', true );
-			jQuery( this ).parents( '.awb-access-items-cpt' ).find( '.awb-access-item-cpt:not(.awb-dashboard-access)' ).addClass( 'disabled' );
-		} else {
-			jQuery( this ).parents( '.awb-access-items-cpt' ).find( '.awb-access-item-cpt:not(.awb-dashboard-access) input' ).removeAttr( 'disabled', true );
-			jQuery( this ).parents( '.awb-access-items-cpt' ).find( '.awb-access-item-cpt:not(.awb-dashboard-access)' ).removeClass( 'disabled' );
-		}
-	} );
-
-	jQuery( '.awb-access-control-item-title' ).on( 'click', function() {
-		const parent         = jQuery( this ).closest( '.fusion-builder-option-field' ),
-			target           = jQuery( this ).data( 'target' ),
-			current          = parent.find( '.awb-access-control-item-title.open' ).data( 'target' ),
-			additionalHeight = jQuery( '.avada-db-menu-sticky' ).outerHeight() + jQuery( '#wpadminbar' ).outerHeight();
-
-		// Remove classes.
-		if ( current !== target ) {
-			parent.find( '.awb-access-control-item-accordion' ).slideUp( 50 );
-			parent.find( '.awb-access-control-item-title' ).removeClass( 'open' );
-		}
-
-		// Toggle classes.
-		jQuery( this ).toggleClass( 'open' );
-		parent.find( '#' + target ).slideToggle( 100, function() {
-
-			// Scroll to item.
-			if ( ! jQuery( this ).is( ':hidden' ) ) {
-				jQuery( 'html, body' ).animate( {
-					scrollTop: jQuery( this ).closest( '.awb-access-control-item' ).offset().top - additionalHeight
-				}, 500 );
-			}
-		} );
 	} );
 
 	jQuery( '.fusion-uncheck-all' ).on( 'click', function( e ) {

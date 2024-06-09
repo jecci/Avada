@@ -1484,10 +1484,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					attr[ 'class' ] += ' awb-absolute';
 				}
 
-				if ( this.values.z_index ) {
-					attr.style += 'z-index:' + this.values.z_index + ';';
-				}
-
 				// Flexbox column.
 				if ( this.values.flex ) {
 					attr[ 'class' ] += ' fusion-flex-column';

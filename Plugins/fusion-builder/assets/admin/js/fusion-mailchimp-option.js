@@ -36,6 +36,11 @@ window.mailchimpOption = {
 			self.updateMap();
 		} );
 
+		// Listen to Submission Actions change.
+		jQuery( document.body ).on( 'change', '#pyre_form_actions', function() {
+			self.updateMap();
+		} );
+
 		jQuery( '#refresh-mailchimp-map' ).on( 'click', function( event ) {
 			event.preventDefault();
 
@@ -82,6 +87,14 @@ window.mailchimpOption = {
 
 		// Mark old ones.
 		self.$el.find( '> div' ).addClass( 'fusion-old' );
+
+		// Don't load fields, when Mailchimp is not chosen in the Submission Actions.
+		if ( -1 === jQuery.inArray( 'mailchimp', jQuery( '#pyre_form_actions' ).find( ':selected' ).map( function( i, el ) {
+			return jQuery( el ).val();
+		}).get() ) ) {
+			self.$el.empty();
+			return;
+		}
 
 		if ( 'object' !== typeof FusionPageBuilderApp.simplifiedMap ) {
 			self.$el.empty();

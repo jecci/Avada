@@ -26,12 +26,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			generateRangeField: function ( atts ) {
 				var elementData,
 					elementHtml,
+					digits,
 					containerClass = 'fusion-form-range-field-container',
-					html = '';
+					html           = '';
 
 				elementData = this.elementData( atts );
 
 				elementData = this.generateTooltipHtml( atts, elementData );
+
+				digits = atts.max.length
+				if ( 4 < digits || 1 === digits ) {
+					digits = 1 === digits ? 3 : digits;
+					elementData[ 'style' ] = ' style="width:' + digits + 'em;"';
+				}
 
 				if ( 'right' === atts.orientation ) {
 					containerClass += ' orientation-right';
@@ -39,11 +46,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				elementHtml = '<div class="' + containerClass + '">';
 				if ( 'right' !== atts.orientation ) {
-					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"/>';
+					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"' + elementData[ 'style' ] + '/>';
 				}
 				elementHtml += '<input type="range" name="' + atts.name + '" min="' + atts.min + '" max="' + atts.max + '" step="' + atts.step + '" value="' + atts.value + '"' + elementData[ 'class' ] + elementData.required + elementData.placeholder + elementData.holds_private_data + '/>';
 				if ( 'right' === atts.orientation ) {
-					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"/>';
+					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"' + elementData[ 'style' ] + '/>';
 				}
 				elementHtml += '</div>';
 

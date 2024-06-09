@@ -62,6 +62,7 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 					'margin_bottom'     => '',
 					'hide_on_mobile'    => fusion_builder_default_visibility( 'string' ),
 					'id'                => '',
+					'start_time'        => '',
 					'title_attribute'   => '',
 					'width'             => 600,
 					'video_facade'      => $fusion_settings->get( 'video_facade' ),
@@ -99,6 +100,8 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 				$defaults['height'] = FusionBuilder::validate_shortcode_attr_value( $defaults['height'], '' );
 				$defaults['width']  = FusionBuilder::validate_shortcode_attr_value( $defaults['width'], '' );
 
+				$defaults['autoplay'] = 'true' === $defaults['autoplay'] || true === $defaults['autoplay'] ? 'yes' : $defaults['autoplay'];
+
 				extract( $defaults );
 
 				$this->args     = $defaults;
@@ -114,12 +117,7 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 				preg_match( $pattern, $id, $matches );
 				if ( isset( $matches[3] ) ) {
 					$id = $matches[3];
-				}
-
-				$api_params = $this->args['api_params'];
-				if ( false === strpos( $api_params, 'autopause' ) ) {
-					$api_params .= '&autopause=0';
-				}
+				}			
 
 				// Structured Data attributes.
 				$ds_attr = '';
@@ -144,6 +142,22 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 				$html .= '<div class="video-shortcode">';
 				$title = $this->args['title_attribute'] ? $this->args['title_attribute'] : 'Vimeo video player ' . $this->video_counter;
 
+				$api_params = '';
+				$autoplay   = 'yes' === $this->args['autoplay'] ? 'autoplay=1' : 'autoplay=0';
+
+				if ( $this->args['start_time'] ) {
+					if ( false === strpos( $this->args['api_params'], '#t=' ) ) {
+						$api_params .= $autoplay . '#t=' . date( 'H\hi\ms\s', $this->args['start_time'] );
+					}
+				} else {
+					$api_params .= $autoplay;
+				}			
+
+				$api_params .= $this->args['api_params'];
+				if ( false === strpos( $api_params, 'autopause' ) ) {
+					$api_params .= '&autopause=0';
+				}				
+
 				if ( 'true' === $this->args['mute'] || true === $this->args['mute'] || 'yes' === $this->args['mute'] ) {
 					if ( false === strpos( $api_params, 'muted=1' ) ) {
 						$api_params .= '&muted=1';
@@ -152,9 +166,9 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 
 				if ( 'on' === $this->args['video_facade'] ) {
 					$class = ( $defaults['height'] > $defaults['width'] ) ? 'portrait' : 'landscape';
-					$html .= '<lite-vimeo videoid="' . $id . '" class="' . esc_attr( $class ) . '" params="' . $api_params . '" title="' . esc_attr( $title ) . '"  width="' . $this->args['width'] . '" height="' . $this->args['height'] . '"></lite-vimeo>';
+					$html .= '<lite-vimeo videoid="' . $id . '" class="' . esc_attr( $class ) . '" params="autoplay=1' . str_replace( $autoplay . '#t=', '&start=', $api_params )  . '" title="' . esc_attr( $title ) . '"  width="' . $this->args['width'] . '" height="' . $this->args['height'] . '"></lite-vimeo>';
 				} else {
-					$iframe = '<iframe title="' . esc_attr( $title ) . '" src="https://player.vimeo.com/video/' . $id . '?autoplay=0' . $api_params . '" width="' . $this->args['width'] . '" height="' . $this->args['height'] . '" allowfullscreen allow="autoplay; fullscreen"></iframe>';
+					$iframe = '<iframe title="' . esc_attr( $title ) . '" src="https://player.vimeo.com/video/' . $id . '?' . $api_params . '" width="' . $this->args['width'] . '" height="' . $this->args['height'] . '" allowfullscreen allow="autoplay; fullscreen"></iframe>';
 
 					if ( 0 < $defaults['height'] && 0 < $defaults['width'] ) {
 						$iframe = '<div class="fluid-width-video-wrapper" style="padding-top:' . round( $defaults['height'] / $defaults['width'] * 100, 2 ) . '%;" >' . $iframe . '</div>';
@@ -198,7 +212,7 @@ if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 					$attr['class'] .= ' fusion-align' . $this->args['alignment'];
 				}
 
-				if ( 'true' === $this->args['autoplay'] || true === $this->args['autoplay'] || 'yes' === $this->args['autoplay'] ) {
+				if ('yes' === $this->args['autoplay'] ) {
 					$attr['data-autoplay'] = 1;
 				}
 
@@ -349,6 +363,13 @@ function fusion_element_vimeo() {
 							'height' => '350',
 						],
 					],
+					[
+						'type'        => 'textfield',
+						'heading'     => esc_attr__( 'Start Time', 'fusion-builder' ),
+						'description' => esc_attr__( 'Specify a start time for the video (in seconds).', 'fusion-builder' ),
+						'param_name'  => 'start_time',
+						'value'       => '',
+					],					
 					[
 						'type'        => 'radio_button_set',
 						'heading'     => esc_attr__( 'Autoplay Video', 'fusion-builder' ),

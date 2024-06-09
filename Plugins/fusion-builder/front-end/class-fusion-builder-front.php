@@ -1261,7 +1261,7 @@ if ( ! class_exists( 'Fusion_Builder_Front' ) ) {
 				return $actions;
 			}
 
-			$live_editor = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $post->ID ) );
+			$live_editor = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'live_builder_edit' ) );
 
 			// Add link if fusion_builder_status is set to active.
 			if ( 'active' === get_post_meta( $post->ID, 'fusion_builder_status', true ) && $live_editor ) {

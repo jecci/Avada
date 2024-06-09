@@ -213,22 +213,22 @@ if ( fusion_is_element_enabled( 'fusion_pricing_table' ) ) {
 				$this->is_first_column = true;
 
 				$styles = "<style type='text/css'>
-				.pricing-table-{$this->pricing_table_counter} .panel-container, .pricing-table-{$this->pricing_table_counter} .standout .panel-container,
-				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing {background-color:{$bordercolor};}
-				.pricing-table-{$this->pricing_table_counter} .list-group .list-group-item,
-				.pricing-table-{$this->pricing_table_counter} .list-group .list-group-item:last-child{background-color:{$backgroundcolor}; border-color:{$dividercolor};}
-				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing .panel-wrapper:hover .panel-heading,
-				.pricing-table-{$this->pricing_table_counter} .panel-wrapper:hover .list-group-item {background-color:{$background_color_hover};}
-				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing .panel-heading{background-color:{$backgroundcolor};}
-				.pricing-table-{$this->pricing_table_counter} .fusion-panel, .pricing-table-{$this->pricing_table_counter} .panel-wrapper:last-child .fusion-panel,
-				.pricing-table-{$this->pricing_table_counter} .standout .fusion-panel, .pricing-table-{$this->pricing_table_counter}  .panel-heading,
-				.pricing-table-{$this->pricing_table_counter} .panel-body, .pricing-table-{$this->pricing_table_counter} .panel-footer{border-color:{$dividercolor};}
-				.pricing-table-{$this->pricing_table_counter} .panel-body,.pricing-table-{$this->pricing_table_counter} .panel-footer{background-color:{$bordercolor};}
-				.pricing-table-{$this->pricing_table_counter}.sep-boxed-pricing .panel-heading h3{color:{$heading_color_style_2};}
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-container, .pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .standout .panel-container,
+				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing.fusion-pricing-table {background-color:{$bordercolor};}
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .list-group .list-group-item,
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .list-group .list-group-item:last-child{background-color:{$backgroundcolor}; border-color:{$dividercolor};}
+				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing.fusion-pricing-table .panel-wrapper:hover .panel-heading,
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-wrapper:hover .list-group-item {background-color:{$background_color_hover};}
+				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing.fusion-pricing-table .panel-heading{background-color:{$backgroundcolor};}
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .fusion-panel, .pricing-table-{$this->pricing_table_counter} .panel-wrapper:last-child .fusion-panel,
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .standout .fusion-panel, .pricing-table-{$this->pricing_table_counter}.fusion-pricing-table  .panel-heading,
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-body, .pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-footer{border-color:{$dividercolor};}
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-body, .pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-footer{background-color:{$bordercolor};}
+				.pricing-table-{$this->pricing_table_counter}.sep-boxed-pricing.fusion-pricing-table .panel-heading h3{color:{$heading_color_style_2};}
 				.pricing-table-{$this->pricing_table_counter}.full-boxed-pricing.fusion-pricing-table .panel-heading h3{color:{$heading_color_style_1};}
 				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-body .price .decimal-part{color:{$pricing_color};}
 				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table .panel-body .price .integer-part{color:{$pricing_color};}
-				.pricing-table-{$this->pricing_table_counter} ul.list-group li{color:{$body_text_color};}
+				.pricing-table-{$this->pricing_table_counter}.fusion-pricing-table ul.list-group li{color:{$body_text_color};}
 				</style>";
 
 				fusion_element_rendering_elements( true );

@@ -362,7 +362,7 @@ function fusion_twitter_timeline_element() {
 			[
 				'name'         => esc_attr__( 'X Timeline', 'fusion-builder' ),
 				'shortcode'    => 'fusion_twitter_timeline',
-				'icon'         => 'fusiona-twtiter-feed',
+				'icon'         => 'fusiona-twitter',
 				'subparam_map' => [
 					'margin_top'    => 'margin',
 					'margin_right'  => 'margin',

@@ -184,8 +184,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			importStudioMedia: function( postData, mediaKey, importOptions ) {
 
-				this.studioImportModalView.updateStatus( fusionBuilderText.studio_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
-				this.studioImportModalView.updateProgressBar( postData.avada_media, mediaKey );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+				this.studioImportModalView.updateStatus( fusionBuilderText.studio_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
+				this.studioImportModalView.updateProgressBar( postData.avada_media, mediaKeyLabel );
 
 				return jQuery.ajax( {
 					type: 'POST',
@@ -216,8 +220,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			importDemoPageMedia: function( postData, mediaKey ) {
 
-				this.demoImportModalView.updateStatus( fusionBuilderText.demo_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
-				this.demoImportModalView.updateProgressBar( postData.avada_media, mediaKey );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+				this.demoImportModalView.updateStatus( fusionBuilderText.demo_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
+				this.demoImportModalView.updateProgressBar( postData.avada_media, mediaKeyLabel );
 
 				return jQuery.ajax( {
 					type: 'POST',

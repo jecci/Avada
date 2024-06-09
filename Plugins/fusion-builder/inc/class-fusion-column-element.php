@@ -2723,7 +2723,7 @@ if ( ! class_exists( 'Fusion_Column_Element' ) ) {
 				[
 					'type'        => 'textfield',
 					'heading'     => esc_attr__( 'Flex Grow', 'fusion-builder' ),
-					'description' => esc_attr__( 'Flex grow with in the container.', 'fusion-builder' ),
+					'description' => esc_attr__( 'Flex grow specifies how much of the remaining space in the container should be assigned to the column.', 'fusion-builder' ),
 					'param_name'  => 'flex_grow',
 					'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					'dependency'  => [
@@ -2742,7 +2742,7 @@ if ( ! class_exists( 'Fusion_Column_Element' ) ) {
 				[
 					'type'        => 'textfield',
 					'heading'     => esc_attr__( 'Flex Shrink', 'fusion-builder' ),
-					'description' => esc_attr__( 'Flex shrink with in the container.', 'fusion-builder' ),
+					'description' => esc_attr__( 'Flex shrink specifies how much the column may shrink within the container if not enough space is available.', 'fusion-builder' ),
 					'param_name'  => 'flex_shrink',
 					'group'       => esc_attr__( 'Design', 'fusion-builder' ),
 					'dependency'  => [

@@ -453,30 +453,34 @@ class FusionBuilder {
 		}
 
 		$post_content = stripslashes( $post_content );
-		$post_content = preg_replace_callback( '/( link="[^"]+"| href="[^"]+"| url="[^"]+")/', [ $this, 'process_urls' ], $post_content );
+		$post_content = preg_replace_callback( '/( link="[^"]+"| href="[^"]+"| url="[^"]+"| link_attributes="[^"]+")/', [ $this, 'process_urls_and_links' ], $post_content );
 		$post_content = preg_replace_callback( '/\[fusion_code\](.+)\[\/fusion_code\]/U', [ $this, 'process_code_block' ], $post_content );
 
 		return addslashes( $post_content );
 	}
 
 	/**
-	 * Sanitizes URLs passed from post content that start with parameter name.
+	 * Sanitizes URLs and link attributes passed from post content that start with parameter name.
 	 *
 	 * @access public
 	 * @since 7.11.7
-	 * @param string $url_param The URL param to be sanitized starting with link=", url=" or href=".
-	 * @return string Sanitized URL param.
+	 * @param string $link_param The URL or link param to be sanitized starting with link=", url=",  href=", or link_attributes=".
+	 * @return string Sanitized URL or link param.
 	 */
-	public function process_urls( $url_param ) {
-		$url     = str_replace( [ ' link="', ' url="', ' href="' ], '', $url_param[0] );
-		$url     = trim( $url, '"' );
-		$new_url = sanitize_url( $url );
-
-		if ( $url === str_replace( 'http://', '', $new_url ) ) {
-			return $url_param[0];
+	public function process_urls_and_links( $link_param ) {
+		if ( false !== strpos( $link_param[0], 'link_attributes="' ) ) {
+			return ' link_attributes=""';
 		}
 
-		return str_replace( $url, $new_url, $url_param[0] );
+		$link_param_raw = str_replace( [ ' link="', ' url="', ' href="' ], '', $link_param[0] );
+		$link_param_raw = trim( $link_param_raw, '"' );
+		$new_link_param = sanitize_url( $link_param_raw );
+
+		if ( $link_param_raw === str_replace( 'http://', '', $new_link_param ) ) {
+			return $link_param[0];
+		}
+
+		return str_replace( $link_param_raw, $new_link_param, $link_param[0] );
 	}
 
 	/**
@@ -692,7 +696,7 @@ class FusionBuilder {
 	public function get_extra_google_fonts() {
 		if ( null === $this->extra_fonts ) {
 			$id           = get_query_var( 'fb-edit' ) ? get_query_var( 'fb-edit' ) : get_the_id();
-			$extra_fonts  = maybe_unserialize( get_post_meta( $id, '_fusion_google_fonts', true ) );
+			$extra_fonts  = (array) maybe_unserialize( get_post_meta( $id, '_fusion_google_fonts', true ) );
 			$current_post = get_post( $id );
 
 			if ( $current_post ) {
@@ -727,7 +731,7 @@ class FusionBuilder {
 						foreach ( $template_fonts as $font => $details ) {
 							if ( isset( $extra_fonts[ $font ] ) ) {
 								$extra_fonts[ $font ]['variants'] = array_merge( $extra_fonts[ $font ]['variants'], $details['variants'] );
-							} else {
+							} elseif ( is_array( $extra_fonts ) ) {
 								$extra_fonts[ $font ] = $details;
 							}
 						}
@@ -1512,7 +1516,7 @@ class FusionBuilder {
 	public function fusion_calculate_containers( $content ) {
 		global $global_container_count;
 
-		if ( ! $this->mega_menu_data['is_rendering'] && ! $global_container_count ) {
+		if ( $content && ! $this->mega_menu_data['is_rendering'] && ! $global_container_count ) {
 			$global_container_count = substr_count( $content, '[fusion_builder_container' );
 		}
 
@@ -2419,11 +2423,11 @@ class FusionBuilder {
 
 		if ( isset( $typenow ) && in_array( $typenow, self::allowed_post_types(), true ) && post_type_supports( $typenow, 'editor' ) ) {
 
-			$live_editor    = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $post->ID ) );
-			$builder        = apply_filters( 'awb_load_builder', true );
-			$builder_active = 'active' === get_post_meta( $post->ID, 'fusion_builder_status', true ) && $builder ? true : false;
+			$load_live_builder    = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'live_builder_edit' ) );
+			$load_backend_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'backend_builder_edit' ) );
+			$builder_active       = 'active' === get_post_meta( $post->ID, 'fusion_builder_status', true ) && $load_backend_builder ? true : false;
 
-			if ( ! $live_editor && ! $builder ) {
+			if ( ! $load_live_builder && ! $load_backend_builder ) {
 				return;
 			}
 
@@ -2440,11 +2444,11 @@ class FusionBuilder {
 
 			echo '<div class="fusion-builder-toggle-buttons">';
 
-			if ( $builder ) {
+			if ( $load_backend_builder ) {
 				echo '<a href="#" id="fusion_toggle_builder" data-builder="' . esc_attr__( 'Back-end Builder', 'fusion-builder' ) . '" data-editor="' . esc_attr__( 'Default Editor', 'fusion-builder' ) . '"' . $builder_enabled_data . ' class="fusiona-FB_logo_black button button-large' . $builder_active . '"><span class="fusion-builder-button-text">' . $editor_label . '</span></a>';  // phpcs:ignore WordPress.Security.EscapeOutput
 			}
 
-			if ( $live_editor ) {
+			if ( $load_live_builder ) {
 				$builder_link = add_query_arg( 'fb-edit', '1', get_the_permalink( $post->ID ) );
 				echo '<a id="fusion_toggle_front_end" href="' . esc_url( $builder_link ) . '" class="fusiona-FB_logo_black button button-primary button-large" target=""><span class="fusion-builder-button-text">' . esc_attr__( 'Live Builder', 'fusion-builder' ) . '</span></a>';
 			}
@@ -2464,10 +2468,10 @@ class FusionBuilder {
 	public function after_main_editor( $post ) {
 		global $typenow;
 
-		$live_editor = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $post->ID ) );
-		$builder     = apply_filters( 'awb_load_builder', true );
+		$load_live_builder    = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'live_builder_edit' ) );
+		$load_backend_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'backend_builder_edit' ) );
 
-		if ( ! $live_editor && ! $builder ) {
+		if ( ! $load_live_builder && ! $load_backend_builder ) {
 			return;
 		}
 
@@ -2876,11 +2880,11 @@ class FusionBuilder {
 			$classes .= ' fusion-wp-core-pre-55';
 		}
 
-		if ( current_user_can( 'edit_posts' ) && ! current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) {
 			$classes .= ' show-layout-sections';
 		}
 
-		if ( ! apply_filters( 'awb_global_elements_access', true ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) {
 			$classes .= ' awb-global-restricted';
 		}
 
@@ -7045,8 +7049,8 @@ class FusionBuilder {
 			],
 			'output' => [
 				'element'  => 'video_facade',
-				'value'    => 'on',
-				'operator' => '==',
+				'value'    => 'off',
+				'operator' => '!=',
 			],
 		];
 

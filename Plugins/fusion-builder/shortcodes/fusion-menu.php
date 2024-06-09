@@ -464,7 +464,7 @@ if ( fusion_is_element_enabled( 'fusion_menu' ) ) {
 					}
 
 					// Its empty, we need that 0.5em.
-					if ( in_array( $this->args[ 'items_padding_' . $side ], [ '', '0', '0px' ], true ) ) {
+					if ( isset( $this->args[ 'items_padding_' . $side ] ) && in_array( $this->args[ 'items_padding_' . $side ], [ '', '0', '0px' ], true ) ) {
 						$click_mode_spacing = true;
 					}
 				}
@@ -2027,7 +2027,7 @@ function fusion_element_menu() {
 		[
 			'type'        => 'radio_button_set',
 			'heading'     => esc_html__( 'Mobile Menu Opening Mode', 'fusion-builder' ),
-			'description' => esc_html__( 'Select how the submenus should open. Toggle allow several items to be open at a time. Accordion only allow one item to be open at a time.', 'fusion-builder' ),
+			'description' => esc_html__( 'Select how the submenus should open. Toggle allows several items to be open at a time. Accordion only allows one item to be open at a time.', 'fusion-builder' ),
 			'param_name'  => 'mobile_opening_mode',
 			'value'       => [
 				'toggle'    => esc_html__( 'Toggle', 'fusion-builder' ),

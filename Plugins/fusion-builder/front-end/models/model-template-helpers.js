@@ -2747,28 +2747,43 @@ _.mixin( {
 
 		let slides = '';
 
-		images.forEach( ( id, idx, array ) => {
-			const image = wp.media.attachment( id );
-
-			if ( _.isUndefined( image.get( 'url' ) ) ) {
-				image.fetch().then( function() {
-					self.reRender();
-				} );
-			}
-
-			if ( image.get( 'url' ) ) {
+		if ( values.background_slider_images.startsWith( 'http' ) ) {
+			images.forEach( ( image, idx, array ) => {
 				if ( 0 === idx ) {
 					slides += '<div class="swiper-wrapper">';
 				}
+				const url = image.split( '|' )[ 0 ];
 
-				slides += '<div class="swiper-slide"><img src="' + image.get( 'url' ) + '" alt=""></div>';
+				slides += '<div class="swiper-slide"><img src="' + url + '" alt=""></div>';
 
 				if ( idx === array.length - 1 ) {
 					slides += '</div>';
 				}
-			}
+			} );
+		} else {
+			images.forEach( ( id, idx, array ) => {
+				const image = wp.media.attachment( id );
 
-		} );
+				if ( _.isUndefined( image.get( 'url' ) ) ) {
+					image.fetch().then( function() {
+						self.reRender();
+					} );
+				}
+
+				if ( image.get( 'url' ) ) {
+					if ( 0 === idx ) {
+						slides += '<div class="swiper-wrapper">';
+					}
+
+					slides += '<div class="swiper-slide"><img src="' + image.get( 'url' ) + '" alt=""></div>';
+
+					if ( idx === array.length - 1 ) {
+						slides += '</div>';
+					}
+				}
+
+			} );
+		}
 
 		element += '<div class="awb-background-slider" ' + attributes.join( ' ' ) + '>' + slides + '</div>';
 

@@ -88,17 +88,17 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					// Validate values.
 					this.validateValues( atts.values );
 					// Create attribute objects
-					this.values       = atts.values;
-					this.extras       = atts.extras;
-					atts.isFlex       = this.isFlex;
-					atts.attr         = this.buildAttr( atts.values );
-					atts.contentAttr  = this.buildContentAttr( atts.values );
-					atts.linkAttr     = this.buildLinktAttr( atts.values );
-					atts.borderRadius = this.buildBorderRadius( atts.values );
-					atts.imgStyles    = this.buildImgStyles( atts.values );
+					this.values         = atts.values;
+					this.extras         = atts.extras;
+					atts.isFlex         = this.isFlex;
+					atts.attr           = this.buildAttr( atts.values );
+					atts.contentAttr    = this.buildContentAttr( atts.values );
+					atts.linkAttr       = this.buildLinktAttr( atts.values );
+					atts.borderRadius   = this.buildBorderRadius( atts.values );
+					atts.imgStyles      = this.buildImgStyles( atts.values );
 					atts.responsiveAttr = this.buildResponsiveAttr( atts.values );
 					atts.imageMagnify   = this.buildImageMagnify( atts.values );
-					atts.imageScroll   = this.buildImageScroll( atts.values );
+					atts.imageScroll    = this.buildImageScroll( atts.values );
 
 					this.buildElementContent( atts );
 
@@ -109,7 +109,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					// Add min height sticky.
 					atts.stickyStyles = '';
-					atts.filter_style_block = _.fusionGetFilterStyleElem( atts.values, '.imageframe-cid' + this.model.get( 'cid' ), this.model.get( 'cid' )  );
+					atts.filter_style_block = _.fusionGetFilterStyleElem( atts.values, '.awb-image-element-' + this.model.get( 'cid' ), this.model.get( 'cid' )  );
 				}
 
 				return atts;
@@ -279,12 +279,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				attr[ 'class' ] += ' imageframe-' + values.style + ' imageframe-cid' + this.model.get( 'cid' );
 
-				if ( values.z_index ) {
-					attr.style += 'z-index:' + values.z_index + ';';
+				if ( ! ( 'liftup' === values.hover_type || ( 'bottomshadow' === values.style_type && ( 'none' === values.hover_type || 'zoomin' === values.hover_type || 'zoomout' === values.hover_type ) ) ) ) {
+					attr[ 'class' ] += ' awb-image-element-' + this.model.get( 'cid' );
 				}
 
-				if ( 'bottomshadow' === values.style ) {
-					attr[ 'class' ] += ' element-bottomshadow';
+				if ( values.z_index ) {
+					attr.style += 'z-index:' + values.z_index + ';';
 				}
 
 				if ( '' !== values.mask ) {
@@ -610,9 +610,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var liftupClasses = '',
 					cid = this.model.get( 'cid' );
 
-				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
+				if ( 'liftup' === atts.values.hover_type || 'bottomshadow' === atts.values.style_type ) {
+					liftupClasses += 'awb-image-frame';
+
 					if ( 'liftup' === atts.values.hover_type ) {
-						liftupClasses = 'imageframe-liftup';
+						liftupClasses += ' imageframe-liftup';
 
 						if ( ! this.isFlex ) {
 							if ( 'left' === atts.values.align ) {
@@ -622,19 +624,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							}
 						}
 
-						if ( atts.borderRadius ) {
-							liftupClasses += ' imageframe-cid' + cid;
-						}
-
 						if ( '' !== atts.values.hover_type && '' !== atts.values.mask ) {
-							liftupClasses += ' awb-image-frame hover-with-mask';
+							liftupClasses += ' hover-with-mask';
 						}
-
-					} else {
-						liftupClasses += 'fusion-image-frame-bottomshadow image-frame-shadow-cid' + cid;
 					}
 
-					liftupClasses += ' imageframe-cid' + cid;
+					if ( 'bottomshadow' === atts.values.style_type ) {
+						liftupClasses += ' awb-bottomshadow';
+					}
+
+					liftupClasses += ' awb-image-element-' + cid + ' imageframe-cid' + cid;
 				}
 
 				return liftupClasses;
@@ -709,15 +708,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
 					styleColor = ( 0 === atts.values.stylecolor.indexOf( '#' ) ) ? jQuery.AWB_Color( atts.values.stylecolor ).alpha( 0.4 ).toVarOrRgbaString() : jQuery.AWB_Color( atts.values.stylecolor ).toVarOrRgbaString();
 
-					if ( 'liftup' === atts.values.hover_type ) {
-						if ( 'bottomshadow' === atts.values.style_type ) {
-							liftupStyles  += '.element-bottomshadow.imageframe-cid' + cid + ':before, .element-bottomshadow.imageframe-cid' + cid + ':after{';
-							liftupStyles  += '-webkit-box-shadow: 0 17px 10px ' + styleColor + ';box-shadow: 0 17px 10px ' + styleColor + ';}';
-						}
-					} else {
+					if ( 'bottomshadow' === atts.values.hover_type ) {
 						liftupStyles += '.imageframe-cid' + cid + '{display: inline-block}';
-						liftupStyles  += '.element-bottomshadow.imageframe-cid' + cid + ':before, .element-bottomshadow.imageframe-cid' + cid + ':after{';
-						liftupStyles  += '-webkit-box-shadow: 0 17px 10px ' + styleColor + ';box-shadow: 0 17px 10px ' + styleColor + ';}';
 					}
 				}
 

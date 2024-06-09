@@ -250,10 +250,10 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					imageIndex;
 
 				imageID = jQuery( this ).parent( '.fusion-multi-image' ).data( 'image-id' );
-				imageIDs = input.val().split( ',' ).map( function( v ) {
-					return parseInt( v, 10 );
-				} );
-				imageIndex = imageIDs.indexOf( imageID );
+				imageIDs = input.val() ? input.val().split( ',' ) : [];
+				const currentImage = imageIDs.find( ( image ) => ( image.includes( '|' ) ? image.includes( '|' + imageID ) : image.includes( imageID ) ) );
+
+				imageIndex = imageIDs.indexOf( currentImage );
 				if ( -1 !== imageIndex ) {
 					imageIDs.splice( imageIndex, 1 );
 				}
@@ -277,6 +277,8 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			ids            = '',
 			attachment     = '',
 			attachments    = [];
+
+		const saveType = jQuery( this ).data( 'save-type' );
 
 		if ( event ) {
 			event.preventDefault();
@@ -314,6 +316,9 @@ FusionPageBuilder.options.fusionOptionUpload = {
 			attachments = [];
 			attachment  = '';
 			jQuery.each( ids, function( index, id ) {
+				if ( id.includes( '|' ) ) {
+					id = id.split( '|' )[ 1 ];
+				}
 				if ( '' !== id && 'NaN' !== id ) {
 					attachment = wp.media.attachment( id );
 					attachment.fetch();
@@ -396,9 +401,18 @@ FusionPageBuilder.options.fusionOptionUpload = {
 					return scopedAttachment.id;
 				} );
 
+				const imageURLs = [];
+				state.get( 'selection' ).forEach( ( media ) => {
+					imageURLs.push( `${media.toJSON().url}|${media.id}` );
+				} );
+
 				// If its a multi image element, add the images container and IDs to input field.
 				if ( multiImages ) {
-					multiImageInput.val( imageIDs );
+					if ( 'url' === saveType ) {
+						multiImageInput.val( imageURLs.join( ',' ) );
+					} else {
+						multiImageInput.val( imageIDs );
+					}
 				}
 
 				// Remove default item.

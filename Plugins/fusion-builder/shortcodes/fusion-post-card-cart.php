@@ -49,11 +49,6 @@ if ( fusion_is_element_enabled( 'fusion_post_card_cart' ) ) {
 
 				// Ajax mechanism for live editor.
 				add_action( 'wp_ajax_get_fusion_post_card_cart', [ $this, 'ajax_render' ] );
-
-				if ( class_exists( 'Avada' ) && class_exists( 'WooCommerce', false ) ) {
-					global $avada_woocommerce;
-					$avada_woocommerce->quick_view_init();
-				}
 			}
 
 			/**
@@ -330,17 +325,15 @@ if ( fusion_is_element_enabled( 'fusion_post_card_cart' ) ) {
 				if ( empty( $product ) || ! $product->is_purchasable() ) {
 					return;
 				}
+				$post_id = apply_filters( 'fusion_dynamic_post_id', get_the_ID() );
+				if ( ! function_exists( 'wc_get_product' ) || 'product' !== get_post_type( $post_id ) ) {
+					return '';
+				}				
 
 				$this->defaults = self::get_element_defaults();
 				$this->args     = FusionBuilder::set_shortcode_defaults( $this->defaults, $args, 'fusion_post_card_cart' );
 
 				$this->validate_args();
-
-				// Not a product therefore nothing to render.
-				$post_id = apply_filters( 'fusion_dynamic_post_id', get_the_ID() );
-				if ( ! function_exists( 'wc_get_product' ) || 'product' !== get_post_type( $post_id ) ) {
-					return '';
-				}
 
 				add_action( 'fusion_post_cards_rendered', [ $this, 'render_variation_js' ] );
 
@@ -401,29 +394,50 @@ if ( fusion_is_element_enabled( 'fusion_post_card_cart' ) ) {
 					$this->enqueue_wc_variation_js( '.fusion-post-card-cart' );
 				}
 
-				if ( class_exists( 'Avada' ) && class_exists( 'WooCommerce' ) && 'yes' === $this->args['show_variations'] ) {
+				if ( class_exists( 'Avada' ) && class_exists( 'WooCommerce' ) ) {
 					global $avada_woocommerce;
 
 					$js_folder_suffix = FUSION_BUILDER_DEV_MODE ? '/assets/js' : '/assets/min/js';
 					$js_folder_url    = Avada::$template_dir_url . $js_folder_suffix;
 					$js_folder_path   = Avada::$template_dir_path . $js_folder_suffix;
-					$version          = Avada::get_theme_version();
+					$version          = Avada::get_theme_version();					
 
-					Fusion_Dynamic_JS::enqueue_script(
-						'avada-woo-products',
-						$js_folder_url . '/general/avada-woo-products.js',
-						$js_folder_path . '/general/avada-woo-products.js',
-						[ 'jquery', 'fusion-flexslider' ],
-						$version,
-						true
-					);
+					if ( '1' === $this->args['enable_quick_view'] ) {
+						$avada_woocommerce->quick_view_init();
 
-					Fusion_Dynamic_JS::localize_script(
-						'avada-woo-products',
-						'avadaWooCommerceVars',
-						$avada_woocommerce::get_avada_wc_vars()
-					);
-				}				
+						Fusion_Dynamic_JS::enqueue_script(
+							'awb-woo-quick-view',
+							$js_folder_url . '/general/awb-woo-quick-view.js',
+							$js_folder_path . '/general/awb-woo-quick-view.js',
+							[ 'jquery', 'fusion-flexslider' ],
+							$version,
+							true
+						);
+						
+						Fusion_Dynamic_JS::localize_script(
+							'awb-woo-quick-view',
+							'avadaWooCommerceVars',
+							$avada_woocommerce::get_avada_wc_vars()
+						);						
+					}
+
+					if ( 'yes' === $this->args['show_variations'] ) {
+						Fusion_Dynamic_JS::enqueue_script(
+							'avada-woo-products',
+							$js_folder_url . '/general/avada-woo-products.js',
+							$js_folder_path . '/general/avada-woo-products.js',
+							[ 'jquery', 'fusion-flexslider' ],
+							$version,
+							true
+						);
+
+						Fusion_Dynamic_JS::localize_script(
+							'avada-woo-products',
+							'avadaWooCommerceVars',
+							$avada_woocommerce::get_avada_wc_vars()
+						);
+					}
+				}
 			}		
 
 			/**

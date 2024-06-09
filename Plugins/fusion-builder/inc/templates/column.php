@@ -38,7 +38,7 @@
 		<# } #>
 		<a href="#" class="fusion-builder-settings fusion-builder-settings-column" title="{{ fusionBuilderText.column_settings }}"><span class="fusiona-pen"></span></a>
 		<a href="#" class="fusion-builder-clone fusion-builder-clone-column" title="{{ fusionBuilderText.clone_column }}"><span class="fusiona-file-add"></span></a>
-		<?php if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_element', 'create_posts' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+		<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'backed_builder_edit' ) ) ) : ?>
 			<a href="#" class="fusion-builder-save fusion-builder-save-column-dialog" title="{{ fusionBuilderText.save_column }}"><span class="fusiona-drive"></span></a>
 		<?php endif; ?>
 		<a href="#" class="fusion-builder-remove fusion-builder-remove-column" title="{{ fusionBuilderText.delete_column }}"><span class="fusiona-trash-o"></span></a>

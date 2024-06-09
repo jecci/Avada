@@ -1,6 +1,6 @@
 <?php
 /**
- * The Fusion_Builder_Admin class.
+ * The Fusion_Builder_Admin class.true
  *
  * @package fusion-builder
  */
@@ -114,81 +114,41 @@ class Fusion_Builder_Admin {
 	 */
 	public function admin_menu() {
 
-		$capability = apply_filters( 'fusion_builder_dashboard_menu_capability', 'edit_posts' );
+		$layouts = add_submenu_page( 'avada', esc_html__( 'Avada Layouts', 'fusion-builder' ), esc_html__( 'Layouts', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ), 'avada-layouts', [ $this, 'layouts' ], 5 );
+		add_action( 'admin_print_scripts-' . $layouts, [ $this, 'scripts_advanced' ] );
+		add_action( 'admin_print_scripts-' . $layouts, [ $this, 'layout_builder' ] );
 
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) ) {
-			$layouts = add_submenu_page( 'avada', esc_html__( 'Avada Layouts', 'fusion-builder' ), esc_html__( 'Layouts', 'fusion-builder' ), 'manage_options', 'avada-layouts', [ $this, 'layouts' ], 5 );
-			add_action( 'admin_print_scripts-' . $layouts, [ $this, 'scripts_advanced' ] );
-			add_action( 'admin_print_scripts-' . $layouts, [ $this, 'layout_builder' ] );
-		}
+		$layout_sections = add_submenu_page( 'avada', esc_html__( 'Avada Layout Sections', 'fusion-builder' ), esc_html__( 'Layout Sections', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ), 'avada-layout-sections', [ $this, 'layout_sections' ], 20 );
+		add_action( 'admin_print_scripts-' . $layout_sections, [ $this, 'scripts_advanced' ] );
 
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ) {
-			$layout_sections = add_submenu_page( 'avada', esc_html__( 'Avada Layout Sections', 'fusion-builder' ), esc_html__( 'Layout Sections', 'fusion-builder' ), $capability, 'avada-layout-sections', [ $this, 'layout_sections' ], 20 );
-			add_action( 'admin_print_scripts-' . $layout_sections, [ $this, 'scripts_advanced' ] );
-		}
-
-		if ( false !== AWB_Off_Canvas::is_enabled() && apply_filters( 'awb_dashboard_menu_cpt', true, 'awb_off_canvas' ) ) {
-			$off_canvas = add_submenu_page( 'avada', esc_html__( 'Off Canvas', 'fusion-builder' ), esc_html__( 'Off Canvas', 'fusion-builder' ), $capability, 'avada-off-canvas', [ $this, 'off_canvas' ], 6 );
+		if ( false !== AWB_Off_Canvas::is_enabled() ) {
+			$off_canvas = add_submenu_page( 'avada', esc_html__( 'Off Canvas', 'fusion-builder' ), esc_html__( 'Off Canvas', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ), 'avada-off-canvas', [ $this, 'off_canvas' ], 6 );
 			add_action( 'admin_print_scripts-' . $off_canvas, [ $this, 'scripts_advanced' ] );
 		}
 
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_icons' ) ) {
-			$icons = add_submenu_page( 'avada', esc_html__( 'Avada Icons', 'fusion-builder' ), esc_html__( 'Icons', 'fusion-builder' ), $capability, 'avada-icons', [ $this, 'icons' ], 7 );
-			add_action( 'admin_print_scripts-' . $icons, [ $this, 'scripts_advanced' ] );
-		}
+		$icons = add_submenu_page( 'avada', esc_html__( 'Avada Icons', 'fusion-builder' ), esc_html__( 'Icons', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_icons' ), 'avada-icons', [ $this, 'icons' ], 7 );
+		add_action( 'admin_print_scripts-' . $icons, [ $this, 'scripts_advanced' ] );
 
-		if ( false !== Fusion_Form_Builder::is_enabled() && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_form' ) ) {
-			$forms = add_submenu_page( 'avada', esc_html__( 'Avada Forms', 'fusion-builder' ), esc_html__( 'Forms', 'fusion-builder' ), $capability, 'avada-forms', [ $this, 'forms' ], 8 );
+		if ( Fusion_Form_Builder::is_enabled() ) {
+			$forms = add_submenu_page( 'avada', esc_html__( 'Avada Forms', 'fusion-builder' ), esc_html__( 'Forms', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ), 'avada-forms', [ $this, 'forms' ], 8 );
 
-			if ( apply_filters( 'awb_view_forms_submissions', true ) ) {
-				$forms_entries = add_submenu_page( 'avada', esc_html__( 'Avada Form Entries', 'fusion-builder' ), esc_html__( 'Form Entries', 'fusion-builder' ), $capability, 'avada-form-entries', [ $this, 'forms_entries' ], 21 );
-				add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'form_builder' ] );
-				add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'scripts_advanced' ] );
-			}
+			$order         = ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ? 8 : 21;
+			$forms_entries = add_submenu_page( 'avada', esc_html__( 'Avada Form Entries', 'fusion-builder' ), esc_html__( 'Form Entries', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ), 'avada-form-entries', [ $this, 'forms_entries' ], $order );
+
+			add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'form_builder' ] );
+			add_action( 'admin_print_scripts-' . $forms_entries, [ $this, 'scripts_advanced' ] );
 
 			add_action( 'admin_print_scripts-' . $forms, [ $this, 'form_builder' ] );
 			add_action( 'admin_print_scripts-' . $forms, [ $this, 'scripts_advanced' ] );
 		}
 
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) {
-			$library = add_submenu_page( 'avada', esc_html__( 'Avada Library', 'fusion-builder' ), esc_html__( 'Library', 'fusion-builder' ), $capability, 'avada-library', [ $this, 'library' ], 10 );
-			add_action( 'admin_print_scripts-' . $library, [ $this, 'scripts_advanced' ] );
-		}
+		$library = add_submenu_page( 'avada', esc_html__( 'Avada Library', 'fusion-builder' ), esc_html__( 'Library', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ), 'avada-library', [ $this, 'library' ], 10 );
+		add_action( 'admin_print_scripts-' . $library, [ $this, 'scripts_advanced' ] );
 
-		if ( apply_filters( 'awb_dashboard_options_menu', true ) ) {
-			$options = add_submenu_page( 'avada', esc_html__( 'Avada Builder Options', 'fusion-builder' ), esc_html__( 'Builder Options', 'fusion-builder' ), 'manage_options', 'avada-builder-options', [ $this, 'options' ], 19 );
-			add_action( 'admin_print_scripts-' . $options, [ $this, 'scripts_advanced' ] );
-		}
+		$options = add_submenu_page( 'avada', esc_html__( 'Avada Builder Options', 'fusion-builder' ), esc_html__( 'Builder Options', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'awb_global_options' ), 'avada-builder-options', [ $this, 'options' ], 19 );
+		add_action( 'admin_print_scripts-' . $options, [ $this, 'scripts_advanced' ] );
 
 		add_action( 'admin_footer', 'fusion_the_admin_font_async' );
-	}
-
-	/**
-	 * Add capability needed to view form entries, ig current user is author of the form.
-	 *
-	 * @access public
-	 * @since 7.11.6
-	 * @param bool[]   $allcaps Array of key/value pairs where keys represent a capability name.
-	 * @param string[] $caps    Required primitive capabilities for the requested capability.
-	 * @param array    $args
-	 * @param WP_User  $user    The user object.
-	 * @return bool[]
-	 */
-	public function maybe_add_cap( $allcaps, $caps, $args, $user ) {
-		global $wpdb, $current_screen;
-
-		if ( isset( $current_screen->base ) && 'avada_page_avada-form-entries' === $current_screen->base && isset( $_GET['form_id'] ) ) {
-			$query   = "SELECT form_id FROM {$wpdb->prefix}fusion_forms WHERE ID = %d";
-			$results = $wpdb->get_results( $wpdb->prepare( $query, (int) $_GET['form_id'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
-			$form_id = isset( $results[0]->form_id ) ? $results[0]->form_id : 0;
-			$form    = get_post( $form_id );
-
-			if ( isset( $form->post_author ) && $user->ID === (int) $form->post_author ) {
-				$allcaps['moderate_comments'] = true;
-			}
-		}
-
-		return $allcaps;
 	}
 
 	/**
@@ -222,11 +182,11 @@ class Fusion_Builder_Admin {
 	 * @return void
 	 */
 	public function add_avada_dashboard_sticky_menu_items( $screen ) {
-		if ( current_user_can( 'manage_options' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) || apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ) :
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ) ) || current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) :
 			?>
-			<li class="avada-db-menu-item avada-db-menu-item-layouts"><a class="avada-db-menu-item-link<?php echo ( 'layouts' === $screen || 'layout-sections' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'layouts' === $screen || ! current_user_can( 'manage_options' ) || ! apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) ) ? '#' : admin_url( 'admin.php?page=avada-layouts' ) ); ?>" ><i class="fusiona-layouts"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Layouts', 'fusion-builder' ); ?></span></a>
+			<li class="avada-db-menu-item avada-db-menu-item-layouts"><a class="avada-db-menu-item-link<?php echo ( 'layouts' === $screen || 'layout-sections' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'layouts' === $screen || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ) ) ) ? '#' : admin_url( 'admin.php?page=avada-layouts' ) ); ?>" ><i class="fusiona-layouts"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Layouts', 'fusion-builder' ); ?></span></a>
 				<ul class="avada-db-menu-sub avada-db-menu-sub-layouts">
-				<?php if ( current_user_can( 'manage_options' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_layout' ) ) : ?>
+			<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_layout' ) ) ) : ?>
 					<li class="avada-db-menu-sub-item avada-db-menu-sub-item-layouts">
 						<a class="avada-db-menu-sub-item-link<?php echo ( 'layouts' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'layouts' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-layouts' ) ); ?>">
 							<i class="fusiona-layouts"></i>
@@ -237,7 +197,7 @@ class Fusion_Builder_Admin {
 						</a>
 					</li>
 				<?php endif; ?>
-				<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ) : ?>
+			<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) : ?>
 					<li class="avada-db-menu-sub-item avada-db-menu-sub-item-layout-sections">
 						<a class="avada-db-menu-sub-item-link<?php echo ( 'layout-sections' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'layout-sections' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-layout-sections' ) ); ?>">
 							<i class="fusiona-content"></i>
@@ -250,13 +210,13 @@ class Fusion_Builder_Admin {
 				<?php endif; ?>
 				</ul>
 			</li>
-		<?php endif; ?>
+			<?php endif; ?>
 		<?php
-		if ( false !== AWB_Off_Canvas::is_enabled() && apply_filters( 'awb_dashboard_menu_cpt', true, 'awb_off_canvas' ) ) :
+		if ( false !== AWB_Off_Canvas::is_enabled() && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ) ) ) :
 			?>
 			<li class="avada-db-menu-item avada-db-menu-item-icons"><a class="avada-db-menu-item-link<?php echo ( 'off-canvas' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'off-canvas' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-off-canvas' ) ); ?>" ><i class="fusiona-off-canvas"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Off Canvas', 'fusion-builder' ); ?></span></a></li>
 		<?php endif; ?>
-		<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_icons' ) ) : ?>
+		<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_icons' ) ) ) : ?>
 			<li class="avada-db-menu-item avada-db-menu-item-icons"><a class="avada-db-menu-item-link<?php echo ( 'icons' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'icons' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-icons' ) ); ?>" ><i class="fusiona-icons"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Icons', 'fusion-builder' ); ?></span></a></li>
 			<?php
 		endif;
@@ -271,7 +231,7 @@ class Fusion_Builder_Admin {
 	 * @return void
 	 */
 	public function add_avada_dashboard_sticky_menu_items_library( $screen ) {
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) :
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) :
 			?>
 			<li class="avada-db-menu-item avada-db-menu-item-library"><a class="avada-db-menu-item-link<?php echo ( 'library' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'library' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-library' ) ); ?>" ><i class="fusiona-drive"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Library', 'fusion-builder' ); ?></span></a></li>
 			<?php

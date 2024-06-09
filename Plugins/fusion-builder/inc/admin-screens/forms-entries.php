@@ -8,38 +8,16 @@
 $fusion_forms = new Fusion_Form_DB_Forms();
 $forms        = $fusion_forms->get_formatted();
 ksort( $forms );
-
-$action = false;
-if ( isset( $_REQUEST['action'] ) && -1 !== $_REQUEST['action'] && '-1' !== $_REQUEST['action'] ) {
-	$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
-} elseif ( isset( $_REQUEST['action2'] ) && -1 !== $_REQUEST['action2'] && '-1' !== $_REQUEST['action2'] ) {
-	$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
-}
-
-if ( 'awb_bulk_delete_entries' === $action && AWB_Access_Control::wp_user_can_for_post( 'fusion_form', 'delete_others_posts' ) ) {
-	check_admin_referer( 'bulk-avada_page_avada-form-entries' );
-
-	$element_ids = '';
-	if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		$element_ids = wp_unslash( $_GET['post'] ); // phpcs:ignore WordPress.Security
-	}
-	if ( '' !== $element_ids ) {
-		$element_ids = (array) $element_ids;
-	}
-	$submissions = new Fusion_Form_DB_Submissions();
-	if ( ! empty( $element_ids ) ) {
-		foreach ( $element_ids as $id ) {
-			$submissions->delete( (int) $id );
-		}
-	}
-}
 ?>
 <?php Fusion_Builder_Admin::header( 'form-entries' ); ?>
-<?php if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_form', 'create_posts' ) ) : ?>
 <div class="fusion-builder-important-notice fusion-template-builder avada-db-card avada-db-card-first">
 	<div class="intro-text">
 		<h1><?php esc_html_e( 'Form Builder', 'fusion-builder' ); ?></h1>
-		<p><?php esc_html_e( 'Add a name for your Avada Form. You will be redirected to the Edit Form Page.', 'fusion-builder' ); ?></p>
+		<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ) : ?>
+			<p><?php esc_html_e( 'Add a name for your Avada Form. You will be redirected to the Edit Form Page.', 'fusion-builder' ); ?></p>
+		<?php else : ?>	
+			<p><?php esc_html_e( 'View submission entries of Avada Forms below.', 'fusion-builder' ); ?></p>
+		<?php endif; ?>	
 
 		<div class="avada-db-card-notice">
 			<i class="fusiona-info-circle"></i>
@@ -55,29 +33,56 @@ if ( 'awb_bulk_delete_entries' === $action && AWB_Access_Control::wp_user_can_fo
 		</div>
 		<?php do_action( 'fusion_form_admin_text' ); ?>
 	</div>
-	<form>
-		<input type="hidden" name="action" value="fusion_forms_new">
-		<?php wp_nonce_field( 'fusion_new_form' ); ?>
+	<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ) : ?>
+		<form>
+			<input type="hidden" name="action" value="fusion_forms_new">
+			<?php wp_nonce_field( 'fusion_new_form' ); ?>
 
-		<div>
-			<input type="text" placeholder="<?php esc_attr_e( 'Enter Your Form Name', 'fusion-builder' ); ?>" required id="fusion-form-name" name="name" />
-		</div>
+			<div>
+				<input type="text" placeholder="<?php esc_attr_e( 'Enter Your Form Name', 'fusion-builder' ); ?>" required id="fusion-form-name" name="name" />
+			</div>
 
-		<div>
-			<input type="submit" value="<?php esc_attr_e( 'Create New Form', 'fusion-builder' ); ?>" class="button button-large button-primary avada-large-button" />
-		</div>
-	</form>
+			<div>
+				<input type="submit" value="<?php esc_attr_e( 'Create New Form', 'fusion-builder' ); ?>" class="button button-large button-primary avada-large-button" />
+			</div>
+		</form>
+	<?php endif; ?>		
 </div>
-<?php endif; ?>
+
 <div class="fusion-form-welcome-content">
 	<?php
 	$form_id = key( $forms );
+	$action  = false;
+	if ( isset( $_REQUEST['action'] ) && -1 !== $_REQUEST['action'] && '-1' !== $_REQUEST['action'] ) {
+		$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+	} elseif ( isset( $_REQUEST['action2'] ) && -1 !== $_REQUEST['action2'] && '-1' !== $_REQUEST['action2'] ) {
+		$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
+	}
+
+	if ( 'awb_bulk_delete_entries' === $action && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) {
+		check_admin_referer( 'bulk-avada_page_avada-form-entries' );
+
+		$element_ids = '';
+		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$element_ids = wp_unslash( $_GET['post'] ); // phpcs:ignore WordPress.Security
+		}
+		if ( '' !== $element_ids ) {
+			$element_ids = (array) $element_ids;
+		}
+		$submissions = new Fusion_Form_DB_Submissions();
+		if ( ! empty( $element_ids ) ) {
+			foreach ( $element_ids as $id ) {
+				$submissions->delete( (int) $id );
+			}
+		}
+	}
+
 	if ( isset( $_GET['form_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		$form_id = sanitize_text_field( wp_unslash( $_GET['form_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 	}
 	if ( ! empty( $forms ) ) {
-		$form_creator_list_table = new Fusion_Form_List_Table( $form_id );
-		$form_creator_list_table->prepare_items();
+		$form_list_table = new Fusion_Form_List_Table( $form_id );
+		$form_list_table->prepare_items();
 		?>
 		<label class="form-heading-inline" for="fusion-forms">
 			<?php ob_start(); ?>
@@ -106,30 +111,15 @@ if ( 'awb_bulk_delete_entries' === $action && AWB_Access_Control::wp_user_can_fo
 			</label>
 			<?php if ( current_user_can( 'export' ) ) { ?>
 				<?php wp_nonce_field( 'fusion-form-nonce', 'fusion-form-export-nonce' ); ?>
-				<a href="<?php echo esc_url_raw( admin_url( 'admin.php?page=avada-form-entries&fusion_action=csv_export&form_id=' . $form_id ) ); ?>" id="fusion-form-export" class="button <?php echo ! empty( $form_creator_list_table->_pagination_args ) && 0 < $form_creator_list_table->_pagination_args['total_items'] ? '' : 'disabled'; ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>" title="<?php esc_attr_e( 'Export Entries as CSV', 'fusion-builder' ); ?>"><?php esc_html_e( 'Export Entries', 'fusion-builder' ); ?></a>
+				<a href="<?php echo esc_url_raw( admin_url( 'admin.php?page=avada-form-entries&fusion_action=csv_export&form_id=' . $form_id ) ); ?>" id="fusion-form-export" class="button <?php echo ! empty( $form_list_table->_pagination_args ) && 0 < $form_list_table->_pagination_args['total_items'] ? '' : 'disabled'; ?>" data-form-id="<?php echo esc_attr( $form_id ); ?>" title="<?php esc_attr_e( 'Export Entries as CSV', 'fusion-builder' ); ?>"><?php esc_html_e( 'Export Entries', 'fusion-builder' ); ?></a>
 				<span id="fusion-form-export-status"><span id="fusion-form-export-status-bar"></span></span>
 			<?php } ?>
-		<?php
-		add_filter( 'user_has_cap', [ $this, 'maybe_add_cap' ], 10, 4 );
-		if ( current_user_can( 'moderate_comments' ) ) {
-			?>
 			<form id="avada-form-entries" method="get">
 				<input type="hidden" name="page" value="avada-form-entries">
 				<input type="hidden" name="form_id" value="<?php echo (int) $form_id; ?>">
-				<?php $form_creator_list_table->display(); ?>
-			</form>
-			<?php
-		} else {
-			?>
-			<div class="fusion-builder-important-notice avada-db-card">
-			<h2><?php esc_html_e( 'Access Denied', 'fusion-builder' ); ?></h2>
-			<p>
-				<?php esc_html_e( 'Sorry, you are not allowed to access entries of this form.', 'fusion-builder' ); ?>
-			</p>
-			</div>
-			<?php
-		}
-		remove_filter( 'user_has_cap', [ $this, 'maybe_add_cap' ], 10, 4 );
+				<?php $form_list_table->display(); ?>
+			</form>			
+		<?php
 	} else {
 		?>
 		<div class="fusion-builder-important-notice avada-db-card">

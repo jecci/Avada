@@ -43,7 +43,7 @@ class Fusion_Form_Builder {
 	 * @access private
 	 */
 	private function __construct() {
-		if ( ! apply_filters( 'fusion_load_form_builder', true ) || false === self::is_enabled() ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
@@ -57,6 +57,10 @@ class Fusion_Form_Builder {
 
 		add_action( 'wp_ajax_fusion_form_export', [ $this, 'ajax_export_entries' ] );
 		add_action( 'admin_init', [ $this, 'export_entries' ] );
+
+		// Reset form stats.
+		add_action( 'admin_init', [ $this, 'process_bulk_reset_forms' ] );
+		add_action( 'admin_action_awb_reset_form', [ $this, 'reset_form' ] );
 
 		// Enqueue styles on frontend.
 		add_action( 'wp', [ $this, 'frontend_styles' ] );
@@ -292,19 +296,23 @@ class Fusion_Form_Builder {
 	 * @return void
 	 */
 	public function add_avada_dashboard_sticky_menu_items( $screen ) {
-		if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_form' ) ) : ?>
-			<li class="avada-db-menu-item avada-db-menu-item-forms"><a class="avada-db-menu-item-link<?php echo ( 'forms' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'forms' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-forms' ) ); ?>" ><i class="fusiona-avada-form-element"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Forms', 'fusion-builder' ); ?></span></a>
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) || current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) : ?>
+			<?php $link = ( 'forms' === $screen ) || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ? '#' : admin_url( 'admin.php?page=avada-forms' ); ?>
+			<li class="avada-db-menu-item avada-db-menu-item-forms"><a class="avada-db-menu-item-link<?php echo ( 'forms' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( $link ); ?>" ><i class="fusiona-avada-form-element"></i><span class="avada-db-menu-item-text"><?php esc_html_e( 'Forms', 'fusion-builder' ); ?></span></a>
 				<ul class="avada-db-menu-sub avada-db-menu-sub-forms">
-					<li class="avada-db-menu-sub-item avada-db-menu-sub-item-forms">
-						<a class="avada-db-menu-sub-item-link<?php echo ( 'forms' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'forms' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-forms' ) ); ?>">
-							<i class="fusiona-avada-form-element"></i>
-							<div class="avada-db-menu-sub-item-text">
-								<div class="avada-db-menu-sub-item-label"><?php esc_html_e( 'Form Builder', 'fusion-builder' ); ?></div>
-								<div class="avada-db-menu-sub-item-desc"><?php esc_html_e( 'Build / Edit your Avada Forms.', 'fusion-builder' ); ?></div>
-							</div>
-						</a>
-					</li>
-					<?php if ( apply_filters( 'awb_view_forms_submissions', true, 'fusion_form' ) ) : ?>
+
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ) : ?>
+						<li class="avada-db-menu-sub-item avada-db-menu-sub-item-forms">
+							<a class="avada-db-menu-sub-item-link<?php echo ( 'forms' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( $link ); ?>">
+								<i class="fusiona-avada-form-element"></i>
+								<div class="avada-db-menu-sub-item-text">
+									<div class="avada-db-menu-sub-item-label"><?php esc_html_e( 'Form Builder', 'fusion-builder' ); ?></div>
+									<div class="avada-db-menu-sub-item-desc"><?php esc_html_e( 'Build / Edit your Avada Forms.', 'fusion-builder' ); ?></div>
+								</div>
+							</a>
+						</li>
+					<?php endif; ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) : ?>
 						<li class="avada-db-menu-sub-item avada-db-menu-sub-item-form-entries">
 							<a class="avada-db-menu-sub-item-link<?php echo ( 'form-entries' === $screen ) ? ' avada-db-active' : ''; ?>" href="<?php echo esc_url( ( 'form-entries' === $screen ) ? '#' : admin_url( 'admin.php?page=avada-form-entries' ) ); ?>">
 								<i class="fusiona-content"></i>
@@ -328,7 +336,7 @@ class Fusion_Form_Builder {
 	 * @access public
 	 */
 	public function register_post_types() {
-		$is_builder = ( function_exists( 'fusion_is_preview_frame' ) && fusion_is_preview_frame() ) || ( function_exists( 'fusion_is_builder_frame' ) && fusion_is_builder_frame() );
+		$is_builder = fusion_is_preview_frame() || fusion_is_builder_frame();
 		$args       = [
 			'labels'              => [
 				'name'          => _x( 'Avada Forms', 'Post Type General Name', 'fusion-builder' ),
@@ -414,7 +422,7 @@ class Fusion_Form_Builder {
 		// Verify the form submission nonce.
 		check_ajax_referer( 'fusion_entry_nonce', 'fusion_entry_nonce' );
 
-		if ( isset( $_POST['entry'] ) && AWB_Access_Control::wp_user_can_for_post( 'fusion_form', 'delete_others_posts' ) ) {
+		if ( isset( $_POST['entry'] ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form' ) ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) {
 			$entry_id    = (int) sanitize_text_field( wp_unslash( $_POST['entry'] ) );
 			$submissions = new Fusion_Form_DB_Submissions();
 
@@ -438,6 +446,11 @@ class Fusion_Form_Builder {
 			if ( 'fusion_form' === $typenow ) {
 				wp_enqueue_script( 'fusion_builder_form_blank', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-blank-form.js', [], FUSION_BUILDER_VERSION, true );
 			}
+		}
+
+		// Add inline style to make "Form Entries" menu item visible in case only form entries should be displayed.
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) {
+			wp_add_inline_style( 'avada-wp-admin-css', '#toplevel_page_avada > ul.wp-submenu a[href="admin.php?page=avada-form-entries"] { display: inline; }' );
 		}
 	}
 
@@ -481,13 +494,13 @@ class Fusion_Form_Builder {
 	public function add_new_form() {
 		check_admin_referer( 'fusion_new_form' );
 
-		if ( ! AWB_Access_Control::wp_user_can_for_post( $this->post_type, 'create_posts' ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_forms' ) ) ) {
 			return;
 		}
 
 		$custom_icon_set = [
 			'post_title'  => isset( $_GET['name'] ) ? sanitize_text_field( wp_unslash( $_GET['name'] ) ) : '',
-			'post_status' => AWB_Access_Control::wp_user_can_for_post( $this->post_type, 'publish_posts' ) ? 'publish' : 'pending',
+			'post_status' => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 			'post_type'   => $this->post_type,
 		];
 
@@ -596,6 +609,70 @@ class Fusion_Form_Builder {
 	}
 
 	/**
+	 * Resets stats of all given forms.
+	 *
+	 * @access public
+	 * @since 3.11.8
+	 * @return void
+	 */
+	public function process_bulk_reset_forms() {
+		if ( ( isset( $_REQUEST['action'] ) && 'awb_bulk_reset_forms' === $_REQUEST['action'] || isset( $_REQUEST['action2'] ) && 'awb_bulk_reset_forms' === $_REQUEST['action2'] ) ) {
+
+			if ( check_admin_referer( 'bulk-forms', '_wpnonce' ) && current_user_can( 'edit_others_posts' ) ) {
+				global $wpdb;
+				$ids = wp_unslash( $_REQUEST['post'] );
+				$db  = new Fusion_Form_DB();
+				foreach ( $ids as $id ) {
+					$db->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}fusion_forms SET views = 0, submissions_count = 0 WHERE `form_id` = %d", $id ) );
+				}
+
+				$referer = fusion_get_referer();
+				if ( $referer ) {
+					wp_safe_redirect( $referer );
+					exit;
+				}
+			} else {
+
+				/* translators: Form IDs. */
+				wp_die( sprintf( esc_html__( 'Reset of forms %s faild.', 'fusion-builder' ), implode( ', ', wp_unslash( $_REQUEST['post'] ) ) ) ); // phpcs:ignore WordPress.Security
+
+			}
+		}
+	}
+
+	/**
+	 * Resets stats of a form.
+	 *
+	 * @access public
+	 * @since 3.11.8
+	 * @return void
+	 */
+	public function reset_form() {
+		if ( isset( $_GET['action'] ) && 'awb_reset_form' === $_GET['action'] ) {
+			if ( ! isset( $_GET['post'] ) ) {
+				wp_die( esc_attr__( 'Cannot reset form. No ID given.', 'fusion-builder' ) );
+			}
+
+			if ( isset( $_GET['_awb_reset_form'] ) && check_admin_referer( 'reset_form', '_awb_reset_form' ) && current_user_can( 'edit_others_posts' ) ) {
+				global $wpdb;
+				$id = wp_unslash( $_GET['post'] );
+				$db = new Fusion_Form_DB();
+				$db->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}fusion_forms SET views = 0, submissions_count = 0 WHERE `form_id` = %d", $id ) );
+
+				// Redirect to the all sections screen.
+				wp_safe_redirect( admin_url( 'admin.php?page=avada-forms' ) );
+				exit;
+
+			} else {
+
+				/* translators: Form ID. */
+				wp_die( sprintf( esc_html__( 'Reset of form %s faild.', 'fusion-builder' ), htmlspecialchars( $id ) ) ); // phpcs:ignore WordPress.Security
+
+			}
+		}
+	}
+
+	/**
 	 * Display form preview.
 	 *
 	 * @since 2.3
@@ -688,7 +765,7 @@ class Fusion_Form_Builder {
 	public function ajax_export_entries() {
 
 		// Nonce check.
-		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'fusion-form-nonce' ) || ! apply_filters( 'awb_view_forms_submissions', true ) ) {
+		if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'fusion-form-nonce' ) || ! current_user_can( 'export' ) ) {
 			echo wp_json_encode(
 				[
 					'status' => 'error_nonce',
@@ -697,105 +774,101 @@ class Fusion_Form_Builder {
 			die();
 		}
 
-		$per_page     = apply_filters( 'fusion_form_export_per_step', 250 );
-		$form_id      = isset( $_GET['formID'] ) ? absint( wp_unslash( $_GET['formID'] ) ) : 0;
-		$current_page = isset( $_GET['currentPage'] ) ? absint( wp_unslash( $_GET['currentPage'] ) ) : 0;
-		$total_pages  = isset( $_GET['totalPages'] ) ? absint( wp_unslash( $_GET['totalPages'] ) ) : 0;
-
+		$per_page       = apply_filters( 'fusion_form_export_per_step', 250 );
+		$form_id        = isset( $_GET['formID'] ) ? absint( wp_unslash( $_GET['formID'] ) ) : 0;
+		$current_page   = isset( $_GET['currentPage'] ) ? absint( wp_unslash( $_GET['currentPage'] ) ) : 0;
+		$total_pages    = isset( $_GET['totalPages'] ) ? absint( wp_unslash( $_GET['totalPages'] ) ) : 0;
 		$status_message = 'export_processing';
+		$submissions    = new Fusion_Form_DB_Submissions();
 
-		if ( current_user_can( 'export' ) ) {
-			$submissions = new Fusion_Form_DB_Submissions();
+		if ( 0 === $total_pages ) {
+			$submission_args = [
+				'what'  => 'COUNT(id) AS count',
+				'where' => [ 'form_id' => (int) $form_id ],
+			];
+			$result          = $submissions->get( $submission_args );
 
-			if ( 0 === $total_pages ) {
-				$submission_args = [
-					'what'  => 'COUNT(id) AS count',
-					'where' => [ 'form_id' => (int) $form_id ],
-				];
-				$result          = $submissions->get( $submission_args );
-
-				$total_count = $result[0]->count;
-				$total_pages = (int) ceil( $total_count / $per_page );
-			}
-
-			// Get form post content.
-			global $wpdb;
-			$query             = "SELECT p.post_content FROM $wpdb->posts AS p INNER JOIN {$wpdb->prefix}fusion_forms AS ff ON p.ID = ff.form_id WHERE ff.id = %d";
-			$results           = $wpdb->get_results( $wpdb->prepare( $query, (int) $form_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
-			$form_post_content = $results && isset( $results[0] ) ? $results[0]->post_content : '';
-			$field_labels      = [];
-			$field_names       = [];
-
-			// Get labels and names for all fields / inputs.
-			if ( '' !== $form_post_content ) {
-				// Get form field names.
-				preg_match_all( '/\[fusion_form_[^\]]*\sname=\"([^\"]*)\"/', $form_post_content, $matches );
-				$field_names = isset( $matches[1] ) ? $matches[1] : [];
-
-				// Get form field labels.
-				preg_match_all( '/\[fusion_form_[^\]]*\slabel=\"([^\"]*)\"/', $form_post_content, $matches );
-				$field_labels = isset( $matches[1] ) ? $matches[1] : [];
-
-				// If (some) labels are missing or empty use name instead.
-				if ( count( $field_names ) !== count( array_filter( $field_labels ) ) || count( array_unique( $field_labels ) ) !== count( $field_labels ) ) {
-					$field_labels = map_deep( $field_names, 'Fusion_Builder_Form_Helper::fusion_name_to_label' );
-				}
-			}
-
-			$additional_labels = [ 'id', 'time' ];
-
-			// Add submission ID to label.
-			$field_labels = array_merge( [ 'id' => __( 'Submission ID', 'fusion-builder' ) ], $field_labels );
-
-			// Add date and time to labels.
-			$field_labels['time'] = __( 'Date Time', 'fusion-builder' );
-
-			// Apply filters.
-			$field_labels = apply_filters( 'awb_form_export_labels', $field_labels, $form_id );
-
-			$form_creator_list_table = new Fusion_Form_List_Table( $form_id );
-			$form_creator_list_table->prepare_items( $per_page, $current_page );
-
-			$upload_dir = wp_upload_dir();
-			$file       = $upload_dir['basedir'] . '/form-' . $form_id . '-entries.csv';
-
-			if ( 1 === $current_page && file_exists( $file ) ) {
-				@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			}
-
-			$f      = fopen( $file, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
-			$titles = 1 === $current_page ? false : true;
-
-			if ( is_array( $form_creator_list_table->items ) && ! empty( $form_creator_list_table->items ) ) {
-				foreach ( $form_creator_list_table->items as $key => $form_entry ) {
-
-					$form_submission = $this->find_submission( $key, $form_creator_list_table->form_submissions );
-
-					unset( $form_entry['Actions'] );
-					if ( ! $titles ) {
-						$titles = true;
-
-						// Add BOM.
-						fprintf( $f, chr( 0xEF ) . chr( 0xBB ) . chr( 0xBF ) );
-
-						// Add title row.
-						fputcsv( $f, $field_labels );
-					}
-
-					$csv_entry = [];
-					foreach ( $field_labels as $fkey => $label ) {
-						if ( in_array( $fkey, $additional_labels, true ) ) {
-							$csv_entry[ $label ] = $form_submission && isset( $form_submission->$fkey ) ? $form_submission->$fkey : '';
-						} else {
-							$csv_entry[ $label ] = isset( $form_entry[ $label ] ) ? $form_entry[ $label ] : '';
-						}
-					}
-					$csv_entry = apply_filters( 'awb_form_export_entry', $csv_entry, $form_id );
-					fputcsv( $f, array_values( $csv_entry ) );
-				}
-			}
-			fclose( $f ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+			$total_count = $result[0]->count;
+			$total_pages = (int) ceil( $total_count / $per_page );
 		}
+
+		// Get form post content.
+		global $wpdb;
+		$query             = "SELECT p.post_content FROM $wpdb->posts AS p INNER JOIN {$wpdb->prefix}fusion_forms AS ff ON p.ID = ff.form_id WHERE ff.id = %d";
+		$results           = $wpdb->get_results( $wpdb->prepare( $query, (int) $form_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		$form_post_content = $results && isset( $results[0] ) ? $results[0]->post_content : '';
+		$field_labels      = [];
+		$field_names       = [];
+
+		// Get labels and names for all fields / inputs.
+		if ( '' !== $form_post_content ) {
+			// Get form field names.
+			preg_match_all( '/\[fusion_form_[^\]]*\sname=\"([^\"]*)\"/', $form_post_content, $matches );
+			$field_names = isset( $matches[1] ) ? $matches[1] : [];
+
+			// Get form field labels.
+			preg_match_all( '/\[fusion_form_[^\]]*\slabel=\"([^\"]*)\"/', $form_post_content, $matches );
+			$field_labels = isset( $matches[1] ) ? $matches[1] : [];
+
+			// If (some) labels are missing or empty use name instead.
+			if ( count( $field_names ) !== count( array_filter( $field_labels ) ) || count( array_unique( $field_labels ) ) !== count( $field_labels ) ) {
+				$field_labels = map_deep( $field_names, 'Fusion_Builder_Form_Helper::fusion_name_to_label' );
+			}
+		}
+
+		$additional_labels = [ 'id', 'time' ];
+
+		// Add submission ID to label.
+		$field_labels = array_merge( [ 'id' => __( 'Submission ID', 'fusion-builder' ) ], $field_labels );
+
+		// Add date and time to labels.
+		$field_labels['time'] = __( 'Date Time', 'fusion-builder' );
+
+		// Apply filters.
+		$field_labels = apply_filters( 'awb_form_export_labels', $field_labels, $form_id );
+
+		$form_creator_list_table = new Fusion_Form_List_Table( $form_id );
+		$form_creator_list_table->prepare_items( $per_page, $current_page );
+
+		$upload_dir = wp_upload_dir();
+		$file       = $upload_dir['basedir'] . '/form-' . $form_id . '-entries.csv';
+
+		if ( 1 === $current_page && file_exists( $file ) ) {
+			@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		$f      = fopen( $file, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		$titles = 1 === $current_page ? false : true;
+
+		if ( is_array( $form_creator_list_table->items ) && ! empty( $form_creator_list_table->items ) ) {
+			foreach ( $form_creator_list_table->items as $key => $form_entry ) {
+
+				$form_submission = $this->find_submission( $key, $form_creator_list_table->form_submissions );
+
+				unset( $form_entry['Actions'] );
+				if ( ! $titles ) {
+					$titles = true;
+
+					// Add BOM.
+					fprintf( $f, chr( 0xEF ) . chr( 0xBB ) . chr( 0xBF ) );
+
+					// Add title row.
+					fputcsv( $f, $field_labels );
+				}
+
+				$csv_entry = [];
+				foreach ( $field_labels as $fkey => $label ) {
+					if ( in_array( $fkey, $additional_labels, true ) ) {
+						$csv_entry[ $label ] = $form_submission && isset( $form_submission->$fkey ) ? $form_submission->$fkey : '';
+					} else {
+						$csv_entry[ $label ] = isset( $form_entry[ $label ] ) ? $form_entry[ $label ] : '';
+					}
+				}
+				$csv_entry = apply_filters( 'awb_form_export_entry', $csv_entry, $form_id );
+				fputcsv( $f, array_values( $csv_entry ) );
+			}
+		}
+		fclose( $f ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 
 		if ( $current_page === $total_pages ) {
 			$status_message = 'export_done';

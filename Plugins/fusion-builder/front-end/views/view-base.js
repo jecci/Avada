@@ -171,6 +171,30 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							}
 							FusionPageBuilderApp.mediaMap.images[ value ][ option.param_name + '_id' ] = values[ option.param_name + '_id' ];
 						}
+
+					} else if ( 'upload_images' === option.type && 'undefined' !== typeof values[ option.param_name ] && '' !== values[ option.param_name ] ) {
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images ) {
+							FusionPageBuilderApp.mediaMap.multiple_images = {};
+						}
+
+						const key = option.param_name + '-' + values[ option.param_name ];
+
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images[ key ] ) {
+							FusionPageBuilderApp.mediaMap.multiple_images[ key ] = {};
+						}
+
+						// Add images URLs
+						const images = values[ option.param_name ].split( ',' );
+						images.forEach( ( id ) => {
+								const image = wp.media.attachment( id );
+								if ( _.isUndefined( image.get( 'url' ) ) ) {
+									image.fetch().then( function() {
+										FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+									} );
+								} else {
+									FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+								}
+						} );
 					}
 				} );
 

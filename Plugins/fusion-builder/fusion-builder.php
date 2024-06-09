@@ -3,7 +3,7 @@
  * Plugin Name: Avada Builder
  * Plugin URI: https://avada.com
  * Description: The advanced, premium drag & drop Avada Website Builder. Streamline your work and save time for the more important things.
- * Version: 3.11.7
+ * Version: 3.11.9
  * Author: ThemeFusion
  * Author URI: https://avada.com
  * Requires PHP: 5.6
@@ -24,7 +24,7 @@ if ( ! defined( 'FUSION_BUILDER_DEV_MODE' ) ) {
 
 // Plugin version.
 if ( ! defined( 'FUSION_BUILDER_VERSION' ) ) {
-	define( 'FUSION_BUILDER_VERSION', '3.11.7' );
+	define( 'FUSION_BUILDER_VERSION', '3.11.9' );
 }
 
 // Minimum PHP version required.

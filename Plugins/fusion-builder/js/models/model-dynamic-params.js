@@ -73,7 +73,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			this.set( 'params', params );
 
-			FusionPageBuilderEvents.trigger( 'fusion-dynamic-data-added', param );
+			FusionPageBuilderEvents.trigger( 'fusion-dynamic-data-added', param, this.cid );
 		},
 
 		updateParam: function( param, subParam, value ) {

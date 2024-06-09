@@ -7,7 +7,7 @@
 
 ?>
 <?php Fusion_Builder_Admin::header( 'off-canvas' ); ?>
-<?php if ( AWB_Access_Control::wp_user_can_for_post( 'awb_off_canvas', 'create_posts' ) ) : ?>
+<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ) ) ) : ?>
 	<div class="fusion-builder-important-notice fusion-template-builder avada-db-card avada-db-card-first">
 		<div class="intro-text">
 			<h1><?php esc_html_e( 'Off Canvas', 'fusion-builder' ); ?></h1>

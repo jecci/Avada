@@ -603,16 +603,17 @@ if ( ! class_exists( 'Fusion_Color' ) ) {
 			}
 			// Sanitize color.
 			$this->hex = sanitize_hex_color( maybe_hash_hex_color( $this->color ) );
-			$hex = ltrim( $this->hex, '#' );
 
 			// Fallback if needed.
-			if ( ! $hex || 3 > strlen( $hex ) ) {
+			if ( empty( $this->hex ) || 4 > strlen( $this->hex ) ) {
 				$this->from_fallback();
 				return;
 			}
+
+			$hex = ltrim( $this->hex, '#' );
+
 			// Make sure we have 6 digits for the below calculations.
 			if ( 3 === strlen( $hex ) ) {
-				$hex = ltrim( $this->hex, '#' );
 				$hex = substr( $hex, 0, 1 ) . substr( $hex, 0, 1 ) . substr( $hex, 1, 1 ) . substr( $hex, 1, 1 ) . substr( $hex, 2, 1 ) . substr( $hex, 2, 1 );
 			}
 

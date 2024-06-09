@@ -16,6 +16,7 @@
   --awb-margin-right: 0;
   --awb-margin-bottom: 0;
   --awb-margin-left: 0;
+  --awb-user-select: var(--text_user_select, auto);
   text-align: var(--awb-content-alignment);
   font-size: var(--awb-font-size);
   line-height: var(--awb-line-height);
@@ -26,6 +27,8 @@
   font-weight: var(--awb-text-font-weight);
   font-style: var(--awb-text-font-style);
   margin: var(--awb-margin-top) var(--awb-margin-right) var(--awb-margin-bottom) var(--awb-margin-left);
+  -webkit-user-select: var(--awb-user-select);
+          user-select: var(--awb-user-select);
 }
 .awb-text-cols {
   column-count: var(--awb-columns);

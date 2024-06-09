@@ -72,6 +72,7 @@ if ( fusion_is_element_enabled( 'fusion_events' ) && class_exists( 'Tribe__Event
 					'id'                => '',
 					'cat_slug'          => '',
 					'columns'           => '4',
+					'hide_recurrences'  => 'no',
 					'number_posts'      => ( '' !== $fusion_settings->get( 'events_per_page' ) ) ? $fusion_settings->get( 'events_per_page' ) : '4',
 					'order'             => 'ASC',
 					'pagination'        => 'no',
@@ -235,6 +236,10 @@ if ( fusion_is_element_enabled( 'fusion_events' ) && class_exists( 'Tribe__Event
 							'terms'    => array_map( 'trim', $terms ),
 						],
 					];
+				}
+
+				if ( 'yes' === $defaults['hide_recurrences'] ) {
+					$args['hide_subsequent_recurrences'] = true;
 				}
 
 				if ( ! $live_request ) {
@@ -844,7 +849,22 @@ function fusion_element_events() {
 					'help_url'  => 'https://avada.com/documentation/the-events-calendar-element/',
 					'params'    => [
 						$cat_include,
-
+						[
+							'type'        => 'radio_button_set',
+							'heading'     => esc_attr__( 'Condense Events In Series', 'fusion-builder' ),
+							'description' => __( 'Turn on to show only the next event in each series.', 'fusion-builder' ),
+							'param_name'  => 'hide_recurrences',
+							'value'       => [
+								'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+								'no'  => esc_attr__( 'No', 'fusion-builder' ),
+							],
+							'default'     => 'no',
+							'callback'    => [
+								'function' => 'fusion_ajax',
+								'action'   => 'get_fusion_events',
+								'ajax'     => true,
+							],
+						],
 						[
 							'type'        => 'radio_button_set',
 							'heading'     => esc_attr__( 'Display Past Events', 'fusion-builder' ),

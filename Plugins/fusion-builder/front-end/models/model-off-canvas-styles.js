@@ -15,6 +15,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ),
 					ocID				= body.find( '.awb-off-canvas-wrap' ).attr( 'data-id' );
 
+			// Make sure Off Canvas is 100% width in LE.
+			body.find( '#main' ).addClass( 'width-100' );
+
 			this.baseSelector = '.awb-off-canvas-wrap[data-id="' + ocID + '"]';
 			this.dynamic_css  = {};
 			this.options     = this.filterOptions();

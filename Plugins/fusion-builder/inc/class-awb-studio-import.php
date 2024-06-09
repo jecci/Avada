@@ -50,7 +50,7 @@ class AWB_Studio_Import {
 	 * @access public
 	 * @var string
 	 */
-	public $studio_url = 'https://avada.studio/';
+	public $studio_url = 'https://avada.studio';
 
 	/**
 	 * Import options.
@@ -516,6 +516,39 @@ class AWB_Studio_Import {
 
 					// Replace the URL as well.
 					$post_content = str_replace( $image_url, $new_url, $post_content );
+				}
+			}
+
+			// handle multiple images.
+			if ( isset( $layout['avada_media']['multiple_images'] ) && ! empty( $layout['avada_media']['multiple_images'] ) && current_user_can( 'upload_files' ) ) {
+				foreach ( (array) $layout['avada_media']['multiple_images'] as $images_key => $multiple_images ) {
+					$images_key  = explode( '-', $images_key );
+					$param_name  = isset( $images_key[0] ) ? $images_key[0] : '';
+					$param_value = isset( $images_key[1] ) ? $images_key[1] : '';
+
+					$old_string = $param_name . '="' . $param_value . '"';
+					$new_ids    = [];
+					foreach ( $multiple_images as $old_id => $image_url ) {
+						$existing_image = $this->find_existing_media( $image_url );
+						if ( $existing_image ) {
+							$image_id = $existing_image;
+						} else {
+
+							// We don't already have it, need to load it.
+							$image_id = media_sideload_image( $image_url, $layout['post_id'], null, 'id' ); // phpcs:ignore WordPress.Security
+
+							if ( ! is_wp_error( $image_id ) ) {
+								$new_ids[] = $image_id;
+
+								// Add flag to prevent duplicate imports.
+								$this->add_media_meta( $image_id, $image_url );
+								do_action( 'awb_studio_import_action', $image_id );
+							}
+						}
+					}
+
+					$new_string   = $param_name . '="' . join( ',', $new_ids ) . '"';
+					$post_content = str_replace( $old_string, $new_string, $post_content );
 				}
 			}
 

@@ -105,13 +105,13 @@ class AWB_Off_Canvas_Admin {
 
 		check_admin_referer( 'awb_off_canvas_new' );
 
-		if ( ! AWB_Access_Control::wp_user_can_for_post( $this->post_type, 'create_posts' ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ) ) ) {
 			return;
 		}
 
 		$off_canvas = [
 			'post_title'  => isset( $_GET['name'] ) ? sanitize_text_field( wp_unslash( $_GET['name'] ) ) : '',
-			'post_status' => AWB_Access_Control::wp_user_can_for_post( $this->post_type, 'publish_posts' ) ? 'publish' : 'pending',
+			'post_status' => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 			'post_type'   => $this->post_type,
 		];
 

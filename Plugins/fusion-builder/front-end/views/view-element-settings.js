@@ -223,10 +223,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		},
 
 		addDynamicStatus: function( param ) {
-			this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
+			if ( 'undefined' !== typeof this.model.attributes.params.dynamic_params ) {
+				this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
 
-			// Needed for dependencies.
-			this.$el.find( '#' + param ).trigger( 'fusion-change' );
+				// Needed for dependencies.
+				this.$el.find( '#' + param ).trigger( 'fusion-change' );
+			}
 		},
 
 		onRender: function() {

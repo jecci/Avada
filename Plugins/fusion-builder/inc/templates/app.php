@@ -21,7 +21,7 @@
 		<div class="fusion-page-builder-controls">
 			<a href="#" class="fusion-builder-layout-buttons fusion-builder-layout-buttons-toggle-containers" title="{{ fusionBuilderText.toggle_all_sections }}"><span class="dashicons-before dashicons-arrow-down"></span></a>
 			<a href="#" class="fusion-builder-layout-buttons fusion-builder-layout-custom-css <?php echo esc_attr( $has_custom_css ); ?>" title="{{ fusionBuilderText.custom_css }}"><span class="fusiona-code"></span></a>
-			<?php if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_template', 'create_posts' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+			<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'backed_builder_edit' ) ) ) : ?>
 				<a href="#" class="fusion-builder-layout-buttons fusion-builder-template-buttons-save" title="{{ fusionBuilderText.save_page_layout }}"><span class="fusiona-drive"></span></a>
 			<?php endif; ?>
 			<a href="#" class="fusion-builder-layout-buttons fusion-builder-layout-buttons-clear" title="{{ fusionBuilderText.delete_page_layout }}"><span class="fusiona-trash-o"></span></a>
@@ -51,7 +51,7 @@
 	<?php do_action( 'fusion_builder_after_content' ); ?>
 
 	<div id="fusion-builder-layouts">
-		<?php Fusion_Builder_Library()->display_library_content(); ?>
+		<?php Fusion_Builder_Library()->display_library_content( 'backend_builder' ); ?>
 	</div>
 
 	<div id="fusion-google-font-holder" style="display:none">

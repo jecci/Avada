@@ -115,9 +115,11 @@ class Fusion_Form_List_Table extends WP_List_Table {
 			array_push( $labels, 'Actions' );
 		}
 
-		$this->columns = [
-			'cb' => '<input type="checkbox" />',
-		];
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form' ) ) ) {
+			$this->columns = [
+				'cb' => '<input type="checkbox" />',
+			];
+		}
 
 		foreach ( $labels as $key => $label ) {
 			$this->columns[] = $label;
@@ -134,10 +136,12 @@ class Fusion_Form_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	public function get_bulk_actions() {
-
-		$actions = [
-			'awb_bulk_delete_entries' => esc_html__( 'Delete Entries', 'fusion-builder' ),
-		];
+		$actions = [];
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form' ) ) ) {
+			$actions = [
+				'awb_bulk_delete_entries' => esc_html__( 'Delete Entries', 'fusion-builder' ),
+			];
+		}
 
 		return $actions;
 	}
@@ -151,7 +155,7 @@ class Fusion_Form_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	public function column_cb( $item ) {
-		if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_form', 'delete_others_posts' ) ) {
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form' ) ) ) {
 			return "<input type='checkbox' name='post[]' value='{$item['awb_id']}' />";
 		}
 
@@ -328,7 +332,7 @@ class Fusion_Form_List_Table extends WP_List_Table {
 		$html            = '<div class="row-actions fusion-form-entries">';
 		$html           .= '<span class"view_details"><a href="#" onclick="jQuery(\'.single-entry-' . $key . '\').toggleClass( \'hidden\' ); return false;">' . __( 'View All Details', 'fusion-builder' ) . '</a></span>';
 
-		if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_form', 'delete_others_posts' ) ) {
+		if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form' ) ) ) {
 			$html .= '<span class="trash"> | <a href="#" class="fusion-remove-form-entry" data-key="' . $key . '">' . __( 'Delete', 'fusion-builder' ) . '</a></span>';
 		}
 

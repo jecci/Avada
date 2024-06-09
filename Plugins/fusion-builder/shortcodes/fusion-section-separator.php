@@ -1114,7 +1114,7 @@ if ( fusion_is_element_enabled( 'fusion_section_separator' ) ) {
 					$custom_css_vars['spacer-padding-top'] = ( 216 / 1024 * 100 ) . '%';
 				} elseif ( 'waves' === $this->args['divider_type'] ) {
 					$custom_css_vars['spacer-padding-top'] = ( 162 / 1024 * 100 ) . '%';
-				} elseif ( in_array( $this->args['divider_type'], $this->bg_image_separators, true ) ) {
+				} elseif ( in_array( $this->args['divider_type'], $this->bg_image_separators, true ) && isset( $this->args['default_divider_height'] ) ) {
 					$height                           = '' === $this->args['divider_height'] && 1 < $this->args['divider_repeat'] ? ( intval( $this->args['default_divider_height'] ) / $this->args['divider_repeat'] ) . 'px' : $this->args['default_divider_height']; // Aspect ratio height.
 					$custom_css_vars['spacer-height'] = $height;
 				}

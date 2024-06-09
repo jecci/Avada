@@ -84,6 +84,7 @@ if ( fusion_is_element_enabled( 'fusion_text' ) ) {
 					'margin_right'                  => '',
 					'margin_top'                    => '',
 					'logics'                        => '',
+					'user_select'                   => '',
 				];
 			}
 
@@ -100,6 +101,7 @@ if ( fusion_is_element_enabled( 'fusion_text' ) ) {
 					'text_rule_style'       => 'rule_style',
 					'text_rule_size'        => 'rule_size',
 					'text_rule_color'       => 'rule_color',
+					'text_user_select'      => 'user_select',
 					'text_column_spacing'   => 'column_spacing',
 					'text_column_min_width' => 'column_min_width',
 					'text_columns'          => 'columns',
@@ -220,6 +222,7 @@ if ( fusion_is_element_enabled( 'fusion_text' ) ) {
 					'letter_spacing' => [ 'callback' => [ $sanitize, 'get_value_with_unit' ] ],
 					'text_transform',
 					'text_color'     => [ 'callback' => [ $sanitize, 'color' ] ],
+					'user_select',
 				];
 				$custom_css_vars = [];
 
@@ -410,6 +413,24 @@ if ( fusion_is_element_enabled( 'fusion_text' ) ) {
 								'transport'       => 'postMessage',
 								'soft_dependency' => true,
 							],
+							'text_user_select'  => [
+								'type'        => 'radio-buttonset',
+								'label'       => esc_html__( 'User Text Select', 'fusion-builder' ),
+								'description' => esc_html__( 'Controls how and if the text can be selected.', 'fusion-builder' ),
+								'id'          => 'text_user_select',
+								'default'     => 'auto',
+								'transport'   => 'postMessage',
+								'choices'     => [
+									'auto'  => esc_html__( 'Selectable', 'fusion-builder' ),
+									'all'   => esc_html__( 'All', 'fusion-builder' ),
+									'none'  => esc_html__( 'Not Selectable', 'fusion-builder' ),
+								],
+								'css_vars'        => [
+									[
+										'name' => '--text_user_select',
+									],
+								],								
+							],							
 						],
 					],
 				];
@@ -554,6 +575,20 @@ function fusion_element_text() {
 							],
 						],
 					],
+					[
+						'type'        => 'radio_button_set',
+						'heading'     => esc_html__( 'User Text Select', 'fusion-builder' ),
+						'description' => esc_html__( 'Controls how and if the text can be selected.', 'fusion-builder' ),
+						'param_name'  => 'user_select',
+						'default'     => '',
+						'value'       => [
+							''      => esc_html__( 'Default', 'fusion-builder' ),
+							'auto'  => esc_html__( 'Selectable', 'fusion-builder' ),
+							'all'   => esc_html__( 'All', 'fusion-builder' ),
+							'none'  => esc_html__( 'Not Selectable', 'fusion-builder' ),
+
+						],
+					],					
 					[
 						'type'         => 'tinymce',
 						'heading'      => esc_attr__( 'Content', 'fusion-builder' ),

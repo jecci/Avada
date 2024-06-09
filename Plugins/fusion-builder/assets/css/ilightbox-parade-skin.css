@@ -51,11 +51,29 @@
   background-position: -29px 6px;
 }
 .ilightbox-toolbar.parade a.ilightbox-fullscreen {
-  background-position: 8px -33px;
+  background-position: 8px -35px;
   right: 35px;
 }
 .ilightbox-toolbar.parade a.ilightbox-fullscreen:hover {
-  background-position: -29px -33px;
+  background-position: -29px -35px;
+}
+.ilightbox-toolbar.parade a.ilightbox-play {
+  background-position: 8px -76px;
+}
+.ilightbox-toolbar.parade a.ilightbox-play:hover {
+  background-position: -29px -76px;
+}
+.ilightbox-toolbar.parade a.ilightbox-prev-button {
+  background-position: 7px -117px;
+}
+.ilightbox-toolbar.parade a.ilightbox-prev-button:hover {
+  background-position: -28px -117px;
+}
+.ilightbox-toolbar.parade a.ilightbox-next-button {
+  background-position: 7px -158px;
+}
+.ilightbox-toolbar.parade a.ilightbox-next-button:hover {
+  background-position: -28px -158px;
 }
 .ilightbox-thumbnails.parade .ilightbox-thumbnails-grid .ilightbox-thumbnail img {
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);

@@ -3,6 +3,8 @@
 .fusion-audio.fusion-audio {
   --awb-background-color: var(--awb-audio-background-color-default, #222);
   --awb-max-width: var(--awb-audio-max-width-default, 100%);
+  --awb-align-self: auto;
+  --awb-width: auto;
   --awb-margin-top: 0;
   --awb-margin-right: 0;
   --awb-margin-bottom: 0;
@@ -15,6 +17,8 @@
   --awb-box-shadow: none;
   --awb-border-size: var(--awb-audio-border-size-default, 0);
   --awb-border-color: var(--awb-audio-border-color-default, #222);
+  align-self: var(--awb-align-self);
+  width: var(--awb-width);
   max-width: var(--awb-max-width);
   margin-top: var(--awb-margin-top);
   margin-right: var(--awb-margin-right);

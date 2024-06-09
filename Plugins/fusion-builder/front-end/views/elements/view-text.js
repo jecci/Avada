@@ -152,6 +152,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						'margin_right',
 						'margin_bottom',
 						'margin_left'
+						//'user_select' Just here for completeness. Don't add to avoid text selection issues in LE.
 					],
 					customCSSVars = {},
 					fontVars;

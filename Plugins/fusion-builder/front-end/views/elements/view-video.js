@@ -74,6 +74,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				attributes.attr        = this.buildAttr( atts.values );
 				attributes.wrapperAttr = this.buildWrapperAttr( atts.values );
 				attributes.videoAttr   = this.buildVideoAttr( atts.values );
+				attributes.time        = this.buildTime( atts.values );
 				attributes.video_webm  = atts.values.video_webm;
 				attributes.video       = atts.values.video;
 
@@ -100,6 +101,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'yes' === values.box_shadow ) {
 					values.box_shadow = _.fusionGetBoxShadowStyle( values ) + ';';
 				}
+			},
+
+			/**
+			 * Builds time string.
+			 *
+			 * @since 3.11.8
+			 * @param {Object} values - The values.
+			 * @return string The time string.
+			 */
+			buildTime: function( values ) {
+				let time = '';
+				if ( values.start_time || values.end_time ) {
+					time = '#t=';
+					time = values.start_time ? time + values.start_time : time + '0';
+					time = values.end_time ? time + ',' + values.end_time : time;				
+				}
+				
+				return time;
+				
 			},
 
 			/**

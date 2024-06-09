@@ -8,5 +8,5 @@
 
 ?>
 <div style="display:none" id="fusion-builder-front-end-library">
-	<?php Fusion_Builder_Library()->display_library_content( 'front' ); ?>
+	<?php Fusion_Builder_Library()->display_library_content( 'live_builder' ); ?>
 </div>

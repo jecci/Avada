@@ -17,12 +17,13 @@
 	<li class="admin-tools fb">
 		<ul>
 			<# if ( ( true === FusionApp.data.is_singular || true === FusionApp.data.is_shop ) && 'undefined' !== typeof FusionApp.data.postDetails && FusionApp.isEditable() && FusionApp.hasEditableContent ) { #>
+				<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'live_builder_edit' ) ) ) : ?>
 				<li class="open-library">
 					<a href="#" class="fusion-builder-open-library has-tooltip" aria-label="<?php esc_attr_e( 'Library', 'fusion-builder' ); ?>">
 						<span class="fusiona-drive"></span>
 					</a>
 				</li>
-
+				<?php endif; ?>
 
 				<li class="fusion-builder-history-container has-submenu">
 					<a href="#" class="fusion-builder-history has-tooltip trigger-submenu-toggling" id="fusion-builder-toolbar-history-menu" aria-label="<?php esc_attr_e( 'History', 'fusion-builder' ); ?>">
@@ -41,7 +42,7 @@
 			</li>
 
 			<?php $allowed_post_types = FusionBuilder()->allowed_post_types(); ?>
-			<?php if ( is_array( $allowed_post_types ) && ( current_user_can( 'publish_pages' ) || current_user_can( 'publish_posts' ) ) ) : ?>
+			<?php if ( is_array( $allowed_post_types ) ) : ?>
 				<li id="fusion-builder-toolbar-new-post" class="add-new has-submenu">
 					<a href="#" class="fusion-builder-add-new has-tooltip trigger-submenu-toggling" aria-label="<?php esc_attr_e( 'Add New', 'fusion-builder' ); ?>">
 						<span class="fusiona-plus"></span>
@@ -49,25 +50,17 @@
 					<ul class="fusion-builder-new-list submenu-trigger-target" aria-expanded="false">
 						<?php foreach ( $allowed_post_types as $allowed_post_type ) : ?>
 							<?php
-							if ( 'fusion_template' === $allowed_post_type || 'fusion_element' === $allowed_post_type || ! apply_filters( 'awb_dashboard_menu_cpt', true, $allowed_post_type ) || ! apply_filters( 'awb_live_editor_cpt', true, $allowed_post_type ) ) {
+							if ( 'fusion_template' === $allowed_post_type || 'fusion_element' === $allowed_post_type ) {
 								continue;
 							}
 
+							if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', $allowed_post_type, 'live_builder_edit' ) ) ) {
+								continue;
+							}
 
 							$allowed_post_type_object = get_post_type_object( $allowed_post_type );
-							$capability_type          = 'post';
-							if ( is_object( $allowed_post_type ) && isset( $allowed_post_type_object->capability_type ) ) {
-								$capability_type = $allowed_post_type_object->capability_type;
-							}
-
-							if ( 'post' === $capability_type && ! current_user_can( 'publish_posts' ) ) {
-								continue;
-							}
-							if ( 'page' === $capability_type && ! current_user_can( 'publish_pages' ) ) {
-								continue;
-							}
 							?>
-							<?php if ( is_object( $allowed_post_type_object ) && current_user_can( $allowed_post_type_object->cap->publish_posts, false ) ) : ?>
+							<?php if ( is_object( $allowed_post_type_object ) ) : ?>
 								<li class="add-new" data-post-type="<?php echo esc_attr( $allowed_post_type ); ?>">
 									<?php echo esc_html( $allowed_post_type_object->labels->singular_name ); ?>
 								</li>
@@ -77,7 +70,7 @@
 				</li>
 			<?php endif; ?>
 
-			<?php if ( current_user_can( 'publish_pages' ) || current_user_can( 'publish_posts' ) ) : ?>
+			<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type(), 'live_builder_edit' ) ) ) : ?>
 				<# if ( ( true === FusionApp.data.is_singular || true === FusionApp.data.is_shop ) && 'undefined' !== typeof FusionApp.data.postDetails && FusionApp.isEditable() && FusionApp.hasEditableContent ) { #>
 					<li>
 						<a href="#" class="fusion-builder-clear-layout has-tooltip" aria-label="<?php esc_attr_e( 'Clear Layout', 'fusion-builder' ); ?>">

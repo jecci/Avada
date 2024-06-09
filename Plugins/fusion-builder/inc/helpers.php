@@ -2878,16 +2878,16 @@ if ( ! function_exists( 'awb_get_list_table_edit_links' ) ) {
 		if ( ! current_user_can( 'edit_post', $item['id'] ) ) {
 			return $actions;
 		}
-		$options      = get_option( 'fusion_builder_settings', [] );
-		$builder_type = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
-		$live_editor  = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $item['id'] ) );
-		$builder      = apply_filters( 'awb_load_builder', true );
-		$edit_url     = get_edit_post_link( $item['id'], 'raw' );
-		$title        = _draft_or_post_title( $item['id'] );
+		$options              = get_option( 'fusion_builder_settings', [] );
+		$builder_type         = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
+		$load_live_builder    = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $item['id'] ), 'live_builder_edit' ) );
+		$load_backend_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $item['id'] ), 'backend_builder_edit' ) );
+		$edit_url             = get_edit_post_link( $item['id'], 'raw' );
+		$title                = _draft_or_post_title( $item['id'] );
 
-		$actions['edit'] = sprintf( '<a href="%s">' . esc_html__( 'Edit', 'fusion-builder' ) . '</a>', 'live' === $builder_type && $live_editor ? esc_url_raw( add_query_arg( 'fb-edit', '1', get_the_permalink( $item['id'] ) ) ) : $edit_url );
+		$actions['edit'] = sprintf( '<a href="%s">' . esc_html__( 'Edit', 'fusion-builder' ) . '</a>', 'live' === $builder_type && $load_live_builder ? esc_url_raw( add_query_arg( 'fb-edit', '1', get_the_permalink( $item['id'] ) ) ) : $edit_url );
 
-		if ( $live_editor && 'backend' === $builder_type ) {
+		if ( $load_live_builder && 'backend' === $builder_type ) {
 			$actions['fusion_builder_live'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url_raw( add_query_arg( 'fb-edit', '1', get_the_permalink( $item['id'] ) ) ),
@@ -2900,7 +2900,7 @@ if ( ! function_exists( 'awb_get_list_table_edit_links' ) ) {
 				),
 				esc_html__( 'Live Builder', 'fusion-builder' )
 			);
-		} elseif ( 'live' === $builder_type && $builder ) {
+		} elseif ( 'live' === $builder_type && $load_backend_builder ) {
 			$actions['fusion_builder_backend'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( $edit_url ),
@@ -2952,7 +2952,7 @@ if ( ! function_exists( 'awb_get_new_post_edit_link' ) ) {
 	function awb_get_new_post_edit_link( $id ) {
 		$options      = get_option( 'fusion_builder_settings', [] );
 		$builder_type = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
-		$live_editor  = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $id ) );
+		$live_editor  = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $id ), 'live_builder_edit' ) );
 
 		return 'live' === $builder_type && $live_editor ? esc_url_raw( add_query_arg( 'fb-edit', '1', get_the_permalink( $id ) ) ) : get_edit_post_link( $id, 'raw' );
 	}

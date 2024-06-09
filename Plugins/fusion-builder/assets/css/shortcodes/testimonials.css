@@ -238,8 +238,7 @@
   border-top-color: transparent;
   border-left-color: transparent;
   font-size: inherit;
-  -webkit-clip-path: polygon(0% 100%, 100% 0, 100% 100%);
-          clip-path: polygon(0% 100%, 100% 0, 100% 100%);
+  clip-path: polygon(0% 100%, 100% 0, 100% 100%);
 }
 .fusion-testimonials.classic .avatar-image .awb-triangle {
   position: relative;

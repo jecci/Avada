@@ -1290,6 +1290,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						elementType    = $( this ).closest( '.fusion_builder_module_settings' ).data( 'element_type' ),
 						param          = $( this ).closest( '.fusion-builder-option' ).data( 'option-id' );
 
+					const saveType = jQuery( this ).data( 'save-type' );
+
 					if ( event ) {
 						event.preventDefault();
 					}
@@ -1458,9 +1460,18 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 								return attachment.id;
 							} );
 
+							const imageURLs = [];
+							state.get( 'selection' ).forEach( ( media ) => {
+								imageURLs.push( `${media.toJSON().url}|${media.id}` );
+							} );
+
 							// If its a multi image element, add the images container and IDs to input field.
 							if ( multiImages ) {
-								multiImageInput.val( imageIDs ).trigger( 'change' );
+								if ( 'url' === saveType ) {
+									multiImageInput.val( imageURLs.join( ',' ) ).trigger( 'change' );
+								} else {
+									multiImageInput.val( imageIDs ).trigger( 'change' );
+								}
 							}
 
 							// Remove default item.
@@ -1572,10 +1583,10 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						imageIndex;
 
 					imageID = jQuery( this ).parent( '.fusion-multi-image' ).data( 'image-id' );
-					imageIDs = input.val().split( ',' ).map( function( v ) {
-						return parseInt( v, 10 );
-					} );
-					imageIndex = imageIDs.indexOf( imageID );
+					imageIDs = input.val() ? input.val().split( ',' ) : [];
+					const currentImage = imageIDs.find( ( image ) => ( image.includes( '|' ) ? image.includes( '|' + imageID ) : image.includes( imageID ) ) );
+					imageIndex = imageIDs.indexOf( currentImage );
+
 					if ( -1 !== imageIndex ) {
 						imageIDs.splice( imageIndex, 1 );
 					}
@@ -2338,7 +2349,11 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 			importStudioMedia: function( postData, mediaKey, importOptions ) {
 				var self = this;
 
-				jQuery( '#fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.studio_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+				jQuery( '#fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.studio_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
 
 				return jQuery.ajax( {
 					type: 'POST',
@@ -2583,8 +2598,12 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 					// Check for once deactivated elements in text blocks that are active again.
 					content = wp.shortcode.replace( 'fusion_text', content, function( tag ) {
+						if ( 'undefined' !== typeof tag.attrs.named.dynamic_params && '' !== tag.attrs.named.dynamic_params ) {
+							return false;
+						}
 						shortcodeTags = fusionAllElements;
 						textNodes = tag.content;
+
 						_.each( shortcodeTags, function( shortcode ) {
 							if ( 'undefined' === typeof shortcode.generator_only ) {
 								textNodes = wp.shortcode.replace( shortcode.shortcode, textNodes, function() {
@@ -2749,6 +2768,29 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 							}
 							FusionPageBuilderApp.mediaMap.images[ value ][ option.param_name + '_id' ] = values[ option.param_name + '_id' ];
 						}
+					} else if ( 'upload_images' === option.type && 'undefined' !== typeof values[ option.param_name ] && '' !== values[ option.param_name ] ) {
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images ) {
+							FusionPageBuilderApp.mediaMap.multiple_images = {};
+						}
+
+						const key = option.param_name + '-' + values[ option.param_name ];
+
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images[ key ] ) {
+							FusionPageBuilderApp.mediaMap.multiple_images[ key ] = {};
+						}
+
+						// Add images URLs
+						const images = values[ option.param_name ].split( ',' );
+						images.forEach( ( id ) => {
+								const image = wp.media.attachment( id );
+								if ( _.isUndefined( image.get( 'url' ) ) ) {
+									image.fetch().then( function() {
+										FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+									} );
+								} else {
+									FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+								}
+						} );
 					}
 				} );
 			},

@@ -177,7 +177,8 @@ Table of Contents
 /* Mixed layout styles */
 .fusion-blog-layout-large article,
 .fusion-blog-layout-medium article,
-.fusion-blog-layout-large-alternate article {
+.fusion-blog-layout-large-alternate article,
+.fusion-blog-layout-medium-alternate article {
   margin-bottom: 65px;
 }
 .fusion-blog-layout-large .entry-title,

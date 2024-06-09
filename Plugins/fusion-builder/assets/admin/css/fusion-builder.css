@@ -2642,8 +2642,7 @@ body.wp-admin.fusion-builder-enabled .upload-image-remove,
   padding: 13px;
   height: 46px !important;
   box-shadow: none !important;
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
   cursor: pointer;
   border-right: none !important;
   border: 1px solid #ddd;

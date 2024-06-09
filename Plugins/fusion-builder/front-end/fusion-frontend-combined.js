@@ -1457,7 +1457,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			this.saveData();
 
-			FusionEvents.trigger( 'fusion-dynamic-data-added', param );
+			FusionEvents.trigger( 'fusion-dynamic-data-added', param, this.cid );
 
 			this.getValueAndUpdate( params[ param ] );
 		},
@@ -1774,6 +1774,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		initialize: function() {
 			const 	body 				= jQuery( '#fb-preview' )[ 0 ].contentWindow.jQuery( 'body' ),
 					ocID				= body.find( '.awb-off-canvas-wrap' ).attr( 'data-id' );
+
+			// Make sure Off Canvas is 100% width in LE.
+			body.find( '#main' ).addClass( 'width-100' );
 
 			this.baseSelector = '.awb-off-canvas-wrap[data-id="' + ocID + '"]';
 			this.dynamic_css  = {};
@@ -2791,6 +2794,30 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							}
 							FusionPageBuilderApp.mediaMap.images[ value ][ option.param_name + '_id' ] = values[ option.param_name + '_id' ];
 						}
+
+					} else if ( 'upload_images' === option.type && 'undefined' !== typeof values[ option.param_name ] && '' !== values[ option.param_name ] ) {
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images ) {
+							FusionPageBuilderApp.mediaMap.multiple_images = {};
+						}
+
+						const key = option.param_name + '-' + values[ option.param_name ];
+
+						if ( 'object' !== typeof FusionPageBuilderApp.mediaMap.multiple_images[ key ] ) {
+							FusionPageBuilderApp.mediaMap.multiple_images[ key ] = {};
+						}
+
+						// Add images URLs
+						const images = values[ option.param_name ].split( ',' );
+						images.forEach( ( id ) => {
+								const image = wp.media.attachment( id );
+								if ( _.isUndefined( image.get( 'url' ) ) ) {
+									image.fetch().then( function() {
+										FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+									} );
+								} else {
+									FusionPageBuilderApp.mediaMap.multiple_images[ key ][ id ] = image.get( 'url' );
+								}
+						} );
 					}
 				} );
 
@@ -6315,10 +6342,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( 'on' === this.values.absolute ) {
 					attr[ 'class' ] += ' awb-absolute';
-				}
-
-				if ( this.values.z_index ) {
-					attr.style += 'z-index:' + this.values.z_index + ';';
 				}
 
 				// Flexbox column.
@@ -13779,10 +13802,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		},
 
 		addDynamicStatus: function( param ) {
-			this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
+			if ( 'undefined' !== typeof this.model.attributes.params.dynamic_params ) {
+				this.$el.find( '.fusion-builder-option[data-option-id="' + param + '"]' ).attr( 'data-dynamic', true );
 
-			// Needed for dependencies.
-			this.$el.find( '#' + param ).trigger( 'fusion-change' );
+				// Needed for dependencies.
+				this.$el.find( '#' + param ).trigger( 'fusion-change' );
+			}
 		},
 
 		onRender: function() {
@@ -16441,8 +16466,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			importStudioMedia: function( postData, mediaKey, importOptions ) {
 
-				this.studioImportModalView.updateStatus( fusionBuilderText.studio_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
-				this.studioImportModalView.updateProgressBar( postData.avada_media, mediaKey );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+				this.studioImportModalView.updateStatus( fusionBuilderText.studio_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
+				this.studioImportModalView.updateProgressBar( postData.avada_media, mediaKeyLabel );
 
 				return jQuery.ajax( {
 					type: 'POST',
@@ -16473,8 +16502,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			 */
 			importDemoPageMedia: function( postData, mediaKey ) {
 
-				this.demoImportModalView.updateStatus( fusionBuilderText.demo_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
-				this.demoImportModalView.updateProgressBar( postData.avada_media, mediaKey );
+				let mediaKeyLabel = mediaKey;
+				if ( 'multiple_images' === mediaKey ) {
+					mediaKeyLabel = 'Images';
+				}
+				this.demoImportModalView.updateStatus( fusionBuilderText.demo_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
+				this.demoImportModalView.updateProgressBar( postData.avada_media, mediaKeyLabel );
 
 				return jQuery.ajax( {
 					type: 'POST',
@@ -25353,28 +25386,43 @@ _.mixin( {
 
 		let slides = '';
 
-		images.forEach( ( id, idx, array ) => {
-			const image = wp.media.attachment( id );
-
-			if ( _.isUndefined( image.get( 'url' ) ) ) {
-				image.fetch().then( function() {
-					self.reRender();
-				} );
-			}
-
-			if ( image.get( 'url' ) ) {
+		if ( values.background_slider_images.startsWith( 'http' ) ) {
+			images.forEach( ( image, idx, array ) => {
 				if ( 0 === idx ) {
 					slides += '<div class="swiper-wrapper">';
 				}
+				const url = image.split( '|' )[ 0 ];
 
-				slides += '<div class="swiper-slide"><img src="' + image.get( 'url' ) + '" alt=""></div>';
+				slides += '<div class="swiper-slide"><img src="' + url + '" alt=""></div>';
 
 				if ( idx === array.length - 1 ) {
 					slides += '</div>';
 				}
-			}
+			} );
+		} else {
+			images.forEach( ( id, idx, array ) => {
+				const image = wp.media.attachment( id );
 
-		} );
+				if ( _.isUndefined( image.get( 'url' ) ) ) {
+					image.fetch().then( function() {
+						self.reRender();
+					} );
+				}
+
+				if ( image.get( 'url' ) ) {
+					if ( 0 === idx ) {
+						slides += '<div class="swiper-wrapper">';
+					}
+
+					slides += '<div class="swiper-slide"><img src="' + image.get( 'url' ) + '" alt=""></div>';
+
+					if ( idx === array.length - 1 ) {
+						slides += '</div>';
+					}
+				}
+
+			} );
+		}
 
 		element += '<div class="awb-background-slider" ' + attributes.join( ' ' ) + '>' + slides + '</div>';
 
@@ -38080,9 +38128,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} );
 
 				values.margin_bottom = _.fusionValidateAttrValue( values.margin_bottom, 'px' );
-				values.margin_left   = _.fusionValidateAttrValue( values.margin_left, 'px' );
-				values.margin_right  = _.fusionValidateAttrValue( values.margin_right, 'px' );
+				values.margin_left   = 'center' === values.alignment ? 'auto' : _.fusionValidateAttrValue( values.margin_left, 'px' );
+				values.margin_right  = 'center' === values.alignment ? 'auto' : _.fusionValidateAttrValue( values.margin_right, 'px' );
 				values.margin_top    = _.fusionValidateAttrValue( values.margin_top, 'px' );
+
 			},
 
 			/**
@@ -38097,6 +38146,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					class: 'fusion-audio',
 					style: ''
 				} );
+
+				if ( '' !== values.alignment ) {
+					attr[ 'class' ] += ' fusion-align' + values.alignment;
+				}
 
 				if ( 'dark' === values.controls_color_scheme ) {
 					attr[ 'class' ] += ' dark-controls';
@@ -38145,6 +38198,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Box shadow.
 				if ( 'yes' === values.box_shadow ) {
 					customVars[ 'box-shadow' ] = _.fusionGetBoxShadowStyle( values );
+				}
+
+				if ( '' !== values.alignment ) {
+					customVars.width = '100%';
 				}
 
 				cssVarsOptions = [
@@ -39781,17 +39838,17 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					// Validate values.
 					this.validateValues( atts.values );
 					// Create attribute objects
-					this.values       = atts.values;
-					this.extras       = atts.extras;
-					atts.isFlex       = this.isFlex;
-					atts.attr         = this.buildAttr( atts.values );
-					atts.contentAttr  = this.buildContentAttr( atts.values );
-					atts.linkAttr     = this.buildLinktAttr( atts.values );
-					atts.borderRadius = this.buildBorderRadius( atts.values );
-					atts.imgStyles    = this.buildImgStyles( atts.values );
+					this.values         = atts.values;
+					this.extras         = atts.extras;
+					atts.isFlex         = this.isFlex;
+					atts.attr           = this.buildAttr( atts.values );
+					atts.contentAttr    = this.buildContentAttr( atts.values );
+					atts.linkAttr       = this.buildLinktAttr( atts.values );
+					atts.borderRadius   = this.buildBorderRadius( atts.values );
+					atts.imgStyles      = this.buildImgStyles( atts.values );
 					atts.responsiveAttr = this.buildResponsiveAttr( atts.values );
 					atts.imageMagnify   = this.buildImageMagnify( atts.values );
-					atts.imageScroll   = this.buildImageScroll( atts.values );
+					atts.imageScroll    = this.buildImageScroll( atts.values );
 
 					this.buildElementContent( atts );
 
@@ -39802,7 +39859,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					// Add min height sticky.
 					atts.stickyStyles = '';
-					atts.filter_style_block = _.fusionGetFilterStyleElem( atts.values, '.imageframe-cid' + this.model.get( 'cid' ), this.model.get( 'cid' )  );
+					atts.filter_style_block = _.fusionGetFilterStyleElem( atts.values, '.awb-image-element-' + this.model.get( 'cid' ), this.model.get( 'cid' )  );
 				}
 
 				return atts;
@@ -39972,12 +40029,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				attr[ 'class' ] += ' imageframe-' + values.style + ' imageframe-cid' + this.model.get( 'cid' );
 
-				if ( values.z_index ) {
-					attr.style += 'z-index:' + values.z_index + ';';
+				if ( ! ( 'liftup' === values.hover_type || ( 'bottomshadow' === values.style_type && ( 'none' === values.hover_type || 'zoomin' === values.hover_type || 'zoomout' === values.hover_type ) ) ) ) {
+					attr[ 'class' ] += ' awb-image-element-' + this.model.get( 'cid' );
 				}
 
-				if ( 'bottomshadow' === values.style ) {
-					attr[ 'class' ] += ' element-bottomshadow';
+				if ( values.z_index ) {
+					attr.style += 'z-index:' + values.z_index + ';';
 				}
 
 				if ( '' !== values.mask ) {
@@ -40303,9 +40360,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				var liftupClasses = '',
 					cid = this.model.get( 'cid' );
 
-				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
+				if ( 'liftup' === atts.values.hover_type || 'bottomshadow' === atts.values.style_type ) {
+					liftupClasses += 'awb-image-frame';
+
 					if ( 'liftup' === atts.values.hover_type ) {
-						liftupClasses = 'imageframe-liftup';
+						liftupClasses += ' imageframe-liftup';
 
 						if ( ! this.isFlex ) {
 							if ( 'left' === atts.values.align ) {
@@ -40315,19 +40374,16 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							}
 						}
 
-						if ( atts.borderRadius ) {
-							liftupClasses += ' imageframe-cid' + cid;
-						}
-
 						if ( '' !== atts.values.hover_type && '' !== atts.values.mask ) {
-							liftupClasses += ' awb-image-frame hover-with-mask';
+							liftupClasses += ' hover-with-mask';
 						}
-
-					} else {
-						liftupClasses += 'fusion-image-frame-bottomshadow image-frame-shadow-cid' + cid;
 					}
 
-					liftupClasses += ' imageframe-cid' + cid;
+					if ( 'bottomshadow' === atts.values.style_type ) {
+						liftupClasses += ' awb-bottomshadow';
+					}
+
+					liftupClasses += ' awb-image-element-' + cid + ' imageframe-cid' + cid;
 				}
 
 				return liftupClasses;
@@ -40402,15 +40458,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'liftup' === atts.values.hover_type || ( 'bottomshadow' === atts.values.style_type && ( 'none' === atts.values.hover_type || 'zoomin' === atts.values.hover_type || 'zoomout' === atts.values.hover_type ) ) ) {
 					styleColor = ( 0 === atts.values.stylecolor.indexOf( '#' ) ) ? jQuery.AWB_Color( atts.values.stylecolor ).alpha( 0.4 ).toVarOrRgbaString() : jQuery.AWB_Color( atts.values.stylecolor ).toVarOrRgbaString();
 
-					if ( 'liftup' === atts.values.hover_type ) {
-						if ( 'bottomshadow' === atts.values.style_type ) {
-							liftupStyles  += '.element-bottomshadow.imageframe-cid' + cid + ':before, .element-bottomshadow.imageframe-cid' + cid + ':after{';
-							liftupStyles  += '-webkit-box-shadow: 0 17px 10px ' + styleColor + ';box-shadow: 0 17px 10px ' + styleColor + ';}';
-						}
-					} else {
+					if ( 'bottomshadow' === atts.values.hover_type ) {
 						liftupStyles += '.imageframe-cid' + cid + '{display: inline-block}';
-						liftupStyles  += '.element-bottomshadow.imageframe-cid' + cid + ':before, .element-bottomshadow.imageframe-cid' + cid + ':after{';
-						liftupStyles  += '-webkit-box-shadow: 0 17px 10px ' + styleColor + ';box-shadow: 0 17px 10px ' + styleColor + ';}';
 					}
 				}
 
@@ -42328,6 +42377,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				attributes.attr        = this.buildAttr( atts.values );
 				attributes.wrapperAttr = this.buildWrapperAttr( atts.values );
 				attributes.videoAttr   = this.buildVideoAttr( atts.values );
+				attributes.time        = this.buildTime( atts.values );
 				attributes.video_webm  = atts.values.video_webm;
 				attributes.video       = atts.values.video;
 
@@ -42354,6 +42404,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'yes' === values.box_shadow ) {
 					values.box_shadow = _.fusionGetBoxShadowStyle( values ) + ';';
 				}
+			},
+
+			/**
+			 * Builds time string.
+			 *
+			 * @since 3.11.8
+			 * @param {Object} values - The values.
+			 * @return string The time string.
+			 */
+			buildTime: function( values ) {
+				let time = '';
+				if ( values.start_time || values.end_time ) {
+					time = '#t=';
+					time = values.start_time ? time + values.start_time : time + '0';
+					time = values.end_time ? time + ',' + values.end_time : time;				
+				}
+				
+				return time;
+				
 			},
 
 			/**
@@ -42781,6 +42850,21 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				if ( 'undefined' !== typeof params.height && '' !== params.height && ( 'undefined' === typeof params.width || '' === params.width ) ) {
 					values.width = Math.round( parseInt( params.height ) * 16 / 9 );
 				}
+
+				let autoplay = ( 'true' == values.autoplay || 'yes' === values.autoplay ) ? 'autoplay=1' : 'autoplay=0';
+
+				if ( 'undefined' !== typeof values.start_time && '' !== values.start_time ) {
+					if ( -1 === values.api_params.indexOf( '#L=' ) ) {
+						const dateObject = new Date( values.start_time * 1000 ),
+							hours        = dateObject.getUTCHours(),
+							minutes      = dateObject.getUTCMinutes(),
+							seconds      = dateObject.getSeconds();
+
+						autoplay += '#t=' + String( hours ).padStart( 2, '0' ) + 'h' + String( minutes ).padStart( 2, '0' ) + 'm' + String( seconds ).padStart( 2, '0' ) + 's';
+					}
+				}
+
+				values.api_params = autoplay + values.api_params;
 
 				values.height = _.fusionValidateAttrValue( values.height, '' );
 				values.width  = _.fusionValidateAttrValue( values.width, '' );
@@ -54986,6 +55070,18 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.id = match[ 2 ];
 				}
 
+				if ( 'undefined' !== typeof values.start_time && '' !== values.start_time ) {
+					if ( -1 === values.api_params.indexOf( 'start=' ) ) {
+						values.api_params += '&start=' + values.start_time;
+					}
+				}
+
+				if ( 'undefined' !== typeof values.end_time && '' !== values.end_time ) {
+					if ( -1 === values.api_params.indexOf( 'end=' ) ) {
+						values.api_params += '&end=' + values.end_time;
+					}
+				}
+
 				values.margin_bottom = _.fusionValidateAttrValue( values.margin_bottom, 'px' );
 				values.margin_top    = _.fusionValidateAttrValue( values.margin_top, 'px' );
 			},
@@ -55325,6 +55421,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						'margin_right',
 						'margin_bottom',
 						'margin_left'
+						//'user_select' Just here for completeness. Don't add to avoid text selection issues in LE.
 					],
 					customCSSVars = {},
 					fontVars;
@@ -66926,12 +67023,19 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			generateRangeField: function ( atts ) {
 				var elementData,
 					elementHtml,
+					digits,
 					containerClass = 'fusion-form-range-field-container',
-					html = '';
+					html           = '';
 
 				elementData = this.elementData( atts );
 
 				elementData = this.generateTooltipHtml( atts, elementData );
+
+				digits = atts.max.length
+				if ( 4 < digits || 1 === digits ) {
+					digits = 1 === digits ? 3 : digits;
+					elementData[ 'style' ] = ' style="width:' + digits + 'em;"';
+				}
 
 				if ( 'right' === atts.orientation ) {
 					containerClass += ' orientation-right';
@@ -66939,11 +67043,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				elementHtml = '<div class="' + containerClass + '">';
 				if ( 'right' !== atts.orientation ) {
-					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"/>';
+					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"' + elementData[ 'style' ] + '/>';
 				}
 				elementHtml += '<input type="range" name="' + atts.name + '" min="' + atts.min + '" max="' + atts.max + '" step="' + atts.step + '" value="' + atts.value + '"' + elementData[ 'class' ] + elementData.required + elementData.placeholder + elementData.holds_private_data + '/>';
 				if ( 'right' === atts.orientation ) {
-					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"/>';
+					elementHtml += '<input type="text" disabled class="fusion-form-range-value" value="' + atts.value + '"' + elementData[ 'style' ] + '/>';
 				}
 				elementHtml += '</div>';
 

@@ -147,7 +147,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			this.saveData();
 
-			FusionEvents.trigger( 'fusion-dynamic-data-added', param );
+			FusionEvents.trigger( 'fusion-dynamic-data-added', param, this.cid );
 
 			this.getValueAndUpdate( params[ param ] );
 		},

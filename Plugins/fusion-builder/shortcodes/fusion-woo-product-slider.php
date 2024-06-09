@@ -126,6 +126,7 @@ if ( fusion_is_element_enabled( 'fusion_products_slider' ) && class_exists( 'Woo
 			 * @return array|Object
 			 */
 			public function query( $defaults ) {
+				global $avada_woocommerce;
 				$live_request = false;
 
 				// From Ajax Request.
@@ -154,7 +155,9 @@ if ( fusion_is_element_enabled( 'fusion_products_slider' ) && class_exists( 'Woo
 					],
 				];
 
+				remove_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
 				$ordering_args = WC()->query->get_catalog_ordering_args( $defaults['orderby'], $defaults['order'] );
+				add_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
 
 				$args['orderby'] = $ordering_args['orderby'];
 				$args['order']   = $ordering_args['order'];

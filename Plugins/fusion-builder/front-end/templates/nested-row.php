@@ -16,7 +16,7 @@
 				<a href="#" class="fusion-builder-row-clone fusion-builder-module-control"><span class="fusiona-file-add"></span><span class="fusion-element-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Clone Element', 'fusion-builder' ); ?></span></span></a>
 				<a href="#" class="fusion-builder-row-settings fusion-builder-module-control"><span class="fusiona-pen"></span><span class="fusion-element-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Open Nested Columns', 'fusion-builder' ); ?></span></span></a>
 				<a href="#" class="fusion-builder-add-element fusion-builder-module-control"><span class="fusiona-plus"></span><span class="fusion-column-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Add Element Below', 'fusion-builder' ); ?></span></span></a>
-				<?php if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_element', 'create_posts' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+				<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'live_builder_edit' ) ) ) : ?>
 					<a href="#" class="fusion-builder-row-save fusion-builder-module-control" data-focus="#fusion-builder-save-element-input" data-target="#fusion-builder-layouts-elements"><span class="fusiona-drive"></span><span class="fusion-element-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Save Element', 'fusion-builder' ); ?></span></span></a>
 				<?php endif; ?>
 				<a href="#" class="fusion-builder-row-remove fusion-builder-module-control"><span class="fusiona-trash-o"></span><span class="fusion-element-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Delete Element', 'fusion-builder' ); ?></span></span></a>

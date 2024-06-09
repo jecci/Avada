@@ -98,7 +98,7 @@ class Fusion_WooCommerce {
 	public function wp() {
 		global $post, $avada_woocommerce;
 
-		if ( class_exists( 'WooCommerce' ) && isset( $post->post_content ) ) {
+		if ( is_object( $avada_woocommerce ) && class_exists( 'WooCommerce' ) && isset( $post->post_content ) ) {
 			$this->is_product_layout  = ( function_exists( 'Fusion_Template_Builder' ) && Fusion_Template_Builder()->get_override( 'content' ) && is_product() ) || ( fusion_is_preview_frame() && 'fusion_tb_section' === get_post_type() && has_term( 'content', 'fusion_tb_category' ) );
 			$this->is_shop_layout     = ! $avada_woocommerce->is_wc_shop_loop_enabled() && ! empty( $post->post_content );
 			$this->is_cart_layout     = false === strpos( $post->post_content, '[woocommerce_cart]' ) && false !== strpos( $post->post_content, 'fusion_tb_woo_' ) ? true : false;

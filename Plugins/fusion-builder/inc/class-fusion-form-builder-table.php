@@ -331,6 +331,7 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 
 			if ( current_user_can( 'edit_others_posts' ) ) {
 				$actions['clone_section'] = '<a href="' . $this->get_section_clone_link( $item['id'] ) . '" title="' . esc_attr( __( 'Clone this form', 'fusion-builder' ) ) . '">' . __( 'Clone', 'fusion-builder' ) . '</a>';
+				$actions['reset']         = sprintf( '<a href="?_awb_reset_form=%s&action=%s&post=%s">' . esc_html__( 'Reset Stats', 'fusion-builder' ) . '</a>', esc_attr( wp_create_nonce( 'reset_form' ) ), 'awb_reset_form', esc_attr( $item['id'] ) );
 			}
 
 			if ( current_user_can( 'delete_post', $item['id'] ) ) {
@@ -361,6 +362,8 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 			];
 		}
 
+		$actions['awb_bulk_reset_forms'] = esc_html__( 'Reset Stats', 'fusion-builder' );
+
 		return $actions;
 	}
 
@@ -375,9 +378,12 @@ class Fusion_Form_Builder_Table extends WP_List_Table {
 	public function column_entries( $item ) {
 
 		if ( 1 <= $item['entries'] ) {
-			$url   = admin_url( 'admin.php?page=avada-form-entries&form_id=' . $item['form_id'] );
-			$html  = '<span class="counter">' . $item['entries'] . '</span>';
-			$html .= '<a class="view-submissions" href="' . esc_url( $url ) . '">' . esc_html__( 'View Entries', 'fusion-builder' ) . '</a>';
+			$url  = admin_url( 'admin.php?page=avada-form-entries&form_id=' . $item['form_id'] );
+			$html = '<span class="counter">' . $item['entries'] . '</span>';
+
+			if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'moderate_comments', 'fusion_form', 'submissions_access' ) ) ) {
+				$html .= '<a class="view-submissions" href="' . esc_url( $url ) . '">' . esc_html__( 'View Entries', 'fusion-builder' ) . '</a>';
+			}
 
 			return $html;
 		}

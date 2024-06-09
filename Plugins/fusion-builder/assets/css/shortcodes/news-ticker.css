@@ -195,8 +195,7 @@
   padding: var(--awb-btn-padding-top) var(--awb-btn-padding-right) var(--awb-btn-padding-bottom) var(--awb-btn-padding-left);
   font-size: calc(var(--awb-font-size) * 1.2);
   margin: 0;
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
   color: var(--awb-ticker-indicators-color);
   border: none;
   border-radius: var(--awb-carousel-btn-border-radius);

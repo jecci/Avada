@@ -168,6 +168,7 @@ if ( fusion_is_element_enabled( 'fusion_woo_product_grid' ) && class_exists( 'Wo
 			 * @return array|Object
 			 */
 			public function query( $defaults ) {
+				global $avada_woocommerce;
 				$live_request = false;
 
 				// Return if there's a query override.
@@ -213,7 +214,9 @@ if ( fusion_is_element_enabled( 'fusion_woo_product_grid' ) && class_exists( 'Wo
 					'paged'          => $defaults['paged'],
 				];
 
-				$ordering_args   = WC()->query->get_catalog_ordering_args( $defaults['orderby'], $defaults['order'] );
+				remove_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
+				$ordering_args = WC()->query->get_catalog_ordering_args( $defaults['orderby'], $defaults['order'] );
+				add_filter( 'woocommerce_get_catalog_ordering_args', [ $avada_woocommerce, 'get_catalog_ordering_args' ], 20 );
 				$args['orderby'] = $ordering_args['orderby'];
 				$args['order']   = $ordering_args['order'];
 				if ( $ordering_args['meta_key'] ) {

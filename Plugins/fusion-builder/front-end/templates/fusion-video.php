@@ -13,11 +13,11 @@
 		<div {{{ _.fusionGetAttributes( wrapperAttr ) }}}>
 			<video {{{ _.fusionGetAttributes( videoAttr ) }}}>
 				<# if ( '' !== video_webm ) { #>
-					<source src="{{ video_webm }}" type="video/webm">
+					<source src="{{ video_webm }}{{ time }}" type="video/webm">
 				<# } #>
 
 				<# if ( '' !== video ) { #>
-					<source src="{{ video }}" type="video/mp4">
+					<source src="{{ video }}{{ time }}" type="video/mp4">
 				<# } #>
 				<?php esc_html__( 'Sorry, your browser doesn\'t support embedded videos.', 'fusion-demos' ); ?>
 			</video>

@@ -164,26 +164,26 @@ class Fusion_Builder_Gutenberg {
 			return;
 		}
 
-		$options       = get_option( 'fusion_builder_settings', [] );
-		$builder_type  = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
-		$edit          = 'post' !== $typenow ? 'post-new.php?post_type=' . $typenow : 'post-new.php';
-		$fb_url        = add_query_arg( 'fb-be-editor', '', $edit );
-		$gutenberg_url = add_query_arg( 'gutenberg-editor', '', $edit );
-		$live_editor   = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $typenow ) );
-		$builder       = apply_filters( 'awb_load_builder', true );
-		$edit          = 'live' === $builder_type && $live_editor ? '#' : $edit;
-		$class         = 'live' === $builder_type && $live_editor ? ' awb-default-post-live' : '';
+		$options              = get_option( 'fusion_builder_settings', [] );
+		$builder_type         = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
+		$edit                 = 'post' !== $typenow ? 'post-new.php?post_type=' . $typenow : 'post-new.php';
+		$fb_url               = add_query_arg( 'fb-be-editor', '', $edit );
+		$gutenberg_url        = add_query_arg( 'gutenberg-editor', '', $edit );
+		$load_live_builder    = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $typenow ), 'live_builder_edit' ) );
+		$load_backend_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $typenow ), 'backend_builder_edit' ) );
+		$edit                 = 'live' === $builder_type && $load_live_builder ? '#' : $edit;
+		$class                = 'live' === $builder_type && $load_live_builder ? ' awb-default-post-live' : '';
 
 		$page_title_action_template  = '<span id="fusion-split-page-title-action" class="fusion-split-page-title-action ' . $class . '">';
 		$page_title_action_template .= '<a href="' . $edit . '">' . esc_html__( 'Add New', 'fusion-builder' ) . '</a>';
 		$page_title_action_template .= '<span class="expander" tabindex="0" role="button" aria-haspopup="true" aria-label="' . esc_html__( 'Toggle editor selection menu', 'fusion-builder' ) . '"></span>';
 		$page_title_action_template .= '<span class="dropdown">';
 
-		if ( $builder ) {
+		if ( $load_backend_builder ) {
 			$page_title_action_template .= '<a href="' . $fb_url . '">' . esc_html__( 'Back-end Builder', 'fusion-builder' ) . '</a>';
 		}
 
-		if ( $live_editor ) {
+		if ( $load_live_builder ) {
 			$page_title_action_template .= '<a href="#" id="fusion-builder-live-create-post">' . esc_html__( 'Live Builder', 'fusion-builder' ) . '</a>';
 		}
 
@@ -212,7 +212,6 @@ class Fusion_Builder_Gutenberg {
 							post_type: '<?php echo esc_html( $typenow ); ?>'
 						},
 						success: function( response ) {
-							console.log( response.permalink );
 							window.location = response.permalink + '&fb-edit=1';
 
 						}
@@ -378,7 +377,7 @@ class Fusion_Builder_Gutenberg {
 	public function update_edit_link( $url, $id, $context ) {
 		$options      = get_option( 'fusion_builder_settings', [] );
 		$builder_type = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
-		$live_editor  = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $id ) );
+		$live_editor  = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $id ), 'live_builder_edit' ) );
 
 		if ( 'live' === $builder_type && $live_editor && 'display' === $context ) {
 			$url = add_query_arg( 'fb-edit', '1', get_permalink( $id ) );
@@ -402,20 +401,20 @@ class Fusion_Builder_Gutenberg {
 			return $actions;
 		}
 
-		$edit_url      = get_edit_post_link( $post->ID, 'raw' );
-		$options       = get_option( 'fusion_builder_settings', [] );
-		$builder_type  = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
-		$fb_live_url   = add_query_arg( 'fb-edit', '1', get_permalink( $post->ID ) );
-		$gutenberg_url = add_query_arg( 'gutenberg-editor', '', $edit_url );
-		$live_editor   = apply_filters( 'fusion_load_live_editor', true ) && apply_filters( 'awb_dashboard_menu_cpt', true, get_post_type( $post->ID ) );
-		$builder       = apply_filters( 'awb_load_builder', true );
-		$edit_action   = [];
+		$edit_url             = get_edit_post_link( $post->ID, 'raw' );
+		$options              = get_option( 'fusion_builder_settings', [] );
+		$builder_type         = isset( $options['enable_builder_ui_by_default'] ) ? $options['enable_builder_ui_by_default'] : 'backend';
+		$fb_live_url          = add_query_arg( 'fb-edit', '1', get_permalink( $post->ID ) );
+		$gutenberg_url        = add_query_arg( 'gutenberg-editor', '', $edit_url );
+		$load_live_builder    = apply_filters( 'fusion_load_live_editor', true ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'live_builder_edit' ) );
+		$load_backend_builder = current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_', get_post_type( $post->ID ), 'backend_builder_edit' ) );
+		$edit_action          = [];
 
 		// Build the classic edit action. See also: WP_Posts_List_Table::handle_row_actions().
 		$title = _draft_or_post_title( $post->ID );
 
 		// If auto activation is set to backend builder.
-		if ( $live_editor && 'backend' === $builder_type ) {
+		if ( $load_live_builder && 'backend' === $builder_type ) {
 			$edit_action['fusion_builder_live'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( $fb_live_url ),
@@ -431,7 +430,7 @@ class Fusion_Builder_Gutenberg {
 		}
 
 		// If auto activation is set to live builder.
-		if ( $edit_url && $builder && 'live' === $builder_type ) {
+		if ( $edit_url && $load_backend_builder && 'live' === $builder_type ) {
 			$edit_action['fusion_builder_backend'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( $edit_url ),

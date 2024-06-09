@@ -91,7 +91,7 @@
 				<div class="fusion-builder-controls fusion-builder-module-controls fusion-builder-container-controls">
 					<a href="#" class="fusion-builder-container-drag fusion-builder-module-control"><span class="fusiona-icon-move"></span><span class="fusion-container-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Drag Container', 'fusion-builder' ); ?></span></span></a>
 					<a href="#" class="fusion-builder-container-remove fusion-builder-module-control"><span class="fusiona-trash-o"></span><span class="fusion-container-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Delete Container', 'fusion-builder' ); ?></span></span></a>
-					<?php if ( AWB_Access_Control::wp_user_can_for_post( 'fusion_element', 'create_posts' ) && apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library', 'live_builder_edit' ) ) ) : ?>
 						<a href="#" class="fusion-builder-container-save fusion-builder-module-control" data-focus="#fusion-builder-save-element-input" data-target="#fusion-builder-layouts-sections" ><span class="fusiona-drive"></span><span class="fusion-container-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Save Container', 'fusion-builder' ); ?></span></span></a>
 					<?php endif; ?>
 					<a href="#" class="fusion-builder-container-clone fusion-builder-module-control"><span class="fusiona-file-add"></span><span class="fusion-container-tooltip"><span class="fusion-tooltip-text"><?php esc_html_e( 'Clone Container', 'fusion-builder' ); ?></span></span></a>

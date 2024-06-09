@@ -339,7 +339,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		importMedia: function( postData, mediaKey ) {
 			var self = this;
 
-			jQuery( '#fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.demo_importing_media + ' ' + mediaKey.replace( '_', ' ' ) );
+			let mediaKeyLabel = mediaKey;
+			if ( 'multiple_images' === mediaKey ) {
+				mediaKeyLabel = 'Images';
+			}
+			jQuery( '#fusion-loader .awb-studio-import-status' ).html( fusionBuilderText.demo_importing_media + ' ' + mediaKeyLabel.replace( '_', ' ' ) );
 
 			return jQuery.ajax( {
 				type: 'POST',

@@ -40,30 +40,7 @@ class AWB_Studio_Admin {
 	 * @return void
 	 */
 	public function add_menu_page() {
-		if ( $this->shoud_add_menu_page() ) {
-			add_submenu_page( 'avada', esc_html__( 'Studio', 'fusion-builder' ), esc_html__( 'Studio', 'fusion-builder' ), 'switch_themes', 'avada-studio', [ $this, 'render_page' ], 4 );
-		}
-	}
-
-	/**
-	 * Checks if studio admin menu should be added for current logged in user.
-	 *
-	 * @access public
-	 * @since 3.9
-	 * @return bool
-	 */
-	public function shoud_add_menu_page() {
-		$post_types = [ 'avada_library', 'fusion_tb_section', 'fusion_icons', 'fusion_form', 'awb_off_canvas' ];
-		$should_add = false;
-
-		foreach ( $post_types as $post_type ) {
-			if ( apply_filters( 'awb_dashboard_menu_cpt', true, $post_type ) ) {
-				$should_add = true;
-				break;
-			}
-		}
-
-		return apply_filters( 'awb_add_studio_admin_page', $should_add );
+		add_submenu_page( 'avada', esc_html__( 'Studio', 'fusion-builder' ), esc_html__( 'Studio', 'fusion-builder' ), apply_filters( 'awb_role_manager_access_capability', 'switch_themes', 'awb_studio' ), 'avada-studio', [ $this, 'render_page' ], 4 );
 	}
 
 	/**
@@ -126,13 +103,13 @@ class AWB_Studio_Admin {
 
 			<section class="avada-db-card awb-studio-categories">
 				<ul>
-					<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) && AWB_Access_Control::wp_user_can_for_post( 'fusion_template', 'create_posts' ) ) : ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) : ?>
 						<li data-type="fusion_template" class="active">
 							<i class="fusiona-template"></i>
 							<span><?php esc_html_e( 'Templates', 'fusion-builder' ); ?></span>
 						</li>
 					<?php endif; ?>
-					<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ) : ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) : ?>
 						<li data-type="header">
 							<i class="fusiona-header"></i>
 							<span><?php esc_html_e( 'Headers', 'fusion-builder' ); ?></span>
@@ -150,7 +127,7 @@ class AWB_Studio_Admin {
 							<span><?php esc_html_e( 'Footers', 'fusion-builder' ); ?></span>
 						</li>
 					<?php endif; ?>
-					<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) : ?>
 						<li data-type="sections">
 							<i class="fusiona-container"></i>
 							<span><?php esc_html_e( 'Containers', 'fusion-builder' ); ?></span>
@@ -163,13 +140,13 @@ class AWB_Studio_Admin {
 							<i class="fusiona-element"></i>
 							<span><?php esc_html_e( 'Elements', 'fusion-builder' ); ?></span>
 						</li>
-						<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_icons' ) ) : ?>
+						<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_icons' ) ) ) : ?>
 						<li data-type="icons">
 							<i class="fusiona-icons"></i>
 							<span><?php esc_html_e( 'Icons', 'fusion-builder' ); ?></span>
 						</li>
 						<?php endif; ?>
-						<?php if ( false !== Fusion_Form_Builder::is_enabled() && apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_form' ) ) : ?>
+						<?php if ( false !== Fusion_Form_Builder::is_enabled() && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ) : ?>
 							<li data-type="forms">
 								<i class="fusiona-avada-form-element"></i>
 								<span><?php esc_html_e( 'Forms', 'fusion-builder' ); ?></span>
@@ -180,13 +157,13 @@ class AWB_Studio_Admin {
 							<span><?php esc_html_e( 'Post Cards', 'fusion-builder' ); ?></span>
 						</li>
 					<?php endif; ?>
-					<?php if ( false !== AWB_Off_Canvas::is_enabled() && apply_filters( 'awb_dashboard_menu_cpt', true, 'awb_off_canvas' ) ) : ?>
+					<?php if ( false !== AWB_Off_Canvas::is_enabled() && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ) ) ) : ?>
 						<li data-type="awb_off_canvas">
 							<i class="fusiona-off-canvas"></i>
 							<span><?php esc_html_e( 'Off Canvas', 'fusion-builder' ); ?></span>
 						</li>
 					<?php endif; ?>
-					<?php if ( apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) : ?>
+					<?php if ( current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) : ?>
 						<li data-type="mega_menus">
 							<i class="fusiona-mega-menu"></i>
 							<span><?php esc_html_e( 'Mega Menus', 'fusion-builder' ); ?></span>
@@ -364,32 +341,32 @@ class AWB_Studio_Admin {
 
 		switch ( $type ) {
 			case 'fusion_template':
-				if ( ! apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) || ! AWB_Access_Control::wp_user_can_for_post( 'fusion_template', 'create_posts' ) ) {
+				if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) {
 					$can_import = false;
 				}
 				break;
 			case 'fusion_tb_section':
-				if ( ! apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_tb_section' ) ) {
+				if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) {
 					$can_import = false;
 				}
 				break;
 			case 'fusion_element':
-				if ( ! apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_library' ) ) {
+				if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'avada_library' ) ) ) {
 					$can_import = false;
 				}
 				break;
 			case 'fusion_icons':
-				if ( ! apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_icons' ) ) {
+				if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_icons' ) ) ) {
 					$can_import = false;
 				}
 				break;
 			case 'fusion_form':
-				if ( false === Fusion_Form_Builder::is_enabled() || ! apply_filters( 'awb_dashboard_menu_cpt', true, 'fusion_form' ) ) {
+				if ( false === Fusion_Form_Builder::is_enabled() || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'fusion_form' ) ) ) {
 					$can_import = false;
 				}
 				break;
 			case 'awb_off_canvas':
-				if ( false === AWB_Off_Canvas::is_enabled() || ! apply_filters( 'awb_dashboard_menu_cpt', true, 'awb_off_canvas' ) ) {
+				if ( false === AWB_Off_Canvas::is_enabled() || ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_posts', 'awb_off_canvas' ) ) ) {
 					$can_import = false;
 				}
 				break;

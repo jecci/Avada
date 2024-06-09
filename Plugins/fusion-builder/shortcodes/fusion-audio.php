@@ -49,6 +49,7 @@ if ( fusion_is_element_enabled( 'fusion_audio' ) && ! class_exists( 'FusionSC_Au
 			$border_radius   = Fusion_Builder_Border_Radius_Helper::get_border_radius_array_with_fallback_value( $fusion_settings->get( 'audio_border_radius' ) );
 
 			return [
+				'alignment'                  => '',
 				'animation_type'             => '',
 				'animation_direction'        => 'down',
 				'animation_speed'            => '',
@@ -204,6 +205,24 @@ if ( fusion_is_element_enabled( 'fusion_audio' ) && ! class_exists( 'FusionSC_Au
 
 			if ( 'yes' === $this->args['box_shadow'] ) {
 				$custom_vars['box-shadow'] = Fusion_Builder_Box_Shadow_Helper::get_box_shadow_styles( $this->args );
+			}
+
+			if ( '' !== $this->args['alignment'] ) {
+
+					// RTL adjust.
+				if ( is_rtl() && 'center' !== $this->args['alignment'] ) {
+					$this->args['alignment'] = 'left' === $this->args['alignment'] ? 'right' : 'left';
+				}
+
+				if ( 'left' === $this->args['alignment'] ) {
+					$custom_vars['align-self'] = 'flex-start';
+				} elseif ( 'right' === $this->args['alignment'] ) {
+					$custom_vars['align-self'] = 'flex-end';
+				} else {
+					$custom_vars['align-self'] = 'center';
+				}
+
+				$custom_vars['width'] = '100%';
 			}
 
 			$css_vars_options = [
@@ -505,8 +524,22 @@ function fusion_element_audio() {
 						'heading'     => esc_attr__( 'Maximum Width', 'fusion-builder' ),
 						'param_name'  => 'max_width',
 						'default'     => '100%',
-						'description' => esc_attr__( 'Set the maximum width using a valid CSS value.', 'fusion-builder' ),
+						'description' => esc_attr__( 'Set the maximum width using any valid CSS value.', 'fusion-builder' ),
 						'group'       => esc_attr__( 'Design', 'fusion-builder' ),
+					],
+					[
+						'type'        => 'radio_button_set',
+						'heading'     => esc_html__( 'Alignment', 'fusion-builder' ),
+						'description' => esc_html__( 'Select the alignment of the audio element.', 'fusion-builder' ),
+						'group'       => esc_html__( 'Design', 'fusion-builder' ),
+						'param_name'  => 'alignment',
+						'default'     => '',
+						'value'       => [
+							''       => esc_html__( 'Text Flow', 'fusion-builder' ),
+							'left'   => esc_html__( 'Left', 'fusion-builder' ),
+							'center' => esc_html__( 'Center', 'fusion-builder' ),
+							'right'  => esc_html__( 'Right', 'fusion-builder' ),
+						],
 					],
 					[
 						'type'        => 'range',

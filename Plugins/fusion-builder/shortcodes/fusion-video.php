@@ -58,6 +58,7 @@ if ( fusion_is_element_enabled( 'fusion_video' ) ) {
 					'controls'                   => $fusion_settings->get( 'video_controls' ),
 					'class'                      => '',
 					'css_id'                     => '',
+					'end_time'                   => '',
 					'hide_on_mobile'             => fusion_builder_default_visibility( 'string' ),
 					'loop'                       => 'yes',
 					'margin_top'                 => '',
@@ -66,6 +67,8 @@ if ( fusion_is_element_enabled( 'fusion_video' ) ) {
 					'overlay_color'              => '',
 					'preload'                    => $fusion_settings->get( 'video_preload' ),
 					'preview_image'              => '',
+					'start_time'                 => '',
+					'track_tags'                 => '',
 					'video'                      => '',
 					'video_webm'                 => '',
 					'width'                      => $fusion_settings->get( 'video_max_width' ),
@@ -121,13 +124,21 @@ if ( fusion_is_element_enabled( 'fusion_video' ) ) {
 				$html .= '<div ' . FusionBuilder::attributes( 'video-wrapper' ) . '>';
 				$html .= '<video ' . FusionBuilder::attributes( 'video-element' ) . '>';
 
+				$time = '';
+				if ( $this->args['start_time'] || $this->args['end_time'] ) {
+					$time = '#t=';
+					$time = $this->args['start_time'] ? $time . $this->args['start_time'] : $time . '0';
+					$time = $this->args['end_time'] ? $time . ',' . $this->args['end_time'] : $time;				
+				}
+
 				if ( '' !== $this->args['video_webm'] ) {
-					$html .= '<source src="' . $this->args['video_webm'] . '" type="video/webm">';
+					$html .= '<source src="' . $this->args['video_webm'] . $time . '" type="video/webm">';
 				}
 
 				if ( '' !== $this->args['video'] ) {
-					$html .= '<source src="' . $this->args['video'] . '" type="video/mp4">';
+					$html .= '<source src="' . $this->args['video'] . $time . '" type="video/mp4">';
 				}
+				$html .= $this->add_track_tags();
 				$html .= esc_html__( 'Sorry, your browser doesn\'t support embedded videos.', 'fusion-builder' );
 				$html .= '</video>';
 				$html .= '</div>';
@@ -136,6 +147,32 @@ if ( fusion_is_element_enabled( 'fusion_video' ) ) {
 				$this->on_render();
 
 				return apply_filters( 'fusion_element_video_content', $html, $args );
+			}
+			
+			/**
+			 * Adds the HTML track tags.
+			 *
+			 * @access public
+			 * @since 4.11.8
+			 * @return string
+			 */
+			public function add_track_tags() {
+				if (empty( $this->args['track_tags'] ) ) {
+					return '';
+				}
+		
+				$tracks     = json_decode( base64_decode( $this->args['track_tags'] ), true );
+				$track_html = '';
+		
+				if ( is_array( $tracks ) && ! empty( $tracks ) ) {
+					foreach ( $tracks as $track ) {
+						if ( ! empty( $track['track_src'] ) ) {
+							$track_html .= '<track src="' . esc_attr( $track['track_src'] ) . '" kind="' . esc_attr( $track['track_kind'] ) . '" label="' . esc_attr( $track['track_label'] ) . '" srclang="' . esc_attr( $track['track_srclang'] ) . '">';
+						}
+					}
+				}
+
+				return $track_html;
 			}
 
 			/**
@@ -381,7 +418,20 @@ function fusion_element_video() {
 						'param_name'   => 'video_webm',
 						'value'        => '',
 					],
-
+					[
+						'type'        => 'textfield',
+						'heading'     => esc_attr__( 'Start Time', 'fusion-builder' ),
+						'description' => esc_attr__( 'Specify a start time for the video (in seconds).', 'fusion-builder' ),
+						'param_name'  => 'start_time',
+						'value'       => '',
+					],
+					[
+						'type'        => 'textfield',
+						'heading'     => esc_attr__( 'End Time', 'fusion-builder' ),
+						'description' => esc_attr__( 'Specify an end time for the video (in seconds).', 'fusion-builder' ),
+						'param_name'  => 'end_time',
+						'value'       => '',
+					],
 					[
 						'type'        => 'textfield',
 						'heading'     => esc_attr__( 'Video Max Width', 'fusion-builder' ),
@@ -447,7 +497,55 @@ function fusion_element_video() {
 						],
 						'default'     => 'yes',
 					],
-
+					[
+						'type'           => 'repeater',
+						'heading'        => esc_html__( 'Track Tags', 'fusion-builder' ),
+						'param_name'     => 'track_tags',
+						'description'    => esc_html__( 'Add track tags to the video element.', 'fusion-builder' ),
+						'row_add'        => esc_html__( 'Add Track Tag', 'Avada' ),
+						'row_title'      => esc_html__( 'Track Tag', 'Avada' ),
+						'bind_title'     => 'type',
+						'skip_empty_row' => true,
+						'fields'         => [
+							[
+								'type'         => 'uploadfile',
+								'heading'      => esc_html__( 'Track Source', 'fusion-builder' ),
+								'description'  => esc_html__( 'Specify the URL of the track file.', 'fusion-builder' ),
+								'param_name'   => 'track_src',
+								'value'        => '',
+								'data_type'    => 'text/vtt',
+								'dynamic_data' => true,
+							],								
+							[
+								'type'        => 'select',
+								'heading'     => esc_html__( 'Track Kind', 'fusion-builder' ),
+								'description' => esc_html__( 'Specify the kind of text track.', 'fusion-builder' ),
+								'param_name'  => 'track_kind',
+								'value'       => [
+									'captions'     => esc_html__( 'Captions', 'fusion-builder' ),
+									'chapters'     => esc_html__( 'Chapters', 'fusion-builder' ),
+									'descriptions' => esc_html__( 'Descriptions', 'fusion-builder' ),
+									'metadata'     => esc_html__( 'Metadata', 'fusion-builder' ),
+									'subtitles'    => esc_html__( 'Subtitles', 'fusion-builder' ),
+								],
+								'default'     => '',
+							],
+							[
+								'type'        => 'textfield',
+								'heading'     => esc_html__( 'Track Label', 'fusion-builder' ),
+								'description' => esc_html__( 'Specify the title of the text track.', 'fusion-builder' ),
+								'param_name'  => 'track_label',
+								'value'       => '',
+							],
+							[
+								'type'        => 'textfield',
+								'heading'     => esc_html__( 'Track Language', 'fusion-builder' ),
+								'description' => esc_html__( 'Specify the language of the track text data.', 'fusion-builder' ),
+								'param_name'  => 'track_srclang',
+								'value'       => '',
+							],
+						],
+					],
 					[
 						'type'         => 'upload',
 						'heading'      => esc_attr__( 'Preview Image', 'fusion-builder' ),

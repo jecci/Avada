@@ -520,10 +520,18 @@ abstract class Fusion_Element {
 
 					foreach ( $el_dynamic_data as $key => $value ) {
 						if ( isset( $value['data'] ) && 'acf_repeater_sub' === $value['data'] ) {
+							$content       = Fusion_Dynamic_Data_Callbacks::acf_get_repeater_sub_field( [ 'sub_field' => $value['sub_field'] ] );
+							$before_string = isset( $value['before'] ) ? (string) $value['before'] : '';
+							$after_string  = isset( $value['after'] ) ? (string) $value['after'] : '';
+
+							if ( is_string( $content ) ) {
+								$content = $before_string . $content . $after_string;
+							}
+
 							if ( 'element_content' === $key ) {
-								$el_content = Fusion_Dynamic_Data_Callbacks::acf_get_repeater_sub_field( [ 'sub_field' => $value['sub_field'] ] );
+								$el_content = $content;
 							} else {
-								$atts[ $key ] = Fusion_Dynamic_Data_Callbacks::acf_get_repeater_sub_field( [ 'sub_field' => $value['sub_field'] ] );
+								$atts[ $key ] = $content;
 							}
 							unset( $new_dynamic_data[ $key ] );
 						}

@@ -198,13 +198,13 @@ if ( ! class_exists( 'FusionSC_Global' ) ) {
 					}
 				}
 				// Remove fusion_global from short-code attributes.
-				if ( apply_filters( 'fusion_global_save', true, 'page' ) ) {
+				if ( apply_filters( 'fusion_global_save', true, 'page' ) && current_user_can( apply_filters( 'awb_role_manager_access_capability', 'edit_private_posts', 'avada_library', 'global_elements' ) ) ) {
 					$post_content = str_replace( addslashes( 'fusion_global="' . $this->global_elements[ $x ]['id'] . '"' ), '', $this->global_elements[ $x ]['content'] );
 					$post         = [
 						'ID'           => $this->global_elements[ $x ]['id'],
 						'post_content' => $post_content,
 					];
-					if ( ! in_array( $this->global_elements[ $x ]['id'], $duplicates ) && apply_filters( 'awb_global_elements_access', true ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+					if ( ! in_array( $this->global_elements[ $x ]['id'], $duplicates ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 						// Update global element CPT.
 						$post_id = wp_update_post( $post );
 					}

@@ -965,12 +965,12 @@ if ( ! class_exists( 'FusionSC_Container' ) ) {
 
 			// If container is no published, return early.
 			if ( ! apply_filters( 'fusion_is_container_viewable', $this->is_container_viewable( $atts ), $atts ) ) {
-				$global_container_count--;
+				$global_container_count = is_int( $global_container_count ) ? $global_container_count - 1 : $global_container_count;
 				return;
 			}
 
 			if ( ! Fusion_Builder_Conditional_Render_Helper::should_render( $atts ) ) {
-				$global_container_count--;
+				$global_container_count = is_int( $global_container_count ) ? $global_container_count - 1 : $global_container_count;
 				return;
 			}
 
@@ -2552,9 +2552,9 @@ function fusion_builder_add_section() {
 	$subset   = [ 'top', 'right', 'bottom', 'left' ];
 	$setting  = 'container_padding';
 	$default  = rtrim( $fusion_settings->get_default_description( $setting . '_default', $subset, '' ), '.' );
-	$default .= __( ' on default template. ', 'fusion-builder' );
+	$default .= __( ' on Site Width template. ', 'fusion-builder' );
 	$default .= rtrim( $fusion_settings->get_default_description( $setting . '_100', $subset, '' ), '.' );
-	$default .= __( ' on 100% width template.', 'fusion-builder' );
+	$default .= __( ' on 100% Width template.', 'fusion-builder' );
 
 	$container_type_param = [
 		'type'        => 'textfield',

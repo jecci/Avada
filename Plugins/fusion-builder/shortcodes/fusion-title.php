@@ -1391,7 +1391,7 @@ function fusion_element_title() {
 						'dependency'   => [
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1414,7 +1414,7 @@ function fusion_element_title() {
 						'dependency'  => [
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1439,7 +1439,7 @@ function fusion_element_title() {
 							],
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1472,7 +1472,7 @@ function fusion_element_title() {
 							],
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1701,7 +1701,7 @@ function fusion_element_title() {
 						'dependency' => [
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1791,7 +1791,7 @@ function fusion_element_title() {
 							],
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[
@@ -1817,7 +1817,7 @@ function fusion_element_title() {
 							],
 							[
 								'element'  => 'title_type',
-								'value'    => 'rotation',
+								'value'    => 'rotating',
 								'operator' => '!=',
 							],
 							[

@@ -106,6 +106,15 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 	 */
 	protected $rendering_override_loop = 0;
 
+
+	/**
+	 * Array of the_content filters from third parties.
+	 *
+	 * @access protected
+	 * @var array
+	 */
+	protected $content_filters = [];
+
 	/**
 	 * Class constructor.
 	 *
@@ -155,8 +164,8 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 		add_filter( 'fusion_dynamic_post_id', [ $this, 'dynamic_id' ] );
 		add_filter( 'fusion_breadcrumb_post_id', [ $this, 'dynamic_id' ] );
 
-		// If saving a 404 or search, update post meta conditions of others of same type.
-		add_action( 'fusion_save_post', [ $this, 'panel_save' ] );
+		// When saving a layout section, we need to make sure the CSS / JS for all posts using it get updated.
+		add_action( 'fusion_save_post', [ $this, 'reset_all_caches' ] );
 
 		// Reset caches when a template or layout gets deleted, undeleted etc.
 		add_action( 'clean_post_cache', [ $this, 'clean_post_cache' ], 10, 2 );
@@ -211,6 +220,9 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 		if ( class_exists( 'WCFM' ) && class_exists( 'WooCommerce' ) ) {
 			add_action( 'wp', [ $this, 'wcfm_ignore_template' ] );
 		}
+
+		add_action( 'awb_remove_third_party_the_content_changes', [ $this, 'remove_the_content_filters' ] );
+		add_action( 'awb_readd_third_party_the_content_changes', [ $this, 'readd_the_content_filters' ] );
 	}
 
 	/**
@@ -1717,6 +1729,21 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 			remove_filter( 'the_content', [ $wpmem, 'do_securify' ], 99 );
 		}
 
+		// Optima Express plugin.
+		if ( class_exists( 'iHomefinderVirtualPageDispatcher' ) ) {
+			remove_filter( 'the_content', [ iHomefinderVirtualPageDispatcher::getInstance(), 'getContent' ], 20 );
+		}
+
+		// GraviteView plugin.
+		if ( class_exists( 'GravityView_Plugin' ) ) {
+			remove_action( 'the_content', [ '\GV\View', 'content' ] );
+		}
+
+		// PrivateContent - Bundle Pack.
+		if ( function_exists( 'pc_perform_contents_restriction' ) ) {
+			remove_filter( 'the_content', 'pc_perform_contents_restriction', 9999999 );
+		}
+
 		do_action( 'awb_remove_third_party_the_content_changes' );
 	}
 
@@ -1732,6 +1759,18 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 		global $avada_events_calender, $wp_query, $post;
 
 		do_action( 'awb_readd_third_party_the_content_changes' );
+
+		if ( function_exists( 'pc_perform_contents_restriction' ) ) {
+			add_filter( 'the_content', 'pc_perform_contents_restriction', 9999999 );
+		}
+
+		if ( class_exists( 'GravityView_Plugin' ) ) {
+			add_action( 'the_content', [ '\GV\View', 'content' ] );
+		}
+
+		if ( class_exists( 'iHomefinderVirtualPageDispatcher' ) ) {
+			add_filter( 'the_content', [ iHomefinderVirtualPageDispatcher::getInstance(), 'getContent' ], 20 );
+		}
 
 		if ( 1 === $this->rendering_override_loop && class_exists( 'WP_Members' ) ) {
 			global $wpmem;
@@ -1854,6 +1893,66 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 	}
 
 	/**
+	 * Removes the_content filters from third party plugins.
+	 *
+	 * @since 3.11.8
+	 * @access public
+	 * @return void
+	 */
+	public function remove_the_content_filters() {
+		if ( ! empty( $this->content_filters ) ) {
+			foreach ( $this->content_filters as $content_filter ) {
+				remove_filter( 'the_content', $content_filter['function'], $content_filter['priority'] );
+			}
+		} else {
+			global $wp_filter;
+
+			if ( isset( $wp_filter['the_content'] ) ) {
+				foreach ( $wp_filter['the_content'] as $index => $actions ) {
+					foreach ( $actions as $name => $action ) {
+
+						// Memberdash plugin.
+						if ( ( false !== strpos( $name, 'register_form' ) || false !== strpos( $name, 'verification_notification' ) ) && isset( $action['function'][0] ) && 'MS_Controller_Frontend' === get_class( $action['function'][0] ) ) {
+							$this->handle_content_filter( $action['function'], $index );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Readds the_content filters from third party plugins.
+	 *
+	 * @since 3.11.8
+	 * @access public
+	 * @return void
+	 */
+	public function readd_the_content_filters() {
+		foreach ( $this->content_filters as $content_filter ) {
+			add_filter( 'the_content', $content_filter['function'], $content_filter['priority'] );
+		}
+	}
+
+	/**
+	 * Handles third party the_content filters by removing them and adding to internal storage.
+	 *
+	 * @since 3.11.8
+	 * @access public
+	 * @param array|string $function The filter callback
+	 * @param int          $priority The priority.
+	 * @return void
+	 */
+	public function handle_content_filter( $function, $priority ) {
+		remove_filter( 'the_content', $function, $priority );
+
+		$this->content_filters[] = [
+			'function' => $function,
+			'priority' => $priority,
+		];
+	}
+
+	/**
 	 * Init shortcode files specific to templates.
 	 *
 	 * @since 2.2
@@ -1915,6 +2014,7 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 	 */
 	public function is_hundred_percent_template( $fullwidth ) {
 		$override = $this->get_override( 'content' );
+
 		if ( $override || is_singular( 'fusion_tb_section' ) ) {
 			$post_id = $override ? $override->ID : get_the_id();
 			return ( 'no' !== fusion_get_page_option( 'fusion_tb_section_width_100', $post_id ) );
@@ -2152,7 +2252,7 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 
 		check_admin_referer( 'fusion_tb_new_post' );
 
-		if ( ! AWB_Access_Control::wp_user_can_for_post( 'fusion_tb_section', 'create_posts' ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) {
 			return;
 		}
 
@@ -2167,7 +2267,7 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 
 		$template = [
 			'post_title'  => isset( $_GET['name'] ) ? sanitize_text_field( wp_unslash( $_GET['name'] ) ) : '',
-			'post_status' => AWB_Access_Control::wp_user_can_for_post( 'fusion_tb_section', 'publish_posts' ) ? 'publish' : 'pending',
+			'post_status' => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 			'post_type'   => 'fusion_tb_section',
 		];
 
@@ -2199,13 +2299,13 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 
 		check_admin_referer( 'fusion_tb_new_layout' );
 
-		if ( ! AWB_Access_Control::wp_user_can_for_post( 'fusion_tb_layout', 'create_posts' ) ) {
+		if ( ! current_user_can( apply_filters( 'awb_role_manager_access_capability', 'manage_options', 'fusion_tb_section' ) ) ) {
 			return;
 		}
 
 		$layout = [
 			'post_title'  => isset( $_GET['name'] ) ? sanitize_text_field( wp_unslash( $_GET['name'] ) ) : '',
-			'post_status' => AWB_Access_Control::wp_user_can_for_post( 'fusion_tb_layout', 'publish_posts' ) ? 'publish' : 'pending',
+			'post_status' => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 			'post_type'   => 'fusion_tb_layout',
 		];
 
@@ -2258,7 +2358,22 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 	 * @return int
 	 */
 	public function dynamic_id( $id ) {
-		if ( 'fusion_tb_section' === get_post_type( $id ) || fusion_is_post_card() || 'awb_off_canvas' === get_post_type( $id ) ) {
+		$post_type = false;
+		if ( false !== strpos( $id, '-archive' ) ) {
+			$term = get_term_by( 'term_taxonomy_id', str_replace( '-archive', '', $id ) );
+
+			if ( isset( $term->taxonomy ) ) {
+				$taxonomy = get_taxonomy( $term->taxonomy );
+
+				if ( false !== $taxonomy ) {
+					$post_type = $taxonomy->object_type[0];
+				}
+			}
+		} else {
+			$post_type = get_post_type( $id );
+		}
+
+		if ( 'fusion_tb_section' === $post_type || fusion_is_post_card() || 'awb_off_canvas' === get_post_type( $id ) ) {
 			$post = $this->get_target_example( $id );
 
 			if ( $post ) {
@@ -2451,18 +2566,21 @@ class Fusion_Template_Builder extends AWB_Layout_Conditions {
 	}
 
 	/**
-	 * Live editor saved, need to trigger save post hook.
+	 * Live editor saved, reset caches when layout section is saved.
 	 *
 	 * @access public
 	 * @since 2.2
 	 * @return void
 	 */
-	public function panel_save() {
-		$app     = Fusion_App();
-		$post_id = $app->get_data( 'post_id' );
+	public function reset_all_caches() {
+		$app       = Fusion_App();
+		$post_id   = $app->get_data( 'post_id' );
+		$post_type = get_post_type( $post_id );
 
-		// Reset caches.
-		fusion_reset_all_caches();
+		// Reset caches only if it really is a layout section.
+		if ( 'fusion_tb_section' === $post_type ) {
+			fusion_reset_all_caches();
+		}
 	}
 
 	/**

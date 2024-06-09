@@ -157,6 +157,8 @@ class Fusion_Cache {
 		if ( true === $delete_cache['other_caches'] ) {
 			// Delete 3rd-party caches.
 			$this->clear_third_party_caches();
+
+			$this->purge_object_cache();
 		}
 		do_action( 'fusion_cache_reset_after' );
 	}
@@ -173,38 +175,54 @@ class Fusion_Cache {
 	 */
 	protected function clear_third_party_caches() {
 
-		// If W3 Total Cache is being used, clear the cache.
+		// WP Rocket
+		if ( function_exists( 'rocket_clean_domain' ) ) {
+			rocket_clean_domain();
+		}
+		// W3 Total Cache cache.
 		if ( function_exists( 'w3tc_flush_posts' ) ) {
 			w3tc_flush_posts();
 		}
-		// if WP Super Cache is being used, clear the cache.
+		// WP Super Cache cache.
 		if ( function_exists( 'wp_cache_clean_cache' ) ) {
 			global $file_prefix;
 			wp_cache_clean_cache( $file_prefix );
 		}
-		// If SG Optimizer is installed, rese its caches.
+		// WP Fastest Cache
+		if ( function_exists( 'wpfc_clear_all_cache' ) ) {
+			wpfc_clear_all_cache( true );
+		}       
+		// Autoptimize cache.
+		if ( class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
+			autoptimizeCache::clearall();
+		}
+		// Hummingbird Cache
+		if ( class_exists( '\Hummingbird\WP_Hummingbird' ) && method_exists( '\Hummingbird\WP_Hummingbird', 'flush_cache' ) ) {
+			\Hummingbird\WP_Hummingbird::flush_cache();
+		}       
+		// LiteSpeed cache.
+		if ( class_exists( 'LiteSpeed_Cache_API' ) && method_exists( 'LiteSpeed_Cache_API', 'purge_all' ) ) {
+			LiteSpeed_Cache_API::purge_all();
+		}       
+		// SG Optimizer (SiteGround) cache.
 		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
 			sg_cachepress_purge_cache();
 		}
-		// Clear caches on WPEngine-hosted sites.
+		// WPEngine-hosted site cache.
 		if ( class_exists( 'WpeCommon' ) ) {
 			if ( method_exists( 'WpeCommon', 'purge_memcached' ) ) {
 				WpeCommon::purge_memcached();
 			}
-			if ( method_exists( 'WpeCommon', 'clear_maxcdn_cache' ) ) {
-				WpeCommon::clear_maxcdn_cache();
+			if ( method_exists( 'WpeCommon', 'clear_cdn_cache' ) ) {
+				WpeCommon::clear_cdn_cache();
 			}
 			if ( method_exists( 'WpeCommon', 'purge_varnish_cache' ) ) {
 				WpeCommon::purge_varnish_cache();
 			}
 		}
-		// if Autoptimize Cache is being used, clear the cache.
-		if ( class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
-			autoptimizeCache::clearall();
-		}
-		// if LiteSpeed Cache is being used, clear the cache.
-		if ( class_exists( 'LiteSpeed_Cache_API' ) && method_exists( 'LiteSpeed_Cache_API', 'purge_all' ) ) {
-			LiteSpeed_Cache_API::purge_all();
+		// Pagely cache.
+		if ( class_exists( 'PagelyCachePurge' ) && method_exists( 'PagelyCachePurge', 'purgeAll' ) ) {
+			PagelyCachePurge::purgeAll();
 		}
 
 		if ( ! class_exists( 'Fusion_Settings' ) ) {
@@ -212,10 +230,7 @@ class Fusion_Cache {
 		}
 
 		// Clear Varnish caches.
-		$settings = Fusion_Settings::get_instance();
-		if ( $settings->get( 'cache_server_ip' ) ) {
-			$this->clear_varnish_cache();
-		}
+		$this->clear_varnish_cache();
 	}
 
 	/**
@@ -235,29 +250,52 @@ class Fusion_Cache {
 		if ( ! class_exists( 'Fusion_Settings' ) ) {
 			include_once 'class-fusion-settings.php';
 		}
+		$settings      = Fusion_Settings::get_instance();
+		$go_varnish_ip = $settings->get( 'cache_server_ip' );
+
 		// Build a varniship.
 		$varniship = get_option( 'vhp_varnish_ip' );
-		$settings  = Fusion_Settings::get_instance();
-		if ( $settings->get( 'cache_server_ip' ) ) {
-			$varniship = $settings->get( 'cache_server_ip' );
+		if ( $go_varnish_ip ) {
+			$varniship = $go_varnish_ip;
 		} elseif ( defined( 'VHP_VARNISH_IP' ) && VHP_VARNISH_IP ) {
 			$varniship = VHP_VARNISH_IP;
 		}
 
 		// If we made varniship, let it sail.
-		$purgeme = ( isset( $varniship ) && null !== $varniship ) ? $varniship : $p['host'];
+		$purgeme = ( isset( $varniship ) && null !== $varniship ) ? $varniship : '';
 
-		wp_remote_request(
-			'http://' . $purgeme,
-			[
-				'method'  => 'PURGE',
-				'headers' => [
-					'host'           => $p['host'],
-					'X-Purge-Method' => $varnish_x_purgemethod,
-				],
-			]
-		);
+		if ( $purgeme ) {
+			wp_remote_request(
+				'http://' . $purgeme,
+				[
+					'method'  => 'PURGE',
+					'headers' => [
+						'host'           => $p['host'],
+						'X-Purge-Method' => $varnish_x_purgemethod,
+					],
+				]
+			);
+		}
 	}
+
+	/**
+	 * Purge the WP object cache.
+	 *
+	 * @access protected
+	 * @since 3.11.8
+	 * @return void
+	 */ 
+	protected function purge_object_cache() {
+		global $wp_object_cache;
+
+		if ( is_object( $wp_object_cache ) ) {
+			try {
+				wp_cache_flush();
+			} catch ( Exception $ex ) {
+				// Do nothing.
+			}
+		}
+	}   
 
 	/**
 	 * Handles resetting caches.

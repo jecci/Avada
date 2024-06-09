@@ -67,6 +67,21 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					values.width = Math.round( parseInt( params.height ) * 16 / 9 );
 				}
 
+				let autoplay = ( 'true' == values.autoplay || 'yes' === values.autoplay ) ? 'autoplay=1' : 'autoplay=0';
+
+				if ( 'undefined' !== typeof values.start_time && '' !== values.start_time ) {
+					if ( -1 === values.api_params.indexOf( '#L=' ) ) {
+						const dateObject = new Date( values.start_time * 1000 ),
+							hours        = dateObject.getUTCHours(),
+							minutes      = dateObject.getUTCMinutes(),
+							seconds      = dateObject.getSeconds();
+
+						autoplay += '#t=' + String( hours ).padStart( 2, '0' ) + 'h' + String( minutes ).padStart( 2, '0' ) + 'm' + String( seconds ).padStart( 2, '0' ) + 's';
+					}
+				}
+
+				values.api_params = autoplay + values.api_params;
+
 				values.height = _.fusionValidateAttrValue( values.height, '' );
 				values.width  = _.fusionValidateAttrValue( values.width, '' );
 

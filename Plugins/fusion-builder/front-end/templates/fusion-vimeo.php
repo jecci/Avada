@@ -13,7 +13,7 @@
 <# } else { #>
 	<div {{{ _.fusionGetAttributes( attr ) }}}>
 		<div class="video-shortcode">
-			<iframe title="{{ title_attribute }}" src="https://player.vimeo.com/video/{{ values.id }}?autoplay=0{{ values.api_params }}" width="{{ values.width }}" height="{{ values.height }}" allowfullscreen></iframe>
+			<iframe title="{{ title_attribute }}" src="https://player.vimeo.com/video/{{ values.id }}?{{ values.api_params }}" width="{{ values.width }}" height="{{ values.height }}" allowfullscreen></iframe>
 		</div>
 	</div>
 <# } #>

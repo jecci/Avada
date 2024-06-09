@@ -654,11 +654,20 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 							} elseif ( 'not_exists' === $defaults['custom_field_comparison'] ) {
 								$meta_query['compare'] = 'NOT EXISTS';
 							} elseif ( 'equals' === $defaults['custom_field_comparison'] ) {
-								$meta_query['compare'] = '=';
-								$meta_query['value']   = $defaults['custom_field_value'];
+								$meta_query['compare']      = '=';
+								$meta_query['value']        = $defaults['custom_field_value'];
+
+								// Handling of serialized data (like ACF checkboxes).
+								$meta_query_like            = $meta_query;
+								$meta_query_like['compare'] = 'LIKE';
+								$meta_query                 = [
+									'relation' => 'OR',
+									$meta_query,
+									$meta_query_like
+								];
 							}
 
-							$args['meta_query'] = [ $meta_query ]; // phpcs:ignore WordPress.DB.SlowDBQuery
+							$args['meta_query'] = isset( $meta_query['relation'] ) ? $meta_query : [ $meta_query ]; // phpcs:ignore WordPress.DB.SlowDBQuery
 						}
 					} else { // Filter by taxonomy.
 						$post_type_taxonomies = get_object_taxonomies( $defaults['post_type'], 'objects' );
@@ -756,6 +765,26 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					];
 				}
 
+				// Product SKU query params.
+				if ( 'posts' === $defaults['source'] && 'product' === $defaults['post_type'] &&  'product_skus' === $defaults['posts_by'] ) {
+					$args['post_type']    = 'product';
+					
+					if ( ! empty( $defaults['include_product_skus'] ) ) {
+						$args['meta_query'][] = [
+							'key'     => '_sku',
+							'value'   => explode( '|', $defaults['include_product_skus'] ),
+						];
+					}
+
+					if ( ! empty( $defaults['exclude_product_skus'] ) ) {
+						$args['meta_query'][] = [
+							'key'     => '_sku',
+							'value'   => explode( '|', $defaults['exclude_product_skus'] ),
+							'compare' => 'NOT IN',
+						];
+					}
+				}
+
 				// If out of stock are set not to show, hide them.
 				if ( ( ( 'product' === $defaults['post_type'] && 'posts' === $defaults['source'] ) || ( 'terms' !== $defaults['source'] && 'acf_repeater' !== $defaults['source'] ) ) && 'exclude' === $defaults['out_of_stock'] ) {
 					$args['meta_query'][] = [
@@ -825,6 +854,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					$this->defaults[ 'include_' . $args['posts_by'] ] = '';
 					$this->defaults[ 'exclude_' . $args['posts_by'] ] = '';
 				}
+
 				if ( isset( $args['terms_by'] ) ) {
 					$this->defaults[ 'include_term_' . $args['terms_by'] ] = '';
 					$this->defaults[ 'exclude_term_' . $args['terms_by'] ] = '';
@@ -927,6 +957,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 						$GLOBALS['wp_query']->is_tax               = true;
 						$GLOBALS['wp_query']->is_archive           = true;
 						$GLOBALS['wp_query']->is_post_type_archive = false;
+						$GLOBALS['wp_query']->is_search            = false;
 
 						ob_start();
 
@@ -1842,7 +1873,12 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 				}
 
 				// Responsive Columns.
-				if ( 'grid' === $this->args['layout'] || 'masonry' === $this->args['layout'] ) {
+				// List view should always be 100%.
+				if ( 'list' === $this->get_product_view() ) {
+					$custom_vars['columns_medium'] = '100%';
+					$custom_vars['columns_small']  = '100%';
+
+				} elseif ( 'grid' === $this->args['layout'] || 'masonry' === $this->args['layout'] ) {
 					foreach ( [ 'medium', 'small' ] as $responsive_size ) {
 						$key = 'columns_' . $responsive_size;
 						if ( ! $this->is_default( $key ) ) {
@@ -1957,6 +1993,10 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 								$this->taxonomy_map[ $post_type->name ] = [ 'all' ];
 							}
 							$this->taxonomy_map[ $post_type->name ][] = $new_taxonomy->name;
+						}
+
+						if ( 'product' === $post_type->name ) {
+							$this->taxonomy_map[ $post_type->name ][] = 'product_skus';
 						}
 
 						$this->taxonomy_map[ $post_type->name ][] = 'awb_custom_field';
@@ -2094,6 +2134,7 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 					$taxonomy_options[ $taxonomy->name ] = ucwords( esc_html( $taxonomy->label ) );
 				}
 
+				$taxonomy_options['product_skus']     = esc_html__( 'Product SKUs', 'fusion-builder' );
 				$taxonomy_options['awb_custom_field'] = esc_html__( 'Custom Field', 'fusion-builder' );
 
 				return [
@@ -2251,6 +2292,76 @@ if ( fusion_is_element_enabled( 'fusion_post_cards' ) ) {
 			}
 
 			/**
+			 * Fetch taxonomy options.
+			 *
+			 * @access protected
+			 * @since 3.11.8
+			 * @return string
+			 */
+			public function fetch_product_sku_options() {
+				$options    = [];
+				
+				if ( post_type_exists( 'product' ) ) {
+					$options = [
+						[
+							'type'        => 'sortable_text',
+							'heading'     => esc_html__( 'Include Products by SKU', 'fusion-builder' ),
+							'description' => esc_html__( 'Add the SKUs of the products to include or leave empty to include all products with .', 'fusion-builder' ),
+							'add_label'   => esc_html__( 'Add SKU', 'fusion-builder' ),
+							'placeholder' => esc_html__( 'Product SKUs', 'fusion-builder' ),
+							'param_name'  => 'include_product_skus',
+							'is_sortable' => 0,
+							'callback'    => [
+								'function' => 'fusion_ajax',
+								'action'   => 'get_fusion_post_cards',
+								'ajax'     => true,
+							],							
+							'dependency'  => [
+								[
+									'element'  => 'posts_by',
+									'value'    => 'product_skus',
+									'operator' => '==',
+								],
+								[
+									'element'  => 'source',
+									'value'    => 'posts',
+									'operator' => '==',
+								],
+							],
+						],
+						[
+							'type'        => 'sortable_text',
+							'heading'     => esc_html__( 'Exclude Products by SKU', 'fusion-builder' ),
+							'description' => esc_html__( 'Add the SKUs of the products to exclude.', 'fusion-builder' ),
+							'add_label'   => esc_html__( 'Add SKU', 'fusion-builder' ),
+							'placeholder' => esc_html__( 'Product SKUs', 'fusion-builder' ),
+							'param_name'  => 'exclude_product_skus',
+							'is_sortable' => 0,
+							'callback'    => [
+								'function' => 'fusion_ajax',
+								'action'   => 'get_fusion_post_cards',
+								'ajax'     => true,
+							],							
+							'dependency'  => [
+								[
+									'element'  => 'posts_by',
+									'value'    => 'product_skus',
+									'operator' => '==',
+								],
+								[
+									'element'  => 'source',
+									'value'    => 'posts',
+									'operator' => '==',
+								],
+							],
+						],
+					];
+				}
+
+				return $options;
+			}
+
+			/**
 			 * Fetch post meta options.
 			 *
 			 * @return array
@@ -2369,14 +2480,15 @@ function fusion_element_post_cards() {
 	$fusion_settings = awb_get_fusion_settings();
 	$editing         = function_exists( 'is_fusion_editor' ) && is_fusion_editor();
 
-	$post_type_option  = [];
-	$post_type_options = [];
-	$taxonomy_options  = [];
-	$filter_option     = [];
-	$meta_options      = [];
-	$post_terms_option = [];
-	$layouts_permalink = [];
-	$layouts           = [
+	$post_type_option    = [];
+	$post_type_options   = [];
+	$taxonomy_options    = [];
+	$product_sku_options = [];
+	$filter_option       = [];
+	$meta_options        = [];
+	$post_terms_option   = [];
+	$layouts_permalink   = [];
+	$layouts             = [
 		'0' => esc_attr__( 'None', 'fusion-builder' ),
 	];
 
@@ -2408,12 +2520,13 @@ function fusion_element_post_cards() {
 
 		// We only need options if element is active so check here is safe.
 		if ( function_exists( 'fusion_post_cards' ) ) {
-			$post_cards        = fusion_post_cards();
-			$post_type_option  = $post_cards->fetch_post_type_option();
-			$post_terms_option = $post_cards->fetch_post_terms_option();
-			$filter_option     = $post_cards->fetch_post_filter_option();
-			$taxonomy_options  = $post_cards->fetch_post_taxonomy_options();
-			$meta_options      = $post_cards->fetch_post_meta_options();
+			$post_cards           = fusion_post_cards();
+			$post_type_option     = $post_cards->fetch_post_type_option();
+			$post_terms_option    = $post_cards->fetch_post_terms_option();
+			$filter_option        = $post_cards->fetch_post_filter_option();
+			$taxonomy_options     = $post_cards->fetch_post_taxonomy_options();
+			$product_sku_options  = $post_cards->fetch_product_sku_options();
+			$meta_options         = $post_cards->fetch_post_meta_options();
 		}
 	}
 
@@ -2548,6 +2661,10 @@ function fusion_element_post_cards() {
 
 	foreach ( $taxonomy_options as $taxonomy_option ) {
 		$params[] = $taxonomy_option;
+	}
+
+	foreach ( $product_sku_options as $product_sku_option ) {
+		$params[] = $product_sku_option;
 	}
 
 	foreach ( $meta_options as $meta_option ) {

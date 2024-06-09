@@ -140,6 +140,17 @@ class Fusion_Builder_Conditional_Render_Helper {
 						],
 					],
 					[
+						'id'          => 'referrer',
+						'title'       => esc_html__( 'Referrer', 'fusion-builder' ),
+						'placeholder' => esc_attr__( 'Referrer URL', 'fusion-builder' ),
+						'type'        => 'text',
+						'comparisons' => [
+							'equal'     => esc_attr__( 'Equal To', 'fusion-builder' ),
+							'not-equal' => esc_attr__( 'Not Equal To', 'fusion-builder' ),
+							'contains'  => esc_attr__( 'Contains', 'fusion-builder' ),
+						],
+					],
+					[
 						'id'          => 'user_role',
 						'title'       => esc_html__( 'User Role', 'fusion-builder' ),
 						'type'        => 'select',
@@ -231,6 +242,16 @@ class Fusion_Builder_Conditional_Render_Helper {
 							'not-equal'    => esc_attr__( 'Not Equal To', 'fusion-builder' ),
 							'greater-than' => esc_attr__( 'Greater Than', 'fusion-builder' ),
 							'less-than'    => esc_attr__( 'Less Than', 'fusion-builder' ),
+						],
+					],
+					[
+						'id'          => 'is_term',
+						'title'       => esc_html__( 'Is Term', 'fusion-builder' ),
+						'type'        => 'text',
+						'placeholder' => esc_attr__( 'Term ID', 'fusion-builder' ),
+						'comparisons' => [
+							'equal'     => esc_attr__( 'Equal To', 'fusion-builder' ),
+							'not-equal' => esc_attr__( 'Not Equal To', 'fusion-builder' ),
 						],
 					],
 					[
@@ -705,10 +726,11 @@ class Fusion_Builder_Conditional_Render_Helper {
 		}
 
 		foreach ( $logics as $logic ) {
-			$check         = [];
-			$operator      = isset( $logic->operator ) ? $logic->operator : '';
-			$comparison    = isset( $logic->comparison ) ? $logic->comparison : '';
-			$field_name    = isset( $logic->field ) && ! is_null( $logic->field ) ? $logic->field : '';
+			$check      = [];
+			$operator   = isset( $logic->operator ) ? $logic->operator : '';
+			$comparison = isset( $logic->comparison ) ? $logic->comparison : '';
+			$field_name = isset( $logic->field ) && ! is_null( $logic->field ) ? $logic->field : '';
+
 			$desired_value = isset( $logic->value ) ? $logic->value : '';
 			$additionals   = isset( $logic->additionals ) ? $logic->additionals : '';
 			$current_value = self::get_value( $field_name, $desired_value, $additionals );
@@ -888,6 +910,13 @@ class Fusion_Builder_Conditional_Render_Helper {
 				} else {
 					return null;
 				}
+			case 'is_term':
+				$queried_object = get_queried_object();
+				if ( ( is_archive() || is_tax() ) && isset( $queried_object->term_id ) ) {
+					return $queried_object->term_id;
+				} else {
+					return 0;
+				}
 			case 'comments_status':
 				return comments_open() ? 'open' : 'closed';
 			case 'comments_count':
@@ -923,6 +952,9 @@ class Fusion_Builder_Conditional_Render_Helper {
 
 			case 'user_agent':
 				return isset( $_SERVER['HTTP_USER_AGENT'] ) ? wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+			case 'referrer':
+				return wp_get_referer();
 
 			case 'user_role':
 				$user = wp_get_current_user();

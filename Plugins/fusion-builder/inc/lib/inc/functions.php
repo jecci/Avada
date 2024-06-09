@@ -1279,8 +1279,6 @@ if ( ! function_exists( 'fusion_reset_all_caches' ) ) {
 
 		$fusion_cache = new Fusion_Cache();
 		$fusion_cache->reset_all_caches( $delete_cache );
-
-		wp_cache_flush();
 	}
 }
 

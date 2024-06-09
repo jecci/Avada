@@ -607,10 +607,10 @@ class AWB_Off_Canvas_Front_End extends AWB_Layout_Conditions {
 		if ( 'sliding-bar' !== $options['type'] ) {
 			return $options;
 		}
-		$options['enter_animation']          = $options['sb_enter_animation'];
-		$options['sb_enter_animation_speed'] = $options['sb_enter_animation_speed'];
-		$options['exit_animation']           = $options['sb_exit_animation'];
-		$options['sb_exit_animation_speed']  = $options['sb_exit_animation_speed'];
+		$options['enter_animation']       = $options['sb_enter_animation'];
+		$options['enter_animation_speed'] = $options['sb_enter_animation_speed'];
+		$options['exit_animation']        = $options['sb_exit_animation'];
+		$options['exit_animation_speed']  = $options['sb_exit_animation_speed'];
 
 		if ( 'left' === $options['position'] ) {
 			$options['height']                    = 'full';

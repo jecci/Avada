@@ -330,6 +330,23 @@ if ( ! class_exists( 'Fusion_Woo_Products_Component' ) ) {
 				$js_folder_path   = Avada::$template_dir_path . $js_folder_suffix;
 				$version          = Avada::get_theme_version();
 
+				if ( Avada()->settings->get( 'woocommerce_enable_quick_view' ) ) {
+					Fusion_Dynamic_JS::enqueue_script(
+						'awb-woo-quick-view',
+						$js_folder_url . '/general/awb-woo-quick-view.js',
+						$js_folder_path . '/general/awb-woo-quick-view.js',
+						[ 'jquery', 'fusion-flexslider' ],
+						$version,
+						true
+					);
+
+					Fusion_Dynamic_JS::localize_script(
+						'awb-woo-quick-view',
+						'avadaWooCommerceVars',
+						$avada_woocommerce::get_avada_wc_vars()
+					);
+				}
+
 				Fusion_Dynamic_JS::enqueue_script(
 					'avada-woo-products',
 					$js_folder_url . '/general/avada-woo-products.js',

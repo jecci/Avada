@@ -394,24 +394,7 @@ if ( null === FusionBuilder()->registration ) {
 				</div>
 			</section>
 
-			<section class="avada-db-card">
-				<div class="fusion-builder-option">
-					<div class="fusion-builder-option-title">
-						<h2><?php esc_html_e( 'Role Manager', 'fusion-builder' ); ?></h2>
-						<span class="fusion-builder-option-label">
-							<p>
-								<?php esc_html_e( 'Manage access to various Avada components based on user roles.', 'fusion-builder' ); ?>
-							</p>
-						</span>
-					</div>
-
-					<div class="fusion-builder-option-field">
-						<?php
-						AWB_Access_Control::display_options();
-						?>
-					</div>
-				</div>
-			</section>
+			<?php do_action( 'awb_add_builder_options_section' ); ?>
 
 			<?php
 			$awb_layout_order = '';

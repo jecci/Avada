@@ -55,9 +55,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				} );
 
 				values.margin_bottom = _.fusionValidateAttrValue( values.margin_bottom, 'px' );
-				values.margin_left   = _.fusionValidateAttrValue( values.margin_left, 'px' );
-				values.margin_right  = _.fusionValidateAttrValue( values.margin_right, 'px' );
+				values.margin_left   = 'center' === values.alignment ? 'auto' : _.fusionValidateAttrValue( values.margin_left, 'px' );
+				values.margin_right  = 'center' === values.alignment ? 'auto' : _.fusionValidateAttrValue( values.margin_right, 'px' );
 				values.margin_top    = _.fusionValidateAttrValue( values.margin_top, 'px' );
+
 			},
 
 			/**
@@ -72,6 +73,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					class: 'fusion-audio',
 					style: ''
 				} );
+
+				if ( '' !== values.alignment ) {
+					attr[ 'class' ] += ' fusion-align' + values.alignment;
+				}
 
 				if ( 'dark' === values.controls_color_scheme ) {
 					attr[ 'class' ] += ' dark-controls';
@@ -120,6 +125,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				// Box shadow.
 				if ( 'yes' === values.box_shadow ) {
 					customVars[ 'box-shadow' ] = _.fusionGetBoxShadowStyle( values );
+				}
+
+				if ( '' !== values.alignment ) {
+					customVars.width = '100%';
 				}
 
 				cssVarsOptions = [
