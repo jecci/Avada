@@ -4,7 +4,7 @@
   - "refs/heads/mainAvada"
   fail_on_prepare_env_warning: true
   actions:
-  - action: "FTP Theme to cardoorprotectors_com"
+  - action: "FTP to Test1"
     type: "FTP"
     local_path: "/Plugins/"
     remote_path: "/test1/"
