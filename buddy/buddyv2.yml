@@ -7,9 +7,8 @@
   - action: "[\t185.151.30.193] Execute rm -rf $TARGET_DIR"
     type: "SSH_COMMAND"
     login: "landstack.io"
-    host: "\t185.151.30.193"
-    env_key: "secure!2wMoQkz9RLjZ5NPmD7olXg==.QewOgjhftQ1mArq0nODcHw=="
-    authentication_mode: "ENV_KEY"
+    password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
+    host: "ftp.us.stackcp.com"
     commands:
     - "#!/bin/bash"
     - ""
