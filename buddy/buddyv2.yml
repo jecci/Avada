@@ -1,7 +1,7 @@
 - pipeline: "Pipeline_UpdateAvada"
   on: "CLICK"
   refs:
-  - "refs/heads/mainAvada"
+  - ":default"
   fail_on_prepare_env_warning: true
   actions:
   - action: "FTP to Test1"
