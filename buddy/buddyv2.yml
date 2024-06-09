@@ -11,7 +11,7 @@
     - "#!/bin/bash"
     - ""
     - "# Variables"
-    - "SOURCE_DIR=\"/home/sites/17a/5/573f5868ea/test1/\""
+    - "SOURCE_DIR=\"/test1/\""
     - "TARGET_REPO=\"https://github.com/jecci/Avada.git\""
     - "TARGET_DIR=\"/20i/\""
     - ""
