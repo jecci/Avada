@@ -11,6 +11,13 @@
     login: "landstack.io"
     password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
     host: "ftp.us.stackcp.com"
+  - action: "FTP to Automation Theme-1"
+    type: "FTP"
+    local_path: "/AvadaTheme"
+    remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
+    login: "landstack.io"
+    password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
+    host: "ftp.us.stackcp.com"
   - action: "FTP to Test2_baby"
     type: "FTP"
     disabled: true
