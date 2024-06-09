@@ -4,6 +4,13 @@
   - ":default"
   fail_on_prepare_env_warning: true
   actions:
+  - action: "wp @dev rewrite flush"
+    type: "WP_CLI"
+    version: "cli"
+    execute_commands:
+    - "wp @dev rewrite flush"
+    setup_commands:
+    - "wp plugin install contact-form-7 --activate"
   - action: "FTP to Test1"
     type: "FTP"
     local_path: "/Plugins/"
