@@ -11,7 +11,7 @@
     login: "landstack.io"
     password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
     host: "ftp.us.stackcp.com"
-  - action: "Transfer to ftp.us.stackcp.com Plugins"
+  - action: "FTP to Test2/baby"
     type: "FTP"
     local_path: "/Plugins/"
     remote_path: "/test2/baby/"
