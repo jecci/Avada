@@ -11,7 +11,7 @@
     login: "landstack.io"
     password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
     host: "ftp.us.stackcp.com"
-  - action: "FTP to Automation Theme-1"
+  - action: "FTP to Automationset Fusion-Core"
     type: "FTP"
     local_path: "/AvadaTheme"
     remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
