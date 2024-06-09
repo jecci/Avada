@@ -21,6 +21,7 @@
     host: "ftp.us.stackcp.com"
   - action: "FTP to Test2_baby"
     type: "FTP"
+    disabled: true
     local_path: "/Plugins/"
     remote_path: "/test2/baby/"
     login: "landstack.io"
