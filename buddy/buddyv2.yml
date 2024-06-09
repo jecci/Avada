@@ -13,7 +13,7 @@
     host: "ftp.us.stackcp.com"
   - action: "FTP to Automationset Fusion-Core"
     type: "FTP"
-    local_path: "/AvadaTheme"
+    local_path: "/Plugins"
     remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
     login: "landstack.io"
     password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
