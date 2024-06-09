@@ -404,8 +404,8 @@ class FusionCore_Plugin {
 					],
 					'public'       => true,
 					'has_archive'  => true,
-					'show_ui'      => apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_portfolio' ),
-					'show_in_menu' => apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_portfolio' ),
+					'show_ui'      => apply_filters( 'awb_role_manager_access_capability', true, 'avada_portfolio' ),
+					'show_in_menu' => apply_filters( 'awb_role_manager_access_capability', true, 'avada_portfolio' ),
 					'rewrite'      => [
 						'slug' => $fusion_settings_array['portfolio_slug'],
 					],
@@ -483,8 +483,8 @@ class FusionCore_Plugin {
 					],
 					'public'       => true,
 					'has_archive'  => true,
-					'show_ui'      => apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_faq' ),
-					'show_in_menu' => apply_filters( 'awb_dashboard_menu_cpt', true, 'avada_faq' ),
+					'show_ui'      => apply_filters( 'awb_role_manager_access_capability', true, 'avada_faq' ),
+					'show_in_menu' => apply_filters( 'awb_role_manager_access_capability', true, 'avada_faq' ),
 					'rewrite'      => [
 						'slug' => $fusion_settings_array['faq_slug'],
 					],
@@ -502,7 +502,10 @@ class FusionCore_Plugin {
 					'hierarchical' => true,
 					'label'        => __( 'FAQ Categories', 'fusion-core' ),
 					'query_var'    => true,
-					'rewrite'      => true,
+					'rewrite'      => [
+						'slug'       => empty( $permalinks['faq_category_base'] ) ? _x( 'faq_category', 'slug', 'fusion-core' ) : $permalinks['faq_category_base'],
+						'with_front' => false,
+					],
 					'show_in_rest' => true,
 				]
 			);

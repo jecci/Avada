@@ -140,15 +140,27 @@ if ( ! class_exists( 'Fusion_Portfolio' ) ) {
 		/**
 		 * Add image sizes.
 		 *
+		 * @since 1.0
 		 * @access  public
+		 * @return void.
 		 */
 		public function add_image_size() {
-			add_image_size( 'portfolio-full', 940, 400, true );
-			add_image_size( 'portfolio-one', 540, 272, true );
-			add_image_size( 'portfolio-two', 460, 295, true );
-			add_image_size( 'portfolio-three', 300, 214, true );
-			add_image_size( 'portfolio-five', 177, 142, true );
-		}
+			$available_image_size = class_exists( 'Avada' ) ? Avada()->settings->get( 'awb_image_sizes' ) : false;
+
+			$image_sizes = [
+				'portfolio-full'  => [ 940, 400, true ],
+				'portfolio-one'   => [ 540, 272, true ],
+				'portfolio-two'   => [ 460, 295, true ],
+				'portfolio-three' => [ 300, 214, true ],
+				'portfolio-five'  => [ 177, 142, true ],
+			];
+
+			foreach( $image_sizes as $size => $params ) {
+				if ( ! is_array( $available_image_size ) || in_array( $size, $available_image_size ) ) {
+					add_image_size( $size, implode( ',', $params ) );
+				}
+			}
+		}		
 
 		/**
 		 * Load portfolio archive template from FC.
