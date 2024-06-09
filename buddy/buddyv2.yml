@@ -4,7 +4,7 @@
   - ":default"
   fail_on_prepare_env_warning: true
   actions:
-  - action: "FTP to Automation Theme"
+  - action: "FTP to Automationset Theme"
     type: "FTP"
     local_path: "/AvadaTheme"
     remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
