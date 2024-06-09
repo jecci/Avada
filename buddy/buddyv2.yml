@@ -15,7 +15,7 @@
   - action: "FTP to Automationset Fusion-Core"
     type: "FTP"
     local_path: "/Plugins/fusion-core"
-    remote_path: "/automationset_com/public_html/wp-content/themes/Avada/"
+    remote_path: "/test1/"
     login: "landstack.io"
     password: "secure!y8EVoTOE1VkGBx/QyD2emQ==.n4QZyhoUhRKSgkQVfP27og=="
     host: "ftp.us.stackcp.com"
